@@ -1,7 +1,8 @@
 # ignore datasets
-Data/
+data/
 *.wav
 *metadata.csv
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
