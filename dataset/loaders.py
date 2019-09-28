@@ -33,7 +33,7 @@ def my_blizzard(root_path, meta_files=None):
     transcript_files.sort()
     folders = [os.path.dirname(f) for f in transcript_files]
     items = []
-    speaker_name = "my_blizzard"
+    speaker_name = ""
     for idx, transcript in enumerate(transcript_files):
         folder = folders[idx]        
         filename = os.path.splitext(os.path.basename(transcript))[0]
@@ -53,12 +53,13 @@ def ljspeech(root_path, meta_file=None):
     if meta_file is None: txt_file = os.path.join(root_path, "metadata.csv")
     assert os.path.isfile(txt_file), (f'Dataset meta-file not found: given given {txt_file}')  
     items = []
-    speaker_name = "ljspeech"
+    speaker_name = ""
     with open(txt_file, 'r') as ttf:
         for line in ttf:
-            cols = line.split('|')
-            audio = os.path.join(root_path, 'wavs', cols[0] + '.wav')
+            cols = line[:-1].split('|')
+            audio = os.path.join('wavs', cols[0] + '.wav')
+            full_audio = os.path.join(root_path, audio)
             text = cols[2]
-            if os.path.isfile(audio): items.append([text, audio, speaker_name])
-            else: raise RuntimeError("> File %s does not exist!"%(audio))  
+            if os.path.isfile(full_audio): items.append([text, audio, speaker_name])
+            else: raise RuntimeError("> File %s does not exist!"%(full_audio))  
     return items
