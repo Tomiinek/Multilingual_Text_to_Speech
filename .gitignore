@@ -1,5 +1,7 @@
 # ignore datasets
 data/
+logs/
+checkpoints/
 *.wav
 *metadata.csv
 .vscode

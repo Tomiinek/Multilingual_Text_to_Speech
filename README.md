@@ -31,13 +31,19 @@
 - [x] ~~crowdsourcing~~
 - [x] make familiar with Griffin-Lim
 - [x] Tacotron - explore some opensource implementations - Ito, r9y9 a NVIDIA
-- [ ] (WIP) write own implementation of Tacotron (2)
-- [ ] radio
+- [x] write own implementation of Tacotron (2)
+    - [ ] Rectified Adam
+    - [ ] Cyclic scheduler
+    - [ ] Guided Attention Loss
+    - [ ] bigger batch size during inference?
+    - [ ] Forward Attention in Sequence-to-sequence Acoustic Modelling for Speech Synthesis
+- [x] radio
+- [ ] implement GMVAE-Tacotron2 paper
+- [ ] english vanilla
+- [ ] czech vanilla
 
 ### Long short-term
 
-- [ ] english vanilla
-- [ ] czech vanilla
 - [ ] is it real to train WeveNet / WaveRNN / WaveGlow?
 - [ ] https://www.readbeyond.it/ebooks.html has some audiobooks
 
@@ -48,6 +54,7 @@
 - [ ] GMVAE ... looks much more better than the GST papers 
 - [ ] transfer learning from english Tacotron to other languages
 - [ ] context, TTS of longer text and MOS of multiple sentences or paragraphs with interpunction ...
+- [ ] It would be interesting to explore the trade-off between the number of mel frequency bins versus audio quality in future work.
 
 ## Notes:
 
