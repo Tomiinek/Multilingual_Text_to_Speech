@@ -3,13 +3,15 @@ import string
 
 from phonemizer.separator import Separator
 from phonemizer.phonemize import phonemize
-from training.params import Params as hp
+from params.params import Params as hp
+from utils.logging import Logger
 
 
-_pad = '_'    # padding of the sequences to align text in batches to the same length
+_pad = '_'    # a dummy character for padding sequences to align text in batches to the same length
 _eos = '~'    # character which marks the end of a sequnce, further characters are invalid
 _unk = '@'    # symbols which are not in hp.characters and are present are substituted by this
 
+# make sure pad is first (as we would like to do zero-padding)
 _other_symbols = [_pad, _eos, _unk] + list(hp.punctuations_in) + list(hp.punctuations_out)
 _char_to_id = {s: i for i, s in enumerate(_other_symbols + list(hp.characters))}
 _id_to_char = {i: s for i, s in enumerate(_other_symbols + list(hp.characters))}
@@ -17,39 +19,66 @@ _phon_to_id = {s: i for i, s in enumerate(_other_symbols + list(hp.phonemes))}
 _id_to_phon = {i: s for i, s in enumerate(_other_symbols + list(hp.phonemes))}
 
 
-def to_phoneme(utterance):
-    '''Convert graphemes of the utterance without new line to phonemes.'''
-    clear_utterance = remove_punctuation(utterance)
-    if not hp.use_punctuation: return _phonemize(clear_utterance)[:-1]
-    else:
-        # TODO: phonemizing word by word is very slow, instead, we should build a dictionary
-        #       of all words in the dataset and phonemize the dictionary 
-        clear_words = clear_utterance.split()
-        phonemes = [_phonemize(w)[:-1] for w in clear_words]
-        in_word = False
-        punctuation_seen = False
-        utterance_phonemes = ""
-        clear_offset = word_idx = 0
-        for idx, char in enumerate(utterance):
-            # encountered non-punctuation char
-            if idx - clear_offset < len(clear_utterance) and char == clear_utterance[idx - clear_offset]:
-                if not in_word:
-                    if char in string.whitespace: 
-                        punctuation_seen = False
-                        continue
-                    in_word = True
-                    utterance_phonemes += (' ' if idx != 0 and not punctuation_seen else '') + phonemes[word_idx]
-                    word_idx += 1 
-                else: 
-                    if char in string.whitespace: in_word = False 
-                punctuation_seen = False           
-            # this should be punctuation
-            else:
-                clear_offset += 1
-                if in_word and char in hp.punctuations_in: continue
-                utterance_phonemes += (' ' if not in_word and not punctuation_seen else '') + char
-                punctuation_seen = True
-        return utterance_phonemes
+def build_phoneme_dict(texts):
+    '''Create a dictionary of words (from a list of texts) with IPA equivalents.'''
+    dictionary = {}
+    Logger.progress(0 / len(texts), prefix='Building phoneme dictionary:')
+    for i, t in enumerate(texts):
+        clear_words = remove_punctuation(t).split()
+        for w in clear_words:
+            if w in dictionary: continue
+            dictionary[w] = _phonemize(w)[:-1]
+        Logger.progress((i+1) / len(texts), prefix='Building phoneme dictionary:')
+    return dictionary
+    
+
+def to_phoneme(text, ignore_punctuation, phoneme_dictionary=None):
+    '''Convert graphemes of the utterance without new line to phonemes.
+    
+    Keyword arguments:
+        text (string): The text to be translated into IPA.
+        ignore_punctuation (bool): Set to False if the punctuation should be preserved.
+        phoneme_dictionary (default None): A dictionary of words with IPA equivalents, used to 
+            speed up the translation which preserves punctuation (because the used phonemizer
+            cannot handle punctuation properly, so we need to do it word by word).
+    '''
+    
+    clear_text = remove_punctuation(text)
+    if ignore_punctuation: 
+        return _phonemize(clear_text)[:-1]
+    
+    # phonemize words of the input text
+    clear_words = clear_text.split()
+    if not phoneme_dictionary: phoneme_dictionary = {}
+    phonemes = []
+    for w in clear_words:
+        phonemes.append(phoneme_dictionary[w] if w in phoneme_dictionary else _phonemize(w)[:-1])
+    # add punctuation to match the punctuation in the input 
+    in_word = False
+    punctuation_seen = False
+    text_phonemes = ""
+    clear_offset = word_idx = 0
+    for idx, char in enumerate(text):
+        # encountered non-punctuation char
+        if idx - clear_offset < len(clear_text) and char == clear_text[idx - clear_offset]:
+            if not in_word:
+                if char in string.whitespace: 
+                    punctuation_seen = False
+                    continue    
+                in_word = True
+                text_phonemes += (' ' if idx != 0 and not punctuation_seen else '') + phonemes[word_idx]
+                word_idx += 1 
+            else: 
+                if char in string.whitespace: in_word = False 
+            punctuation_seen = False           
+        # this should be punctuation
+        else:
+            clear_offset += 1
+            if in_word and char in hp.punctuations_in: continue
+            text_phonemes += (' ' if not in_word and not punctuation_seen else '') + char
+            punctuation_seen = True
+
+    return text_phonemes
 
 
 def _phonemize(text):
@@ -71,25 +100,25 @@ def remove_odd_whitespaces(text):
 
 def remove_punctuation(text):
     '''Remove punctuation from text.'''
-    punct_re = '[' + hp.punctuations_in + hp.punctuations_out + ']'
+    punct_re = '[' + hp.punctuations_out + hp.punctuations_in + ']'
     return re.sub(punct_re.replace('-', '\-'), '', text)
 
 
-def to_sequence(text):
+def to_sequence(text, use_phonemes=False):
     '''Converts a string of text to a sequence of IDs corresponding to the symbols in the text.'''
-    transform_dict = _phon_to_id if hp.use_phonemes else _char_to_id
-    sequence = [_unk if c not in transform_dict else transform_dict[c] for c in text]
-    sequence.append(_eos)
+    transform_dict = _phon_to_id if use_phonemes else _char_to_id
+    sequence = [transform_dict[_unk] if c not in transform_dict else transform_dict[c] for c in text]
+    sequence.append(transform_dict[_eos])
     return sequence
 
 
-def to_text(sequence):
+def to_text(sequence, used_phonemes=False):
     '''Converts a sequence of IDs back to a string'''
-    transform_dict = _id_to_phon if hp.use_phonemes else _id_to_char
+    transform_dict = _id_to_phon if used_phonemes else _id_to_char
     result = ''
     for symbol_id in sequence:
-        if symbol_id == _eos: break
         if symbol_id in transform_dict:
             s = transform_dict[symbol_id]
+            if s == _eos: break
             result += s
     return result

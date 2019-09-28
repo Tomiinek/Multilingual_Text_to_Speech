@@ -6,7 +6,7 @@ import librosa.feature
 import librosa.effects
 import soundfile as sf
 
-from training.params import Params as hp
+from params.params import Params as hp
 
 
 def load(path):

@@ -15,12 +15,48 @@ class Params:
             members = [attr for attr in dir(Params) if not callable(getattr(Params, attr)) and not attr.startswith("__")]
             json.dump({ k: Params.__dict__[k] for k in members }, f, indent=4)
 
+    @staticmethod
+    def symbols_count():
+        symbols_count = len(Params.characters)
+        if Params.use_phonemes: symbols_count = len(Params.phonemes)
+        if Params.use_punctuation: symbols_count += len(Params.punctuations_out) + len(Params.punctuations_in)
+        return symbols_count
+
+    version = "1.0"
+
+    # TRAINING:
+    epochs = 10 
+    batch_size = 2
+    learning_rate = 1e-3
+    learning_rate_decay = 0.93
+    weight_decay = 1e-6
+    max_input_length = 500
+    max_output_length = 5000
+    cudnn_enabled = False
+    gradient_clipping = 5
+
+    # MODEL:
+
+    embedding_dimension = 512
+    encoder_dimension = 512
+    encoder_blocks = 3
+    encoder_kernel_size = 5
+    prenet_dimension = 256
+    prenet_layers = 2
+    attention_dimension = 128
+    attention_kernel_size = 31
+    attention_location_dimension = 1024
+    decoder_dimension = 1024
+    postnet_dimension = 512
+    postnet_blocks = 5
+    postnet_kernel_size = 5
+    dropout = 0.5
+    zoneout_hidden = 0.1
+    zoneout_cell = 0.1
+
     # DATASET:
     
-    dataset = 'ljspeech'
     cache_spectrograms = True
-    cache_phonemes = True
-    sort_by_length = False
 
     # TEXT:
 
@@ -31,7 +67,7 @@ class Params:
     remove_multiple_wspaces = False 
     characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
     # all phonemes of IPA: 'iyɨʉɯuɪʏʊeøɘəɵɤoɛœɜɞʌɔæɐaɶɑɒᵻʘɓǀɗǃʄǂɠǁʛpbtdʈɖcɟkɡqɢʔɴŋɲɳnɱmʙrʀⱱɾɽɸβfvθðszʃʒʂʐçʝxɣχʁħʕhɦɬɮʋɹɻjɰlɭʎʟˈˌːˑʍwɥʜʢʡɕʑɺɧ ɚ˞ɫ'
-    phonemes = 'pbtdkɡfvθðszʃʒhmnŋn̩ll̩rjwʔɪeœɒʌʊiᵻːaɔuəɑɜˌˈ '
+    phonemes = 'ɹɐpbtdkɡfvθðszʃʒhmnŋn̩ll̩rjwʔɪeœɒʌʊiᵻːaɔuəɑɜˌˈ '
     punctuations_out = '"(),.:;?!'
     punctuations_in  = '\'-'
     
@@ -55,4 +91,5 @@ class Params:
 
     use_preemphasis = True
     preemphasis = 0.97
+
     

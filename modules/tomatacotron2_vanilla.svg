@@ -1354,16 +1354,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.9827809"
-     inkscape:cx="430.95182"
-     inkscape:cy="681.919"
+     inkscape:zoom="2.8040756"
+     inkscape:cx="242.04825"
+     inkscape:cy="888.90932"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1080"
+     inkscape:window-height="1053"
      inkscape:window-x="0"
-     inkscape:window-y="304"
+     inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
@@ -1373,7 +1373,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2050,39 +2050,38 @@
            sodipodi:role="line">tanh</tspan></text>
     </g>
     <g
-       id="g8649"
-       transform="translate(-33.312847,1.9557129e-6)">
-      <g
-         transform="translate(-0.44449902,-6.2681561)"
-         id="g8604">
-        <rect
-           style="fill:#578efb;fill-opacity:1;stroke:none;stroke-width:0.12525678;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-           id="rect8026"
-           width="16.78569"
-           height="6.1612625"
-           x="83.083382"
-           y="28.940039" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;font-size:3.05871248px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0878203"
-           x="85.393898"
+       id="g8604"
+       transform="translate(-33.757346,-6.2681541)">
+      <rect
+         y="28.940039"
+         x="83.083382"
+         height="6.1612625"
+         width="16.78569"
+         id="rect8026"
+         style="fill:#578efb;fill-opacity:1;stroke:none;stroke-width:0.12525678;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke" />
+      <text
+         id="text8030"
+         y="33.160969"
+         x="85.393898"
+         style="font-style:normal;font-weight:normal;font-size:3.05871248px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0878203"
+         xml:space="preserve"><tspan
+           style="font-size:3.05871248px;fill:#ffffff;fill-opacity:1;stroke-width:0.0878203"
            y="33.160969"
-           id="text8030"><tspan
-             sodipodi:role="line"
-             id="tspan8028"
-             x="85.393898"
-             y="33.160969"
-             style="font-size:3.05871248px;fill:#ffffff;fill-opacity:1;stroke-width:0.0878203">location</tspan></text>
-      </g>
+           x="85.393898"
+           id="tspan8028"
+           sodipodi:role="line">location</tspan></text>
+    </g>
+    <g
+       id="g1405">
       <text
          id="text8623"
-         y="23.982668"
-         x="82.756096"
+         y="23.98267"
+         x="49.443249"
          style="font-style:normal;font-weight:normal;font-size:5.73508549px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14337714"
          xml:space="preserve"><tspan
            style="font-size:1.52935624px;fill:#ffffff;fill-opacity:1;stroke-width:0.14337714"
-           y="23.982668"
-           x="82.756096"
+           y="23.98267"
+           x="49.443249"
            id="tspan8621"
            sodipodi:role="line">MAX_L×ATT</tspan></text>
     </g>
@@ -3579,5 +3578,19 @@
        id="path23357"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
+    <g
+       id="g1411">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:5.73508549px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14337714"
+         x="49.443249"
+         y="23.98267"
+         id="text1409"><tspan
+           sodipodi:role="line"
+           id="tspan1407"
+           x="49.443249"
+           y="23.98267"
+           style="font-size:1.52935624px;fill:#ffffff;fill-opacity:1;stroke-width:0.14337714">MAX_L×ATT</tspan></text>
+    </g>
   </g>
 </svg>
