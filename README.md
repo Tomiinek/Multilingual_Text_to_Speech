@@ -34,9 +34,8 @@
 - [x] write own implementation of Tacotron (2)
     - [ ] Rectified Adam
     - [ ] Cyclic scheduler
-    - [ ] Guided Attention Loss
-    - [ ] bigger batch size during inference?
-    - [ ] Forward Attention in Sequence-to-sequence Acoustic Modelling for Speech Synthesis
+    - [x] guided attention -- Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention
+    - [x] Forward Attention in Sequence-to-sequence Acoustic Modelling for Speech Synthesis
 - [x] radio
 - [ ] implement GMVAE-Tacotron2 paper
 - [ ] english vanilla
