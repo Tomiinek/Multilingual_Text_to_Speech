@@ -30,10 +30,12 @@ class Params:
     learning_rate = 1e-3
     learning_rate_decay = 0.93
     weight_decay = 1e-6
-    max_input_length = 500
     max_output_length = 5000
     cudnn_enabled = False
     gradient_clipping = 5
+    guided_attention_loss = True
+    guided_attention_toleration = 0.2
+    guided_attention_gain = 1.001
 
     # MODEL:
 
@@ -43,6 +45,7 @@ class Params:
     encoder_kernel_size = 5
     prenet_dimension = 256
     prenet_layers = 2
+    attention_type = "location_sensitive"   # one of: location_sensitive, forward, forward_transition_agent
     attention_dimension = 128
     attention_kernel_size = 31
     attention_location_dimension = 1024
@@ -56,33 +59,39 @@ class Params:
 
     # DATASET:
     
+    dataset = "ljspeech"        # one of: ljspeech, vctk, my_blizzard
     cache_spectrograms = True
 
     # TEXT:
 
-    language = 'en-gb'          # espeak format: phonemize --help
-    use_punctuation = True      # punctuations_{in, out} are valid only if True
-    use_phonemes = False        # phonemes are valind only if True
-    case_sensitive = True
-    remove_multiple_wspaces = False 
     characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
-    # all phonemes of IPA: 'iyɨʉɯuɪʏʊeøɘəɵɤoɛœɜɞʌɔæɐaɶɑɒᵻʘɓǀɗǃʄǂɠǁʛpbtdʈɖcɟkɡqɢʔɴŋɲɳnɱmʙrʀⱱɾɽɸβfvθðszʃʒʂʐçʝxɣχʁħʕhɦɬɮʋɹɻjɰlɭʎʟˈˌːˑʍwɥʜʢʡɕʑɺɧ ɚ˞ɫ'
-    phonemes = 'ɹɐpbtdkɡfvθðszʃʒhmnŋn̩ll̩rjwʔɪeœɒʌʊiᵻːaɔuəɑɜˌˈ '
+    case_sensitive = True
+    remove_multiple_wspaces = True 
+
+    use_punctuation = True      # punctuations_{in, out} are valid only if True
     punctuations_out = '"(),.:;?!'
     punctuations_in  = '\'-'
+
+    use_phonemes = False        # phonemes are valid only if True
+    language = 'en-gb'          # espeak format: phonemize --help
+    # all phonemes of IPA: 'iyɨʉɯuɪʏʊeøɘəɵɤoɛœɜɞʌɔæɐaɶɑɒᵻʘɓǀɗǃʄǂɠǁʛpbtdʈɖcɟkɡqɢʔɴŋɲɳnɱmʙrʀⱱɾɽɸβfvθðszʃʒʂʐçʝxɣχʁħʕhɦɬɮʋɹɻjɰlɭʎʟˈˌːˑʍwɥʜʢʡɕʑɺɧ ɚ˞ɫ'
+    phonemes = 'ɹɐpbtdkɡfvθðszʃʒhmnŋn̩ll̩rjwʔɪeœɒʌʊiᵻːaɔuəɑɜˌˈ '
     
     # AUDIO:
 
+    # ljspeech    - 22050, 2048
+    # vctk        - 48000, 2400
+    # my_blizzard - 44100, 2205
     sample_rate = 22050 
-    stft_window_ms = 50
-    stft_shift_ms = 12.5
     num_fft = 2048
     num_mels = 80
 
+    stft_window_ms = 50
+    stft_shift_ms = 12.5
+    reference_spectrogram_db = 20
+    
     griffin_lim_iters = 50
     griffin_lim_power = 1.5 
-
-    reference_spectrogram_db = 20
 
     normalize_spectrogram = True
     normalize_symetric = True
