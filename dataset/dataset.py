@@ -132,7 +132,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         return melspec
 
     @staticmethod
-    def create_meta_file(dataset_name, dataset_root_dir, output_metafile_name, create_spectrograms=True, create_phonemes=True):
+    def create_meta_file(dataset_name, dataset_root_dir, output_metafile_name, audio_sample_rate, num_fft_freqs, spectrograms=True, phonemes=True):
         """Create metafile and spectrograms or phonemized utterances.
         
         Format details:
@@ -146,16 +146,22 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                 'phonemized_text' can be empty if loading just raw text  
         """
 
+        # save current sample rate and fft freqs hyperparameters, as we may process dataset with different sample rate
+        old_sample_rate = hp.sample_rate
+        hp.sample_rate = audio_sample_rate
+        old_fft_freqs = hp.num_fft
+        hp.num_fft = num_fft_freqs
+
         # load metafiles, an item is a list like: [text, audiopath, speaker_id]
         items = loaders.get_loader_by_name(dataset_name)(dataset_root_dir)
 
         # build dictionary for translation to IPA, see utils.text for details
-        if create_phonemes:
+        if phonemes:
             texts = [i[0] for i in items]
             phoneme_dict = text.build_phoneme_dict(texts)
 
         # prepare directory which will store spectrograms
-        if create_spectrograms:
+        if spectrograms:
             spec_dir = os.path.join(dataset_root_dir, 'spectrograms')
             if not os.path.exists(spec_dir): os.makedirs(spec_dir)
 
@@ -165,13 +171,12 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             Logger.progress(0, prefix='Building metafile:')
             for i in range(len(items)):
                 raw_text, audio_path, speaker = items[i]
-                phonemized_text = text.to_phoneme(raw_text, False, phoneme_dict) if create_phonemes else ""
-                if create_spectrograms:
+                phonemized_text = text.to_phoneme(raw_text, False, phoneme_dict) if phonemes else ""
+                if spectrograms:
                     spec_name = f'{str(i).zfill(6)}.npy'
                     spec_path = os.path.join('spectrograms', spec_name)
                     full_spec_path = os.path.join(spec_dir, spec_name)
-                    if os.path.exists(full_spec_path):
-                        print(f'Warning: {spec_name} already exists, overwriting.')
+                    if os.path.exists(full_spec_path): continue
                     full_audio_path = os.path.join(dataset_root_dir, audio_path)
                     audio_data = audio.load(full_audio_path)
                     melspec = audio.mel_spectrogram(audio_data)
@@ -180,6 +185,10 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                     spec_path = ""
                 print(f'{str(i).zfill(6)}|{speaker}|{audio_path}|{spec_path}|{raw_text}|{phonemized_text}', file=f)
                 Logger.progress((i + 1) / len(items), prefix='Building metafile:')
+        
+        # restore the original sample rate and fft freq values
+        hp.sample_rate = old_sample_rate
+        hp.num_fft = old_fft_freqs
 
 
 class TextToSpeechCollate():

@@ -20,9 +20,10 @@ def vctk(root_path, meta_files=None):
         utterance_id = file_name.split('_')[1]
         with open(meta_file, 'r') as ttf:
             text = ttf.read()        
-            audio = os.path.join(root_path, "wav48", speaker_name, file_name + ".wav")
-            if os.path.isfile(audio): items.append([text, audio, speaker_name])
-            else: raise RuntimeError("> File %s does not exist!"%(audio))
+            audio = os.path.join("wav48", speaker_name, file_name + ".wav")
+            full_audio = os.path.join(root_path, audio)
+            if os.path.isfile(full_audio): items.append([text[:-1], audio, speaker_name])
+            else: raise RuntimeError("> File %s does not exist!"%(full_audio))
     return items
 
 
@@ -39,12 +40,13 @@ def my_blizzard(root_path, meta_files=None):
         filename = os.path.splitext(os.path.basename(transcript))[0]
         with open(transcript, 'r') as ttf:
             for line in ttf:
-                cols = line.split('|')
-                segments_folder = folder.replace("transcripts", "segments")
+                cols = line[:-1].split('|')
+                segments_folder = folder.replace(f"{root_path}/transcripts", "segments")
                 audio = os.path.join(segments_folder, filename + '-' + cols[0] + '.wav')
+                full_audio = os.path.join(root_path, audio)
                 text = cols[1]
-                if os.path.isfile(audio): items.append([text, audio, speaker_name])
-                else: raise RuntimeError("> File %s does not exist!"%(audio))
+                if os.path.isfile(full_audio): items.append([text, audio, speaker_name])
+                else: raise RuntimeError("> File %s does not exist!"%(full_audio))
     return items
 
 
