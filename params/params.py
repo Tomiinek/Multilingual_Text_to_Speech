@@ -26,7 +26,7 @@ class Params:
 
     # TRAINING:
     epochs = 10 
-    batch_size = 2
+    batch_size = 32
     learning_rate = 1e-3
     learning_rate_decay = 0.93
     weight_decay = 1e-6
@@ -48,7 +48,7 @@ class Params:
     attention_type = "location_sensitive"   # one of: location_sensitive, forward, forward_transition_agent
     attention_dimension = 128
     attention_kernel_size = 31
-    attention_location_dimension = 1024
+    attention_location_dimension = 32
     decoder_dimension = 1024
     postnet_dimension = 512
     postnet_blocks = 5
@@ -81,7 +81,7 @@ class Params:
 
     # ljspeech    - 22050, 2048
     # vctk        - 48000, 2400
-    # my_blizzard - 44100, 2205
+    # my_blizzard - 44100, 2250
     sample_rate = 22050 
     num_fft = 2048
     num_mels = 80
