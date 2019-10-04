@@ -20,11 +20,11 @@ class AttentionBase(torch.nn.Module):
         self._memory = Linear(memory_dim, representation_dim, bias=False)
         self._memory_dim = memory_dim
     
-    def reset(self, encoded_input, batch_size, max_len):
+    def reset(self, encoded_input, batch_size, max_len, device):
         """Initialize previous attention weights & prepare attention memory."""
         self._memory_transform = self._memory(encoded_input)   
-        self._prev_weights = torch.zeros(batch_size, max_len)
-        self._prev_context = torch.zeros(batch_size, self._memory_dim)
+        self._prev_weights = torch.zeros(batch_size, max_len, device=device)
+        self._prev_context = torch.zeros(batch_size, self._memory_dim, device=device)
         return self._prev_context
 
     def _attend(self, query, memory_transform, weights):      

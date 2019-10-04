@@ -18,12 +18,12 @@ def to_gpu(x):
 def train(epoch, data, model, optimizer, criterion, attention_criterion=None):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
-    exmaples_done = 0
+    batches_done = 0
     epoch_loss = 0
     start_time = time.time()  
     for i, batch in enumerate(data):      
-        batch = map(to_gpu, batch)     
-        src_len, src, trg_spec, trg_stop, trg_len = list(batch)
+        batch = list(map(to_gpu, batch))
+        src_len, src, trg_spec, trg_stop, trg_len = batch
         optimizer.zero_grad()     
         prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing=True)
         loss = criterion(prediction, residual_prediction, stop, trg_spec, trg_stop, trg_len)
@@ -33,10 +33,10 @@ def train(epoch, data, model, optimizer, criterion, attention_criterion=None):
         torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
         optimizer.step()    
         epoch_loss += loss.item()
-        exmaples_done += batch[0].size(0)
+        batches_done += 1
         if i % args.skip_logging == 0:
-            Logger.training_progress(epoch+1, epoch_loss / len(data), learning_rate, exmaples_done / len(data)) 
-    Logger.training(epoch+1, epoch_loss, learning_rate, int(time.time() - start_time))
+            Logger.training_progress(epoch+1, epoch_loss / batches_done, learning_rate, batches_done / len(data)) 
+    Logger.training(epoch+1, epoch_loss / len(data), learning_rate, int(time.time() - start_time))
 
 
 def evaluate(epoch, data, model, criterion, attention_criterion=None):      
@@ -52,7 +52,7 @@ def evaluate(epoch, data, model, criterion, attention_criterion=None):
             if attention_criterion:
                 loss += attention_criterion(alignment, src_len, trg_len)        
             eval_loss += loss.item() 
-    Logger.evaluation(epoch+1, eval_loss, learning_rate, trg_spec, prediction, trg_stop, torch.sigmoid(stop), alignment)
+    Logger.evaluation(epoch+1, eval_loss / len(data), learning_rate, trg_spec, prediction, trg_stop, torch.sigmoid(stop), alignment)
     return eval_loss
 
 
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     torch.backends.cudnn.benchmark = False
     
     # instantiate model, loss function, optimizer and learning rate scheduler
-    model = Tacotron()
-    if torch.cuda.is_available(): model.cuda()
+    if torch.cuda.is_available(): model = Tacotron().cuda()
+    else: model = Tacotron()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     # TODO: scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr, max_lr)

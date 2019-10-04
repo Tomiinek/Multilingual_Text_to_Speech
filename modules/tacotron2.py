@@ -17,7 +17,10 @@ def get_activation(name):
 
 
 def lengths_to_mask(lengths):
-    return torch.arange(torch.max(lengths))[None, :] < lengths[:, None]
+    #max_len = torch.max(lengths).item()
+    #ids = torch.arange(0, max_len, out=torch.cuda.LongTensor(max_len))
+    #mask = (ids < lengths.unsqueeze(1)).byte()
+    return torch.arange(torch.max(lengths), device=lengths.device)[None, :] < lengths[:, None]
 
 
 class ZoneoutLSTMCell(torch.nn.LSTMCell):
@@ -144,7 +147,7 @@ class Postnet(torch.nn.Module):
 
     def __init__(self, input_dimension, postnet_dimension, num_blocks, kernel_size, dropout):
         super(Postnet, self).__init__()
-        assert num_blocks > 1, ('There must be at least one convolutional block in the post-net.')
+        assert num_blocks > 1, ('There must be at least two convolutional blocks in the post-net.')
         self._convs = Sequential(
             ConvBlock(input_dimension, postnet_dimension, kernel_size, dropout, 'tanh'),
             *[ConvBlock(postnet_dimension, postnet_dimension, kernel_size, dropout, 'tanh')] * (num_blocks - 2),
@@ -192,18 +195,18 @@ class Decoder(torch.nn.Module):
     def _target_init(self, target, batch_size):
         """Prepend target spectrogram with a zero frame and pass it through pre-net."""
         # the F.pad function has some issues: https://github.com/pytorch/pytorch/issues/13058
-        first_frame = torch.zeros(batch_size, self._output_dim).unsqueeze(1)
+        first_frame = torch.zeros(batch_size, self._output_dim, device=target.device).unsqueeze(1)
         target = target.transpose(1, 2) # [B, F, N_MEL]
         target = torch.cat((first_frame, target), dim=1)
         target = self._prenet(target)
         return target
 
-    def _decoder_init(self, batch_size):
+    def _decoder_init(self, batch_size, device):
         """Initialize hidden and cell state of the deocder's RNNs."""
-        h_att = torch.zeros(batch_size, self._decoder_dim)
-        c_att = torch.zeros(batch_size, self._decoder_dim)
-        h_gen = torch.zeros(batch_size, self._decoder_dim)
-        c_gen = torch.zeros(batch_size, self._decoder_dim)
+        h_att = torch.zeros(batch_size, self._decoder_dim, device=device)
+        c_att = torch.zeros(batch_size, self._decoder_dim, device=device)
+        h_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
+        c_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
         return h_att, c_att, h_gen, c_gen
 
     def _decode(self, encoded_input, mask, max_frames, target=None, inference=False):
@@ -212,17 +215,18 @@ class Decoder(torch.nn.Module):
         # attention and decoder states initialization
         batch_size = encoded_input.size(0)
         max_length = encoded_input.size(1)
-        context = self._attention.reset(encoded_input, batch_size, max_length)
-        h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size)      
+        input_device = encoded_input.device
+        context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
+        h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size, input_device)      
         
         # prepare some inference or train specific variables (teacher forcing, max. predicted length)
-        if target is None: frame = torch.zeros(batch_size, self._output_dim)
+        if target is None: frame = torch.zeros(batch_size, self._output_dim, device=input_device)
         else: target = self._target_init(target, batch_size)   
         
         # tensors for storing output
-        spectrogram = torch.zeros(batch_size, max_frames, self._output_dim)
-        alignments = torch.zeros(batch_size, max_frames, max_length)
-        stop_tokens = torch.zeros(batch_size, max_frames, 1)
+        spectrogram = torch.zeros(batch_size, max_frames, self._output_dim, device=input_device)
+        alignments = torch.zeros(batch_size, max_frames, max_length, device=input_device)
+        stop_tokens = torch.zeros(batch_size, max_frames, 1, device=input_device)
         
         # decoding loop
         for i in range(max_frames):
@@ -359,7 +363,7 @@ class TacotronLoss(torch.nn.Module):
         super(TacotronLoss, self).__init__()
 
     def forward(self, predicted_spectrogram, predicted_residual, predicted_stop_token, target_spectrogram, target_stop_token, target_lengths):
-        target_mask = lengths_to_mask(target_lengths).type(torch.FloatTensor)
+        target_mask = lengths_to_mask(target_lengths).float()
         loss = F.binary_cross_entropy_with_logits(predicted_stop_token * target_mask, target_stop_token)
         target_mask = target_mask.unsqueeze(1)
         loss += F.mse_loss(predicted_spectrogram * target_mask, target_spectrogram)
@@ -383,9 +387,10 @@ class GuidedAttentionLoss(torch.nn.Module):
         self._g *= self._gamma
 
     def forward(self, alignments, input_lengths, target_lengths):
+        input_device = alignments.device
         weights = torch.zeros_like(alignments)
         for i, (f, l) in enumerate(zip(target_lengths, input_lengths)):
-            grid_f, grid_l = torch.meshgrid(torch.arange(f, dtype=torch.float), torch.arange(l, dtype=torch.float))
+            grid_f, grid_l = torch.meshgrid(torch.arange(f, dtype=torch.float, device=input_device), torch.arange(l, dtype=torch.float, device=input_device))
             weights[i, :f, :l] = 1 - torch.exp(-(grid_l/l - grid_f/f)**2 / (2 ** self._g)) 
         loss = torch.mean(weights * alignments)
         return loss
