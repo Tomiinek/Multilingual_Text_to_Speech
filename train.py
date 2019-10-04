@@ -10,6 +10,11 @@ from modules.tacotron2 import Tacotron, TacotronLoss, GuidedAttentionLoss
 from utils.logging import Logger
 
 
+def to_gpu(x):
+    x = x.contiguous()
+    return x.cuda(non_blocking=True) if torch.cuda.is_available() else x
+
+
 def train(epoch, data, model, optimizer, criterion, attention_criterion=None):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
@@ -17,7 +22,8 @@ def train(epoch, data, model, optimizer, criterion, attention_criterion=None):
     epoch_loss = 0
     start_time = time.time()  
     for i, batch in enumerate(data):      
-        src_len, src, trg_spec, trg_stop, trg_len = batch     
+        batch = map(to_gpu, batch)     
+        src_len, src, trg_spec, trg_stop, trg_len = list(batch)
         optimizer.zero_grad()     
         prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing=True)
         loss = criterion(prediction, residual_prediction, stop, trg_spec, trg_stop, trg_len)
@@ -29,7 +35,7 @@ def train(epoch, data, model, optimizer, criterion, attention_criterion=None):
         epoch_loss += loss.item()
         exmaples_done += batch[0].size(0)
         if i % args.skip_logging == 0:
-            Logger.training_progress(epoch+1, epoch_loss / len(data), learning_rate, int(exmaples_done / len(data) * 100)) 
+            Logger.training_progress(epoch+1, epoch_loss / len(data), learning_rate, exmaples_done / len(data)) 
     Logger.training(epoch+1, epoch_loss, learning_rate, int(time.time() - start_time))
 
 
@@ -39,7 +45,8 @@ def evaluate(epoch, data, model, criterion, attention_criterion=None):
     eval_loss = 0   
     with torch.no_grad():   
         for i, item in enumerate(data):
-            src_len, src, trg_spec, trg_stop, trg_len = item  
+            item = map(to_gpu, item)     
+            src_len, src, trg_spec, trg_stop, trg_len = list(item)
             prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing=False)
             loss = criterion(prediction, residual_prediction, stop, trg_spec, trg_stop, trg_len) 
             if attention_criterion:
@@ -77,7 +84,7 @@ if __name__ == '__main__':
     parser.add_argument("--checkpoint", type=str, default=None, help="Name of the initial checkpoint.")
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
     parser.add_argument("--evaluate_each", type=int, default=1, help="Evaluate each this number epochs.")
-    parser.add_argument('--hyper_parameters', type=str, default="train", help="Name of the hyperparameters file.")
+    parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
     parser.add_argument("--min_checkpoint_loss", type=float, default=10000, help="Minimal required loss of a checkpoint to save.")
     parser.add_argument("--skip_logging", type=int, default=5, help="Log each of these steps.")
     args = parser.parse_args()
@@ -104,6 +111,8 @@ if __name__ == '__main__':
     
     # instantiate model, loss function, optimizer and learning rate scheduler
     model = Tacotron()
+    if torch.cuda.is_available(): model.cuda()
+
     optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     # TODO: scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr, max_lr)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
