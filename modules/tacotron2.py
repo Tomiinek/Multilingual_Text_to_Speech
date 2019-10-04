@@ -1,6 +1,6 @@
 import torch
 from torch.nn import functional as F
-from torch.nn import Sequential, ModuleList, Linear, ReLU, Sigmoid, Tanh, Identity, Dropout, Conv1d, BatchNorm1d, Parameter, LSTM, LSTMCell, Embedding
+from torch.nn import Sequential, ModuleList, Linear, ReLU, Sigmoid, Tanh, Identity, Dropout, Conv1d, BatchNorm1d, LSTM, LSTMCell, Embedding
 
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from params.params import Params as hp

@@ -83,8 +83,8 @@ def spectrogram(y, mel=False):
     if hp.use_preemphasis: y = preemphasis(y)
     wf = ms_to_frames(hp.stft_window_ms)
     hf = ms_to_frames(hp.stft_shift_ms)
-    S = np.abs(librosa.stft(y, n_fft=hp.num_fft, hop_length=hf, win_length=wf))
-    if mel: S = librosa.feature.melspectrogram(S=S, n_mels=hp.num_mels)
+    S = np.abs(librosa.stft(y, n_fft=hp.num_fft , hop_length=hf, win_length=wf))
+    if mel: S = librosa.feature.melspectrogram(S=S, sr=hp.sample_rate, n_mels=hp.num_mels)
     return amplitude_to_db(S) - hp.reference_spectrogram_db
 
 

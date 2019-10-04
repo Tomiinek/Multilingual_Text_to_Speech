@@ -71,7 +71,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
 
         # read meta-file: id|speaker_id|audio_file_path|spectrogram_file_path|text|phonemized_text
         self.items = []
-        with open(meta_file, 'r') as f:
+        with open(meta_file, 'r', encoding='utf-8') as f:
             for line in f:
                 line_tokens = line[:-1].split('|')
                 item = {
@@ -170,10 +170,11 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         with open(metafile_path, 'w', encoding='utf-8') as f:
             Logger.progress(0, prefix='Building metafile:')
             for i in range(len(items)):
+                if i < 86576: continue
                 raw_text, audio_path, speaker = items[i]
                 phonemized_text = text.to_phoneme(raw_text, False, phoneme_dict) if phonemes else ""
-                if spectrograms:
-                    spec_name = f'{str(i).zfill(6)}.npy'
+                if spectrograms:  
+                    spec_name = f'{str(i).zfill(6)}.npy'                 
                     spec_path = os.path.join('spectrograms', spec_name)
                     full_spec_path = os.path.join(spec_dir, spec_name)
                     if os.path.exists(full_spec_path): continue
