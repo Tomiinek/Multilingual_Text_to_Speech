@@ -38,7 +38,6 @@ def train(epoch, data, model, optimizer, criterion, attention_criterion=None):
         batches_done += 1
         if i % args.skip_logging == 0:
             Logger.training_progress(epoch+1, batches_done + epoch * len(data), epoch_loss / batches_done, learning_rate, batches_done / len(data)) 
-        break
     Logger.training(epoch+1, epoch_loss / len(data), learning_rate, int(time.time() - start_time))
 
 
@@ -55,7 +54,6 @@ def evaluate(epoch, data, model, criterion, attention_criterion=None):
             if attention_criterion:
                 loss += attention_criterion(alignment, src_len, trg_len)        
             eval_loss += loss.item() 
-            break
     Logger.evaluation(epoch+1, eval_loss / len(data), learning_rate, trg_spec, prediction, trg_stop, torch.sigmoid(stop), alignment)
     return eval_loss
 
