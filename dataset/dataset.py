@@ -225,10 +225,10 @@ class TextToSpeechCollate():
         padded_utterances = torch.zeros(batch_size, sorted_utterance_lengths[0], dtype=torch.long)
         padded_spectrograms = torch.zeros(batch_size, hp.num_mels, max_frames, dtype=torch.float)
         padded_stop_tokens = torch.zeros(batch_size, max_frames, dtype=torch.float)
-        for idx in sorted_idxs:
+        for i, idx in enumerate(sorted_idxs):
             u, s = batch[idx]
-            padded_utterances[0, :len(u)] = torch.LongTensor(u)
-            padded_spectrograms[idx, :, :s[0].size] = torch.FloatTensor(s)
-            padded_stop_tokens[idx, s[0].size-1:] = 1
+            padded_utterances[i, :len(u)] = torch.LongTensor(u)
+            padded_spectrograms[i, :, :s[0].size] = torch.FloatTensor(s)
+            padded_stop_tokens[i, s[0].size-1:] = 1
 
         return sorted_utterance_lengths, padded_utterances, padded_spectrograms, padded_stop_tokens, spectrogram_lengths
