@@ -25,11 +25,12 @@ class Logger:
         print(f'\r{prefix} {loading_bar} {progress:.1f}%', end=('' if progress < 100 else '\n'), flush=True)
 
     @staticmethod
-    def training_progress(epoch, runnin_loss, learning_rate, progress):
-        """Log running training epoch."""  
+    def training_progress(epoch, train_step, running_loss, learning_rate, progress):
+        """Log running training epoch."""   
+        Logger._sw.add_scalar("Loss/running", running_loss, train_step)
         if not Logger._to_console: return
         print('\r' + 70 * ' ', end='')
-        Logger.progress(progress, f'epoch: {epoch:2d} ║ train loss: {runnin_loss:1.6f} │ lr: {learning_rate:1.6f} ║')
+        Logger.progress(progress, f'epoch: {epoch:2d} ║ train loss: {running_loss:1.6f} │ lr: {learning_rate:1.6f} ║')
 
     @staticmethod
     def training(epoch, loss, learning_rate, duration):
@@ -38,7 +39,7 @@ class Logger:
             print('\r' + 70 * ' ', end='')
             print(f'\repoch: {epoch:2d} ║ train loss: {loss:1.6f} │ lr: {learning_rate:1.6f} ║ elapsed: {duration//60:d}:{duration%60:d} ║', end='', flush=True)
         Logger._sw.add_scalar("Loss/train", loss, epoch)
-        Logger._sw.add_scalar("LarningRate/train", learning_rate, epoch)
+        Logger._sw.add_scalar("LearningRate/train", learning_rate, epoch)
         Logger._sw.add_scalar("Duration/train", duration, epoch)
 
     @staticmethod
@@ -57,11 +58,12 @@ class Logger:
         Logger._sw.add_figure("Alignment", Logger._plot_alignment(alignment[idx].data.cpu().numpy().T), epoch)    
         Logger._sw.add_figure("Stop", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), epoch) 
         Logger._sw.add_figure("Mel_target", Logger._plot_spectrogram(target[idx].data.cpu().numpy()), epoch)
-        Logger._sw.add_figure("Mel_predicted", Logger._plot_spectrogram(predicted_melspec), epoch)
         if predicted_melspec.shape[1] > 1:
             waveform = audio.inverse_mel_spectrogram(predicted_melspec) 
             Logger._sw.add_audio("Audio", waveform, epoch, sample_rate=hp.sample_rate)
-    
+            Logger._sw.add_figure("Mel_predicted", Logger._plot_spectrogram(predicted_melspec), epoch)
+
+
     @staticmethod
     def _plot_spectrogram(s):
         fig = plt.figure(figsize=(16, 4))
@@ -71,17 +73,18 @@ class Logger:
 
     @staticmethod
     def _plot_alignment(alignment):
-        fig = plt.figure(figsize=(6, 6))
+        fig = plt.figure()
         ax = fig.add_subplot(111)
-        cax = ax.matshow(alignment, cmap='bone')
-        fig.colorbar(cax)
+        cax = ax.matshow(alignment, origin='lower')
+        # fig.colorbar(cax, fraction=0.046, pad=0.04)
         plt.ylabel('Input index')
         plt.xlabel('Decoder step')
         plt.tight_layout() 
         return fig
 
+    @staticmethod
     def _plot_stop_tokens(target, prediciton):
-        fig = plt.figure(figsize=(16, 4))
+        fig = plt.figure(figsize=(14, 4))
         ax = fig.add_subplot(111)
         ax.scatter(range(len(target)), target, alpha=0.5, color='green', marker='+', s=1, label='target')
         ax.scatter(range(len(prediciton)), prediciton, alpha=0.5, color='red', marker='.', s=1, label='predicted')

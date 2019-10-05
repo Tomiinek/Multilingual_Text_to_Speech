@@ -94,8 +94,8 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             if not hp.case_sensitive: 
                 item_text = text.to_lower(item_text)
             if hp.remove_multiple_wspaces: 
-                item_text = text.remove_multiple_whitespaces(item_text)
-                item_phon = text.remove_multiple_whitespaces(item_phon)
+                item_text = text.remove_odd_whitespaces(item_text)
+                item_phon = text.remove_odd_whitespaces(item_phon)
             self.items[idx]['text'] = item_text
             self.items[idx]['phonemes'] = item_phon
 

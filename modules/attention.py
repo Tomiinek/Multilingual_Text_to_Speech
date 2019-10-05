@@ -104,8 +104,8 @@ class ForwardAttention(AttentionBase):
     def __init__(self, *args, **kwargs):
         super(ForwardAttention, self).__init__(*args, **kwargs)
         
-    def reset(self, encoded_input, batch_size, max_len):
-        super(ForwardAttention, self).reset(encoded_input, batch_size, max_len)
+    def reset(self, encoded_input, batch_size, max_len, device):
+        super(ForwardAttention, self).reset(encoded_input, batch_size, max_len, device)
         self._prev_weights[:,0] = 1
         return self._prev_context
 
@@ -124,7 +124,7 @@ class ForwardAttention(AttentionBase):
 
     def _normalize(self, energies, mask):
         energies[~mask] = float(0)
-        return F.normalize(energies, p=1)
+        return F.normalize(torch.clamp(energies, 1e-6), p=1)
         
     def _combine_weights(self, previous_weights, weights):      
         return weights
