@@ -87,6 +87,7 @@ if __name__ == '__main__':
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
     parser.add_argument("--evaluate_each", type=int, default=1, help="Evaluate each this number epochs.")
     parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
+    parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
     parser.add_argument("--min_checkpoint_loss", type=float, default=10000, help="Minimal required loss of a checkpoint to save.")
     parser.add_argument("--skip_logging", type=int, default=5, help="Log each of these steps.")
     args = parser.parse_args()
@@ -112,7 +113,10 @@ if __name__ == '__main__':
     torch.backends.cudnn.benchmark = False
     
     # instantiate model, loss function, optimizer and learning rate scheduler
-    if torch.cuda.is_available(): model = Tacotron().cuda()
+    if torch.cuda.is_available(): 
+        model = Tacotron().cuda()
+        if args.max_gpus > 1 and torch.cuda.device_count() > 1:
+            model = torch.nn.DataParallel(model, device_ids=list(range(args.max_gpus)))    
     else: model = Tacotron()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
@@ -130,7 +134,7 @@ if __name__ == '__main__':
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
     train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=True, collate_fn=TextToSpeechCollate())
-    eval_data = DataLoader(dataset.dev, batch_size=1, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate())
+    eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate())
 
     # training loop
     best_eval = float('inf')

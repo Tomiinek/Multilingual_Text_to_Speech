@@ -129,6 +129,8 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             melspec = audio.mel_spectrogram(audio_data)
         assert np.shape(melspec)[0] == hp.num_mels, (
                 f'Mel dimension mismatch: given {np.shape(melspec)[0]}, expected {hp.num_mels}')
+        if hp.normalize_spectrogram:
+            melspec = audio.normalize_spectrogram(melspec)
         return melspec
 
     @staticmethod

@@ -55,6 +55,8 @@ class Logger:
         # show random output - spectrogram, stop token, alignment and audio
         idx = random.randint(0, alignment.size(0) - 1)
         predicted_melspec = prediction[idx].data.cpu().numpy()
+        if hp.normalize_spectrogram:
+            melspec = audio.denormalize_spectrogram(predicted_melspec)
         Logger._sw.add_figure("Alignment", Logger._plot_alignment(alignment[idx].data.cpu().numpy().T), epoch)    
         Logger._sw.add_figure("Stop", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), epoch) 
         Logger._sw.add_figure("Mel_target", Logger._plot_spectrogram(target[idx].data.cpu().numpy()), epoch)

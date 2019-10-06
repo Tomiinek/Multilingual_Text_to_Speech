@@ -16,8 +16,9 @@ def get_activation(name):
     }[name]
 
 
-def lengths_to_mask(lengths):
-    return torch.arange(torch.max(lengths), device=lengths.device)[None, :] < lengths[:, None]
+def lengths_to_mask(lengths, max_length=None):
+    ml = torch.max(lengths) if max_length is None else max_length
+    return torch.arange(ml, device=lengths.device)[None, :] < lengths[:, None]
 
 
 class ZoneoutLSTMCell(torch.nn.LSTMCell):
@@ -91,9 +92,10 @@ class Encoder(torch.nn.Module):
         x = x.transpose(1, 2)
         x = self._convs(x)
         x = x.transpose(1, 2)
+        ml = x.size(1)
         x = torch.nn.utils.rnn.pack_padded_sequence(x, x_lenghts, batch_first=True)
         x, _ = self._lstm(x)
-        x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True) 
+        x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True, total_length=ml) 
         return x
 
 
@@ -171,7 +173,7 @@ class Decoder(torch.nn.Module):
         decoder_dim -- size of the generator output (and also of all the LSTMs used in the decoder)
         attention -- instance of the location-sensitive attention module 
         context_dim -- size of the context vector produced by the given attention
-        prenet -- instance of the pre-net module 
+        prenet -- instance of the pre-net module
         prenet_dim -- output dimension of the pre-net
         max_length -- maximal length of the input sequence
         max_frames -- maximal number of the predicted frames
@@ -253,7 +255,8 @@ class Decoder(torch.nn.Module):
         return spectrogram, stop_tokens.squeeze(2), alignments
 
     def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing):
-        mask = lengths_to_mask(encoded_lenghts)
+        ml = encoded_input.size(1)
+        mask = lengths_to_mask(encoded_lenghts, max_length=ml)
         return self._decode(encoded_input, mask, target.size(2), target if teacher_forcing else None)
 
     def inference(self, encoded_input):
