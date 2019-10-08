@@ -48,7 +48,6 @@ def train(epoch, data, model, optimizer, criterions):
             for k in criterions.keys():
                 reduced_epoch_losses[k] = epoch_losses[k] / done
             Logger.training_progress(epoch+1, done + epoch * len(data), reduced_epoch_losses, learning_rate, done / len(data)) 
-        break
     reduced_epoch_losses = {}
     for k in criterions.keys():
         reduced_epoch_losses[k] = epoch_losses[k] / len(data)        
@@ -70,7 +69,6 @@ def evaluate(epoch, data, model, criterions):
             eval_losses['mel_res'] += criterions['mel_res'](residual_prediction, trg_spec, trg_len)
             eval_losses['stop_token'] += criterions['stop_token'](stop, trg_stop)
             eval_losses['guided_att'] += criterions['guided_att'](alignment, src_len, trg_len) 
-            break
     for k in criterions.keys():
         eval_losses[k] /= len(data)
     Logger.evaluation(epoch+1, eval_losses, learning_rate, trg_spec, prediction, trg_stop, torch.sigmoid(stop), alignment)
