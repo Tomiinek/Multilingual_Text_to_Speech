@@ -10,8 +10,8 @@ from params.params import Params as hp
 
 class Logger:
     @staticmethod
-    def initialize_directory(logdir, to_console=True):
-        Logger._sw = SummaryWriter(log_dir=logdir)
+    def initialize(logdir, flush_seconds, to_console=True):
+        Logger._sw = SummaryWriter(log_dir=logdir, flush_secs=flush_seconds)
         Logger._to_console = to_console
 
     @staticmethod
@@ -25,20 +25,26 @@ class Logger:
         print(f'\r{prefix} {loading_bar} {progress:.1f}%', end=('' if progress < 100 else '\n'), flush=True)
 
     @staticmethod
-    def training_progress(epoch, train_step, running_loss, learning_rate, progress):
-        """Log running training epoch."""   
-        Logger._sw.add_scalar("Loss/running", running_loss, train_step)
+    def training_progress(epoch, train_step, running_losses, learning_rate, progress):
+        """Log running training epoch."""  
+        total_loss = sum(running_losses.values())
+        Logger._sw.add_scalar(f'Loss/running_total', total_loss, train_step)
+        for n, l in running_losses.items():
+            Logger._sw.add_scalar(f'Loss/running_{n}', l, train_step)  
         if not Logger._to_console: return
         print('\r' + 70 * ' ', end='')
-        Logger.progress(progress, f'epoch: {epoch:2d} ║ train loss: {running_loss:1.6f} │ lr: {learning_rate:1.6f} ║')
+        Logger.progress(progress, f'epoch: {epoch:2d} ║ running loss: {total_loss:1.6f} │ lr: {learning_rate:1.6f} ║')
 
     @staticmethod
-    def training(epoch, loss, learning_rate, duration):
+    def training(epoch, losses, learning_rate, duration):
         """Log training epoch."""
+        total_loss = sum(losses.values())
         if Logger._to_console:
             print('\r' + 70 * ' ', end='')
-            print(f'\repoch: {epoch:2d} ║ train loss: {loss:1.6f} │ lr: {learning_rate:1.6f} ║ elapsed: {duration//60:d}:{duration%60:d} ║', end='', flush=True)
-        Logger._sw.add_scalar("Loss/train", loss, epoch)
+            print(f'\repoch: {epoch:2d} ║ train loss: {total_loss:1.6f} │ lr: {learning_rate:1.6f} ║ elapsed: {duration//60:d}:{duration%60:d} ║', end='', flush=True)
+        Logger._sw.add_scalar(f'Loss/train_total', total_loss, epoch)
+        for n, l in losses.items():
+            Logger._sw.add_scalar(f'Loss/train_{n}', l, epoch)  
         Logger._sw.add_scalar("LearningRate/train", learning_rate, epoch)
         Logger._sw.add_scalar("Duration/train", duration, epoch)
 
@@ -47,11 +53,14 @@ class Logger:
         if Logger._to_console: print(flush=True)
 
     @staticmethod
-    def evaluation(epoch, loss, learning_rate, target, prediction, stop_target, stop_prediction, alignment):
+    def evaluation(epoch, losses, learning_rate, target, prediction, stop_target, stop_prediction, alignment):
         """Log evaluation results."""
+        total_loss = sum(losses.values())
         if Logger._to_console:
-            print(f'eval loss: {loss:1.6f} ║ lr: {learning_rate:1.6f}', flush=True)    
-        Logger._sw.add_scalar("Loss/eval", loss, epoch)
+            print(f'eval loss: {total_loss:1.6f} ║ lr: {learning_rate:1.6f}', flush=True)    
+        Logger._sw.add_scalar(f'Loss/eval_total', total_loss, epoch)
+        for n, l in losses.items():
+            Logger._sw.add_scalar(f'Loss/eval_{n}', l, epoch) 
         # show random output - spectrogram, stop token, alignment and audio
         idx = random.randint(0, alignment.size(0) - 1)
         predicted_melspec = prediction[idx].data.cpu().numpy()
@@ -88,9 +97,9 @@ class Logger:
     def _plot_stop_tokens(target, prediciton):
         fig = plt.figure(figsize=(14, 4))
         ax = fig.add_subplot(111)
-        ax.scatter(range(len(target)), target, alpha=0.5, color='green', marker='+', s=1, label='target')
+        ax.scatter(range(len(target)), target, alpha=0.5, color='blue', marker='+', s=1, label='target')
         ax.scatter(range(len(prediciton)), prediciton, alpha=0.5, color='red', marker='.', s=1, label='predicted')
-        plt.xlabel("Frames (Green target, Red predicted)")
+        plt.xlabel("Frames (Blue target, Red predicted)")
         plt.ylabel("Stop token probability")
         plt.tight_layout()
         return fig

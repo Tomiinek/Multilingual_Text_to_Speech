@@ -195,17 +195,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
 
 
 class TextToSpeechCollate():
-    """Text to speech dataset collate function.
-    
-    1) zero-pad utterances and spectrograms in batches
-    2) sort them by utterance lengths (because of torch packed sequence)
-    3) provide vector of lengths
-
-    Keyword arguments:
-        meta_file (string): Meta-file of the dataset.
-        root_dir (string): Root Directory of the dataset.
-    """
-
+   
     def __call__(self, batch):
         
         batch_size = len(batch)

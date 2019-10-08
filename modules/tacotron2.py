@@ -283,6 +283,7 @@ class Tacotron(torch.nn.Module):
                             hp.embedding_dimension, 
                             padding_idx=0
                         )
+        torch.nn.init.xavier_uniform_(self._embedding.weight)
         self._encoder = Encoder(
                             hp.embedding_dimension, 
                             hp.encoder_dimension, 
@@ -352,23 +353,38 @@ class Tacotron(torch.nn.Module):
         prediction += residual
         return prediction
 
-    
-class TacotronLoss(torch.nn.Module):
+
+class StopTokenLoss(torch.nn.Module):
+    """
+    Stop token loss function:
+        optimize probability of reaching the end of the spectrogram
+    """
+
+    def __init__(self):
+        super(StopTokenLoss, self).__init__()
+
+    def update_state(self):
+        pass
+
+    def forward(self, prediction, target):
+        return F.binary_cross_entropy_with_logits(prediction, target) # * target_mask
+
+
+class MelLoss(torch.nn.Module):
     """
     Tacotron 2 loss function:
         minimize the summed MSE from before and after the post-net to aid convergence
     """
 
     def __init__(self):
-        super(TacotronLoss, self).__init__()
+        super(MelLoss, self).__init__()
 
-    def forward(self, predicted_spectrogram, predicted_residual, predicted_stop_token, target_spectrogram, target_stop_token, target_lengths):
-        target_mask = lengths_to_mask(target_lengths).float()
-        loss = F.binary_cross_entropy_with_logits(predicted_stop_token * target_mask, target_stop_token)
-        target_mask = target_mask.unsqueeze(1)
-        loss += F.mse_loss(predicted_spectrogram * target_mask, target_spectrogram)
-        loss += F.mse_loss(predicted_residual * target_mask, target_spectrogram) 
-        return loss
+    def update_state(self):
+        pass
+
+    def forward(self, prediction, target, target_lengths):
+        target_mask = lengths_to_mask(target_lengths).float().unsqueeze(1)
+        return F.mse_loss(prediction * target_mask, target)
 
 
 class GuidedAttentionLoss(torch.nn.Module):
@@ -383,7 +399,7 @@ class GuidedAttentionLoss(torch.nn.Module):
         self._g = variance
         self._gamma = gamma
 
-    def gain_tolerance(self):
+    def update_state(self):
         self._g *= self._gamma
 
     def forward(self, alignments, input_lengths, target_lengths):
@@ -391,6 +407,6 @@ class GuidedAttentionLoss(torch.nn.Module):
         weights = torch.zeros_like(alignments)
         for i, (f, l) in enumerate(zip(target_lengths, input_lengths)):
             grid_f, grid_l = torch.meshgrid(torch.arange(f, dtype=torch.float, device=input_device), torch.arange(l, dtype=torch.float, device=input_device))
-            weights[i, :f, :l] = 1 - torch.exp(-(grid_l/l - grid_f/f)**2 / (2 ** self._g)) 
+            weights[i, :f, :l] = 1 - torch.exp(-(grid_l/l - grid_f/f)**2 / (2 * self._g ** 2)) 
         loss = torch.mean(weights * alignments)
         return loss
