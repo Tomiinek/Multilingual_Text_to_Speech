@@ -70,7 +70,7 @@ class Logger:
         Logger._sw.add_figure("Stop", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), epoch) 
         Logger._sw.add_figure("Mel_target", Logger._plot_spectrogram(target[idx].data.cpu().numpy()), epoch)
         if predicted_melspec.shape[1] > 1:
-            waveform = audio.inverse_mel_spectrogram(predicted_melspec) 
+            waveform = audio.inverse_mel_spectrogram(audio.denormalize_spectrogram(predicted_melspec))
             Logger._sw.add_audio("Audio", waveform, epoch, sample_rate=hp.sample_rate)
             Logger._sw.add_figure("Mel_predicted", Logger._plot_spectrogram(predicted_melspec), epoch)
 

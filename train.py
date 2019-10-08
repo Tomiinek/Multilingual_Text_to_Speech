@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+import math
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -17,6 +18,11 @@ def to_gpu(x):
     return x.cuda(non_blocking=True) if torch.cuda.is_available() else x
 
 
+def cos_decay(global_step, decay_steps):
+    global_step = min(global_step, decay_steps)
+    return 0.5 * (1 + math.cos(math.pi * global_step / decay_steps))
+
+
 def train(epoch, data, model, optimizer, criterions):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
@@ -24,12 +30,13 @@ def train(epoch, data, model, optimizer, criterions):
     epoch_losses = {}
     for k in criterions.keys():
         epoch_losses[k] = 0
-    start_time = time.time()  
+    start_time = time.time()
     for i, batch in enumerate(data):      
         batch = list(map(to_gpu, batch))
         src_len, src, trg_spec, trg_stop, trg_len = batch
         optimizer.zero_grad()     
-        prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing=True)
+        teacher_forcing_ratio = cos_decay(done + epoch * len(data), hp.teacher_forcing_steps)
+        prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing_ratio)
         batch_losses = {
             'mel_pre' : criterions['mel_pre'](prediction, trg_spec, trg_len),
             'mel_res' : criterions['mel_res'](residual_prediction, trg_spec, trg_len),
@@ -39,7 +46,7 @@ def train(epoch, data, model, optimizer, criterions):
         loss = sum(batch_losses.values())
         loss.backward()      
         torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
-        optimizer.step()   
+        optimizer.step() 
         for k in criterions.keys():
             epoch_losses[k] += batch_losses[k].item()
         done += 1       
@@ -64,7 +71,7 @@ def evaluate(epoch, data, model, criterions):
         for i, item in enumerate(data):
             item = map(to_gpu, item)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
             src_len, src, trg_spec, trg_stop, trg_len = list(item)
-            prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing=False)
+            prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec)
             eval_losses['mel_pre'] += criterions['mel_pre'](prediction, trg_spec, trg_len)
             eval_losses['mel_res'] += criterions['mel_res'](residual_prediction, trg_spec, trg_len)
             eval_losses['stop_token'] += criterions['stop_token'](stop, trg_stop)

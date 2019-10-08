@@ -36,6 +36,7 @@ class Params:
     guided_attention_loss = True
     guided_attention_toleration = 0.2
     guided_attention_gain = 1.001
+    teacher_forcing_steps = 5000
 
     # MODEL:
 
@@ -96,7 +97,7 @@ class Params:
     normalize_spectrogram = True
     normalize_symetric = True
     normalize_scaling = 4
-    normalize_minimal_db = -100
+    normalize_minimal_db = -125
 
     use_preemphasis = True
     preemphasis = 0.97

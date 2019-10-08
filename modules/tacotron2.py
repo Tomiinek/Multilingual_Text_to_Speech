@@ -208,19 +208,23 @@ class Decoder(torch.nn.Module):
         c_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
         return h_att, c_att, h_gen, c_gen
 
-    def _decode(self, encoded_input, mask, max_frames, target=None, inference=False):
+    def _decode(self, encoded_input, mask, target, teacher_forcing_ratio):
         """Perform decoding of the encoded input sequence."""
         
         # attention and decoder states initialization
         batch_size = encoded_input.size(0)
         max_length = encoded_input.size(1)
+        inference = target is None
+        max_frames = self._max_frames if inference else target.size(2) 
         input_device = encoded_input.device
         context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
         h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size, input_device)      
         
         # prepare some inference or train specific variables (teacher forcing, max. predicted length)
-        if target is None: frame = torch.zeros(batch_size, self._output_dim, device=input_device)
-        else: target = self._target_init(target, batch_size)   
+        frame = torch.zeros(batch_size, self._output_dim, device=input_device)
+        target = self._target_init(target, batch_size)   
+        if not inference:
+            teacher = torch.rand([max_frames], device=input_device) > (1 - teacher_forcing_ratio)
         
         # tensors for storing output
         spectrogram = torch.zeros(batch_size, max_frames, self._output_dim, device=input_device)
@@ -229,7 +233,7 @@ class Decoder(torch.nn.Module):
         
         # decoding loop
         for i in range(max_frames):
-            prev_frame = self._prenet(frame) if target is None else target[:,i]
+            prev_frame = self._prenet(frame) if inference or not teacher[i] else target[:,i]
 
             # run decoder attention and RNNs
             attention_input = torch.cat((prev_frame, context), dim=1)
@@ -254,14 +258,14 @@ class Decoder(torch.nn.Module):
         
         return spectrogram, stop_tokens.squeeze(2), alignments
 
-    def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing):
+    def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing_ratio):
         ml = encoded_input.size(1)
         mask = lengths_to_mask(encoded_lenghts, max_length=ml)
-        return self._decode(encoded_input, mask, target.size(2), target if teacher_forcing else None)
+        return self._decode(encoded_input, mask, target, teacher_forcing_ratio)
 
     def inference(self, encoded_input):
         mask = lengths_to_mask([encoded_input.size(1)])
-        spectrogram, _, _ = self._decode(encoded_input.unsqueeze(0), mask, self._max_frames, inference=True)
+        spectrogram, _, _ = self._decode(encoded_input.unsqueeze(0), mask, None, 0.0)
         return spectrogram.squeeze(0)
      
 
@@ -334,15 +338,15 @@ class Tacotron(torch.nn.Module):
                 *args
             )
 
-    def forward(self, text, text_length, targets, teacher_forcing=False):  
+    def forward(self, text, text_length, targets, teacher_forcing_ratio=0.0):  
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length)
-        decoded = self._decoder(encoded, text_length, targets, teacher_forcing)
+        decoded = self._decoder(encoded, text_length, targets, teacher_forcing_ratio)
         prediction, stop_token, alignment = decoded
-        prediction = prediction.transpose(1,2)
-        residual = self._postnet(prediction)
-        prediction += residual
-        return prediction, residual, stop_token, alignment
+        pre_prediction = prediction.transpose(1,2)
+        post_prediction = self._postnet(pre_prediction)
+        post_prediction += pre_prediction
+        return post_prediction, pre_prediction, stop_token, alignment
 
     def inference(self, text):
         embedded = self._embedding(text)
@@ -408,5 +412,6 @@ class GuidedAttentionLoss(torch.nn.Module):
         for i, (f, l) in enumerate(zip(target_lengths, input_lengths)):
             grid_f, grid_l = torch.meshgrid(torch.arange(f, dtype=torch.float, device=input_device), torch.arange(l, dtype=torch.float, device=input_device))
             weights[i, :f, :l] = 1 - torch.exp(-(grid_l/l - grid_f/f)**2 / (2 * self._g ** 2)) 
-        loss = torch.mean(weights * alignments)
+        loss = torch.sum(weights * alignments, dim=(1,2))
+        loss = torch.mean(loss / target_lengths.float())
         return loss
