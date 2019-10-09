@@ -11,6 +11,7 @@ from params.params import Params as hp
 from utils import audio, text
 from modules.tacotron2 import Tacotron, StopTokenLoss, MelLoss, GuidedAttentionLoss
 from utils.logging import Logger
+from utils.optimizers import Ranger
 
 
 def to_gpu(x):
@@ -78,7 +79,7 @@ def evaluate(epoch, data, model, criterions):
             eval_losses['guided_att'] += criterions['guided_att'](alignment, src_len, trg_len) 
     for k in criterions.keys():
         eval_losses[k] /= len(data)
-    Logger.evaluation(epoch+1, eval_losses, learning_rate, trg_spec, prediction, trg_stop, torch.sigmoid(stop), alignment)
+    Logger.evaluation(epoch+1, eval_losses, learning_rate, trg_spec, prediction, trg_len, src_len, trg_stop, torch.sigmoid(stop), alignment)
     return sum(eval_losses.values())
 
 
@@ -144,8 +145,8 @@ if __name__ == '__main__':
             model = torch.nn.DataParallel(model, device_ids=list(range(args.max_gpus)))    
     else: model = Tacotron()
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
-    # TODO: scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr, max_lr)
+    #optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    optimizer = Ranger(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
     criterions = torch.nn.ModuleDict([
         ['mel_res', MelLoss()],

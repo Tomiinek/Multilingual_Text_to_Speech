@@ -53,7 +53,7 @@ class Logger:
         if Logger._to_console: print(flush=True)
 
     @staticmethod
-    def evaluation(epoch, losses, learning_rate, target, prediction, stop_target, stop_prediction, alignment):
+    def evaluation(epoch, losses, learning_rate, target, prediction, target_len, source_len, stop_target, stop_prediction, alignment):
         """Log evaluation results."""
         total_loss = sum(losses.values())
         if Logger._to_console:
@@ -63,14 +63,18 @@ class Logger:
             Logger._sw.add_scalar(f'Loss/eval_{n}', l, epoch) 
         # show random output - spectrogram, stop token, alignment and audio
         idx = random.randint(0, alignment.size(0) - 1)
-        predicted_melspec = prediction[idx].data.cpu().numpy()
+        predicted_melspec = prediction[idx].data.cpu().numpy()[:, :target_len[idx]]
+        target_melspec = target[idx].data.cpu().numpy()[:, :target_len[idx]]
         if hp.normalize_spectrogram:
-            melspec = audio.denormalize_spectrogram(predicted_melspec)
-        Logger._sw.add_figure("Alignment", Logger._plot_alignment(alignment[idx].data.cpu().numpy().T), epoch)    
+            predicted_melspec = audio.denormalize_spectrogram(predicted_melspec)
+            target_melspec = audio.denormalize_spectrogram(target_melspec)
+        alignment = alignment[idx].data.cpu().numpy().T
+        alignment = alignment[:source_len[idx], :target_len[idx]]
+        Logger._sw.add_figure("Alignment", Logger._plot_alignment(alignment), epoch)    
         Logger._sw.add_figure("Stop", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), epoch) 
-        Logger._sw.add_figure("Mel_target", Logger._plot_spectrogram(target[idx].data.cpu().numpy()), epoch)
+        Logger._sw.add_figure("Mel_target", Logger._plot_spectrogram(target_melspec), epoch)
         if predicted_melspec.shape[1] > 1:
-            waveform = audio.inverse_mel_spectrogram(audio.denormalize_spectrogram(predicted_melspec))
+            waveform = audio.inverse_mel_spectrogram(predicted_melspec)
             Logger._sw.add_audio("Audio", waveform, epoch, sample_rate=hp.sample_rate)
             Logger._sw.add_figure("Mel_predicted", Logger._plot_spectrogram(predicted_melspec), epoch)
 
