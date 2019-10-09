@@ -25,18 +25,18 @@ class Params:
     version = "1.0"
 
     # TRAINING:
-    epochs = 200
+    epochs = 300
     batch_size = 32
-    learning_rate = 1e-3
+    learning_rate = 5e-2
     learning_rate_decay = 0.98
     weight_decay = 1e-6
     max_output_length = 5000
-    cudnn_enabled = False
+    cudnn_enabled = True
     gradient_clipping = 5
     guided_attention_loss = True
     guided_attention_toleration = 0.2
-    guided_attention_gain = 1.001
-    teacher_forcing_steps = 5000
+    guided_attention_gain = 1.0
+    teacher_forcing_steps = 50000
 
     # MODEL:
 
@@ -46,7 +46,7 @@ class Params:
     encoder_kernel_size = 5
     prenet_dimension = 256
     prenet_layers = 2
-    attention_type = "forward"   # one of: location_sensitive, forward, forward_transition_agent
+    attention_type = "location_sensitive"   # one of: location_sensitive, forward, forward_transition_agent
     attention_dimension = 128
     attention_kernel_size = 31
     attention_location_dimension = 32
