@@ -28,64 +28,59 @@ def train(epoch, data, model, optimizer, criterions):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
     done = 0
-    epoch_losses = {}
-    for k in criterions.keys():
-        epoch_losses[k] = 0
-    start_time = time.time()
-    for i, batch in enumerate(data):      
+    for i, batch in enumerate(data):     
+        start_time = time.time() 
         batch = list(map(to_gpu, batch))
         src_len, src, trg_spec, trg_stop, trg_len = batch
         optimizer.zero_grad()     
-        teacher_forcing_ratio = cos_decay(done + epoch * len(data), hp.teacher_forcing_steps)
-        prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, teacher_forcing_ratio)
+        global_step = done + epoch * len(data)
+        if hp.constant_teacher_forcing:
+            teacher_forcing_ratio = hp.teacher_forcing
+        else:
+            teacher_forcing_ratio = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
+        prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, trg_len, teacher_forcing_ratio)
         batch_losses = {
             'mel_pre' : criterions['mel_pre'](prediction, trg_spec, trg_len),
             'mel_res' : criterions['mel_res'](residual_prediction, trg_spec, trg_len),
             'stop_token' : criterions['stop_token'](stop, trg_stop),
             'guided_att' : criterions['guided_att'](alignment, src_len, trg_len)
         }
+        if not hp.guided_attention_loss: criterions['guided_att'] = 0
         loss = sum(batch_losses.values())
         loss.backward()      
-        torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
-        optimizer.step() 
-        for k in criterions.keys():
-            epoch_losses[k] += batch_losses[k].item()
-        done += 1       
-        if i % args.skip_logging == 0:
-            reduced_epoch_losses = {}
-            for k in criterions.keys():
-                reduced_epoch_losses[k] = epoch_losses[k] / done
-            Logger.training_progress(epoch+1, done + epoch * len(data), reduced_epoch_losses, learning_rate, done / len(data)) 
-    reduced_epoch_losses = {}
-    for k in criterions.keys():
-        reduced_epoch_losses[k] = epoch_losses[k] / len(data)        
-    Logger.training(epoch+1, reduced_epoch_losses, learning_rate, int(time.time() - start_time))
+        gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
+        optimizer.step()   
+        if not hp.guided_attention_loss: 
+            batch_losses.pop('guided_att')
+        Logger.training(done + epoch * len(data), batch_losses, gradient, learning_rate, time.time() - start_time) 
+        done += 1 
+    
 
-
-def evaluate(epoch, data, model, criterions):      
+def evaluate(epoch, data, model, criterions, teacher_forcing):      
     model.eval()
-    learning_rate = optimizer.param_groups[0]['lr']
     eval_losses = {}
     for k in criterions.keys():
-        eval_losses[k] = 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+        eval_losses[k] = 0
     with torch.no_grad():   
         for i, item in enumerate(data):
-            item = map(to_gpu, item)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+            item = map(to_gpu, item)
             src_len, src, trg_spec, trg_stop, trg_len = list(item)
-            prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec)
+            prediction, residual_prediction, stop, alignment = model(src, src_len, trg_spec, trg_len, teacher_forcing)
             eval_losses['mel_pre'] += criterions['mel_pre'](prediction, trg_spec, trg_len)
             eval_losses['mel_res'] += criterions['mel_res'](residual_prediction, trg_spec, trg_len)
             eval_losses['stop_token'] += criterions['stop_token'](stop, trg_stop)
             eval_losses['guided_att'] += criterions['guided_att'](alignment, src_len, trg_len) 
     for k in criterions.keys():
         eval_losses[k] /= len(data)
-    Logger.evaluation(epoch+1, eval_losses, learning_rate, trg_spec, prediction, trg_len, src_len, trg_stop, torch.sigmoid(stop), alignment)
+    if not hp.guided_attention_loss: 
+        eval_losses.pop('guided_att')
+    Logger.evaluation(f"eval_{teacher_forcing}", epoch+1, eval_losses, src, trg_spec, prediction, trg_len, src_len, trg_stop, torch.sigmoid(stop), alignment)
     return sum(eval_losses.values())
 
 
 def load_checkpoint(checkpoint, model, optimizer, scheduler):
     state = torch.load(checkpoint)
-    model.load_state_dict(state['optimizer'])
+    model.load_state_dict(state['model'])
     optimizer.load_state_dict(state['optimizer'])
     scheduler.load_state_dict(state['scheduler'])
     return state['epoch']
@@ -110,12 +105,9 @@ if __name__ == '__main__':
     parser.add_argument("--base_directory", type=str, default=".", help="Base directory of the project.")
     parser.add_argument("--checkpoint", type=str, default=None, help="Name of the initial checkpoint.")
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
-    parser.add_argument("--evaluate_each", type=int, default=1, help="Evaluate each this number epochs.")
     parser.add_argument("--flush_seconds", type=int, default=60, help="How often to flush pending summaries to tensorboard.")
     parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
-    parser.add_argument("--min_checkpoint_loss", type=float, default=10000, help="Minimal required loss of a checkpoint to save.")
-    parser.add_argument("--skip_logging", type=int, default=5, help="Log each of these steps.")
     args = parser.parse_args()
 
     # load hyperparameters
@@ -129,7 +121,7 @@ if __name__ == '__main__':
 
     # initialize logger
     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
-    Logger.initialize(log_dir, args.flush_seconds, to_console=False)
+    Logger.initialize(log_dir, args.flush_seconds)
 
     # set up seeds and the target torch device
     np.random.seed(42)
@@ -157,7 +149,7 @@ if __name__ == '__main__':
 
     # load checkpoint
     if args.checkpoint:
-        checkpoint = os.path.join(args.checkpoint, checkpoint_dir)
+        checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
         initial_epoch = load_checkpoint(checkpoint, model, optimizer, scheduler) + 1
     else: initial_epoch = 0
 
@@ -165,19 +157,21 @@ if __name__ == '__main__':
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
     train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=True, collate_fn=TextToSpeechCollate())
     eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate())
-
+    hp.normalize_mean, hp.normalize_variance = dataset.train.get_normalization_constants()
+    #hp.normalize_mean, hp.normalize_variance = -69, 16
+  
     # training loop
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
         train(epoch, train_data, model, optimizer, criterions)
         for c in criterions.values():
             c.update_state()    
-        scheduler.step()
-        if epoch % args.evaluate_each != args.evaluate_each - 1:
-            Logger.skipped_evaluation()
-            continue
-        eval_loss = evaluate(epoch, eval_data, model, criterions)      
-        if eval_loss < best_eval and eval_loss < args.min_checkpoint_loss:
-            best_eval = eval_loss
+        if hp.learning_rate_decay_start < epoch * len(train_data):
+            scheduler.step()
+        # evaluate without teacher forcing
+        evaluate(epoch, eval_data, model, criterions, 0.0)   
+        # evaluate with teacher forcing
+        eval_loss = evaluate(epoch, eval_data, model, criterions, 1.0)   
+        if (epoch + 1) % hp.checkpoint_each == 0:
             checkpoint_file = f'{checkpoint_dir}/{hp.version}_loss-{eval_loss:2.3f}'
             save_checkpoint(checkpoint_file, epoch, model, optimizer, scheduler)

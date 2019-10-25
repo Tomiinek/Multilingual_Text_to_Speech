@@ -116,10 +116,10 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         if load_waveform: 
             full_audio_path = os.path.join(self.root_dir, audio_path)
             audio_data = audio.load(full_audio_path)
-        else: audio_data = self.load_mel(audio_path, item['spectrogram'])
+        else: audio_data = self.load_mel(audio_path, item['spectrogram'], hp.normalize_spectrogram)
         return (item['phonemes'] if hp.use_phonemes else item['text'], audio_data)
 
-    def load_mel(self, audio_path, spectrogram_path):
+    def load_mel(self, audio_path, spectrogram_path, normalize):
         if hp.cache_spectrograms:
             full_spec_path = os.path.join(self.root_dir, spectrogram_path)
             melspec = np.load(full_spec_path)
@@ -129,9 +129,21 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             melspec = audio.mel_spectrogram(audio_data)
         assert np.shape(melspec)[0] == hp.num_mels, (
                 f'Mel dimension mismatch: given {np.shape(melspec)[0]}, expected {hp.num_mels}')
-        if hp.normalize_spectrogram:
+        if normalize:
             melspec = audio.normalize_spectrogram(melspec)
         return melspec
+
+    def get_normalization_constants(self):
+        """Compute mean and variance of the data."""
+        mean = 0.0
+        std = 0.0
+        for item in self.items:
+            melspec = self.load_mel(item['audio'], item['spectrogram'], False)
+            mean += np.mean(melspec, axis=1, keepdims=True)
+            std += np.std(melspec, axis=1, keepdims=True)
+        mean /= len(self.items)
+        std /= len(self.items)
+        return mean, std
 
     @staticmethod
     def create_meta_file(dataset_name, dataset_root_dir, output_metafile_name, audio_sample_rate, num_fft_freqs, spectrograms=True, phonemes=True):

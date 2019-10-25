@@ -40,6 +40,19 @@ class ZoneoutLSTMCell(torch.nn.LSTMCell):
         return new_h, new_c
 
 
+class DropoutLSTMCell(torch.nn.LSTMCell):
+    """Wrapper around LSTM cell providing hidden state dropout regularization."""
+
+    def __init__(self, input_size, hidden_size, dropout_rate, bias=True):
+        super(DropoutLSTMCell, self).__init__(input_size, hidden_size, bias)
+        self._dropout = Dropout(dropout_rate)
+
+    def forward(self, cell_input, h, c):
+        new_h, new_c = super(DropoutLSTMCell, self).forward(cell_input, (h, c))
+        new_h = self._dropout(new_h)
+        return new_h, new_c
+
+
 class ConvBlock(torch.nn.Module):
     """One dimensional convolution with batchnorm and dropout, expected channel-first input.
     
@@ -179,15 +192,19 @@ class Decoder(torch.nn.Module):
         max_frames -- maximal number of the predicted frames
     """
 
-    def __init__(self, output_dim, decoder_dim, attention, context_dim, prenet, prenet_dim, max_frames):
+    def __init__(self, output_dim, decoder_dim, attention, regularization, context_dim, prenet, prenet_dim, max_frames):
         super(Decoder, self).__init__()
         self._prenet = prenet
         self._attention = attention
         self._output_dim = output_dim
         self._decoder_dim = decoder_dim
         self._max_frames = max_frames
-        self._attention_lstm = ZoneoutLSTMCell(context_dim + prenet_dim, decoder_dim, hp.zoneout_hidden, hp.zoneout_cell) 
-        self._generator_lstm = ZoneoutLSTMCell(context_dim + decoder_dim, decoder_dim, hp.zoneout_hidden, hp.zoneout_cell)
+        if regularization == 'zoneout':
+            self._attention_lstm = ZoneoutLSTMCell(context_dim + prenet_dim, decoder_dim, hp.zoneout_hidden, hp.zoneout_cell) 
+            self._generator_lstm = ZoneoutLSTMCell(context_dim + decoder_dim, decoder_dim, hp.zoneout_hidden, hp.zoneout_cell)
+        else:
+            self._attention_lstm = DropoutLSTMCell(context_dim + prenet_dim, decoder_dim, hp.dropout_hidden) 
+            self._generator_lstm = DropoutLSTMCell(context_dim + decoder_dim, decoder_dim, hp.dropout_hidden)
         self._frame_prediction = Linear(context_dim + decoder_dim, output_dim)
         self._stop_prediction = Linear(context_dim + decoder_dim, 1)
 
@@ -306,6 +323,7 @@ class Tacotron(torch.nn.Module):
                             hp.num_mels, 
                             hp.decoder_dimension, 
                             self._attention, 
+                            hp.decoder_regularization,
                             hp.encoder_dimension, 
                             self._prenet, 
                             hp.prenet_dimension,
@@ -338,14 +356,22 @@ class Tacotron(torch.nn.Module):
                 *args
             )
 
-    def forward(self, text, text_length, targets, teacher_forcing_ratio=0.0):  
+    def forward(self, text, text_length, target, target_length, teacher_forcing_ratio=0.0):  
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length)
-        decoded = self._decoder(encoded, text_length, targets, teacher_forcing_ratio)
+        decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(pre_prediction)
         post_prediction += pre_prediction
+
+        # mask output paddings
+        target_mask = lengths_to_mask(target_length, target.size(2))
+        stop_token.masked_fill_(~target_mask, 1000)
+        target_mask = target_mask.unsqueeze(1).float()
+        pre_prediction = pre_prediction * target_mask
+        post_prediction = post_prediction * target_mask
+
         return post_prediction, pre_prediction, stop_token, alignment
 
     def inference(self, text):
@@ -353,9 +379,9 @@ class Tacotron(torch.nn.Module):
         encoded = self._encoder(embedded, [encoded.size(1)])
         prediction = self._decoder.inference(encoded)
         prediction = prediction.transpose(1,2)
-        residual = self._postnet(prediction)
-        prediction += residual
-        return prediction
+        post_prediction = self._postnet(prediction)
+        post_prediction += pre_prediction
+        return post_prediction
 
 
 class StopTokenLoss(torch.nn.Module):
@@ -371,7 +397,8 @@ class StopTokenLoss(torch.nn.Module):
         pass
 
     def forward(self, prediction, target):
-        return F.binary_cross_entropy_with_logits(prediction, target) # * target_mask
+        target.requires_grad = False
+        return F.binary_cross_entropy_with_logits(prediction, target)
 
 
 class MelLoss(torch.nn.Module):
@@ -387,8 +414,8 @@ class MelLoss(torch.nn.Module):
         pass
 
     def forward(self, prediction, target, target_lengths):
-        target_mask = lengths_to_mask(target_lengths).float().unsqueeze(1)
-        return F.mse_loss(prediction * target_mask, target)
+        target.requires_grad = False
+        return F.mse_loss(prediction, target)
 
 
 class GuidedAttentionLoss(torch.nn.Module):

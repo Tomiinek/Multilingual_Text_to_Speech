@@ -114,14 +114,10 @@ def normalize_spectrogram(S):
     # One should consider other setup:
     # https://github.com/keithito/tacotron/issues/98
     # https://github.com/Rayhane-mamah/Tacotron-2/issues/18#issuecomment-382637788
-    assert S.max() <= 0 and S.min() >= hp.normalize_minimal_db
-    zero_one = (S - hp.normalize_minimal_db) / -hp.normalize_minimal_db
-    if hp.normalize_symetric: return (2 * zero_one - 1) * hp.normalize_scaling
-    else: return hp.normalize_scaling * zero_one
+    assert S.max() <= 0
+    return (S - hp.normalize_mean) / hp.normalize_variance
 
 
 def denormalize_spectrogram(S):
     """Denormalize log-magnitude spectrogram."""
-    if hp.normalize_symetric: zero_one = (S / hp.normalize_scaling + 1) / 2
-    else: zero_one = S / hp.normalize_scaling
-    return zero_one * (-hp.normalize_minimal_db) + hp.normalize_minimal_db
+    return S * hp.normalize_variance + hp.normalize_mean

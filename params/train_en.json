@@ -1,14 +1,14 @@
 {
     "attention_type": "location_sensitive",
-    "batch_size": 32,
+    "batch_size": 56,
     "characters": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ",
-    "epochs": 300,
+    "epochs": 600,
     "language": "en-gb",
     "learning_rate": 0.05,
-    "learning_rate_decay": 0.98,
+    "learning_rate_decay": 0.985,
+    "learning_rate_decay_start": 35000,
     "phonemes": "\u0279\u0250pbtdk\u0261fv\u03b8\u00f0sz\u0283\u0292hmn\u014bn\u0329ll\u0329rjw\u0294\u026ae\u0153\u0252\u028c\u028ai\u1d7b\u02d0a\u0254u\u0259\u0251\u025c\u02cc\u02c8 ",
     "punctuations_in": "'-",
     "punctuations_out": "\"(),.:;?!",
-    "teacher_forcing_steps": 50000,
     "version": "1.0"
 }

@@ -1,5 +1,6 @@
 # Czech Text to Speech
 
+
 ## Task list:
 
 ### Short-term
@@ -32,44 +33,24 @@
 - [x] make familiar with Griffin-Lim
 - [x] Tacotron - explore some opensource implementations - Ito, r9y9 a NVIDIA
 - [x] write own implementation of Tacotron (2)
-    - [ ] Rectified Adam
-    - [ ] Cyclic scheduler
     - [x] guided attention -- Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention
     - [x] Forward Attention in Sequence-to-sequence Acoustic Modelling for Speech Synthesis
 - [x] radio
-- [ ] implement GMVAE-Tacotron2 paper
-- [ ] english vanilla
-- [ ] czech vanilla
+- [ ] ~~implement GMVAE-Tacotron2 paper~~
+- [x] english vanilla
+- [ ] ~~czech vanilla~~
+- [ ] optimize Tacotron parameters
+- [ ] learn tacotron for each M-AILABs language
 
 ### Long short-term
 
-- [ ] is it real to train WeveNet / WaveRNN / WaveGlow?
-- [ ] https://www.readbeyond.it/ebooks.html has some audiobooks
+- [ ] create multi-lingual baseline
+- [ ] define and automatize experiments
+- [ ] optimize experiments on baseline
 
 ### Long-term
 
-- [x] ~~Neural Speech Synthesis with Transformer Network! already implemented :sob:~~
-- [ ] GST together with Toctron 2 with SOTA stuff, ... the available opensource implementation does not work
-- [ ] GMVAE ... looks much more better than the GST papers 
-- [ ] transfer learning from english Tacotron to other languages
-- [ ] context, TTS of longer text and MOS of multiple sentences or paragraphs with interpunction ...
-- [ ] It would be interesting to explore the trade-off between the number of mel frequency bins versus audio quality in future work.
-
-## Notes:
-
-### Datasets used in the GMVAE-Tacotron2 paper
-
-For training data, we use 190 hours of American English speech, read by 22 different female speakers. Importantly, the 22 datasets include both expressive and non-expressive speech: to the expressive audiobook data from Section 4.1 (147 hours) we add 21 high-quality proprietary datasets, spoken with neutral prosody. These contain 8.7 hours of long-form news and web articles (20 speakers), and 34.2 hours of of assistant-style
-speech (one speaker).
-
-To evaluate the ability of GMVAE-Tacotron to model speaker variation and discover meaningful speaker clusters, we used a proprietary dataset of 385 hours of high-quality English speech from 84 professional voice talents with accents from the United States (US), Great Britain (GB), Australia (AU), and Singapore (SG).
-
-A single speaker US English audiobook dataset of 147 hours, recorded by professional speaker, Catherine Byers, from the 2013 Blizzard Challenge (King & Karaiskos, 2013) is used for training. The data incorporated a wide range of prosody variation. We used an evaluation set of 150 audiobook sentences, including many long phrases.
-
-To test the model’s ability to model a single speaker in a controlled environment, we utilize the Blizzard 2013 dataset [28], which consists of audiobook narration performed in a highly animated manner by a professional speaker. We use a 140 hour subset of this dataset for which we were able to find transcriptions, making the dataset also suitable for future text-to-speech experiments.
-
-For single-speaker models, we use an expressive audiobook dataset consisting of 50,086 training utterances (36.5 hours) and 912 test utterances. Multi-speaker models are trained using data from 58 voice assistant-like speakers, consisting of 419,966 training utterances (327 hours). We evaluate on a 9-speaker subset of the multi-speaker test data, consisting of 1808 utterances
-
+- [ ] create more advanced multi-lingual models
 
 ### Los problemos
 - [ ] normalization of spectrograms, problems with L1 & L2

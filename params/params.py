@@ -25,10 +25,11 @@ class Params:
     version = "1.0"
 
     # TRAINING:
-    epochs = 300
-    batch_size = 32
+    epochs = 600
+    batch_size = 56
     learning_rate = 5e-2
-    learning_rate_decay = 0.98
+    learning_rate_decay = 0.985
+    learning_rate_decay_start = 35000
     weight_decay = 1e-6
     max_output_length = 5000
     cudnn_enabled = True
@@ -36,7 +37,11 @@ class Params:
     guided_attention_loss = True
     guided_attention_toleration = 0.2
     guided_attention_gain = 1.0
-    teacher_forcing_steps = 50000
+    constant_teacher_forcing = True
+    teacher_forcing = 1.0 
+    teacher_forcing_steps = 100000
+    teacher_forcing_start_steps = 50000
+    checkpoint_each_epochs = 5
 
     # MODEL:
 
@@ -51,12 +56,14 @@ class Params:
     attention_kernel_size = 31
     attention_location_dimension = 32
     decoder_dimension = 1024
+    decoder_regularization = 'dropout'
+    zoneout_hidden = 0.1
+    zoneout_cell = 0.1
+    dropout_hidden = 0.1
     postnet_dimension = 512
     postnet_blocks = 5
     postnet_kernel_size = 5
-    dropout = 0.5
-    zoneout_hidden = 0.1
-    zoneout_cell = 0.1
+    dropout = 0.5   
 
     # DATASET:
     
@@ -94,10 +101,7 @@ class Params:
     griffin_lim_iters = 50
     griffin_lim_power = 1.5 
 
-    normalize_spectrogram = True
-    normalize_symetric = True
-    normalize_scaling = 4
-    normalize_minimal_db = -125
+    normalize_spectrogram = True 
 
     use_preemphasis = True
     preemphasis = 0.97
