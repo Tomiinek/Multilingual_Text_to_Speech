@@ -35,13 +35,14 @@ class Params:
     cudnn_enabled = True
     gradient_clipping = 5
     guided_attention_loss = True
-    guided_attention_toleration = 0.2
+    guided_attention_epochs = 50
+    guided_attention_toleration = 0.45
     guided_attention_gain = 1.0
     constant_teacher_forcing = True
     teacher_forcing = 1.0 
     teacher_forcing_steps = 100000
     teacher_forcing_start_steps = 50000
-    checkpoint_each_epochs = 5
+    checkpoint_each_epochs = 10
 
     # MODEL:
 
@@ -65,10 +66,21 @@ class Params:
     postnet_kernel_size = 5
     dropout = 0.5   
 
+    predict_linear = True
+    cbhg_bank_kernels = 8
+    cbhg_bank_dimension = 128
+    cbhg_projection_kernel_size = 3
+    cbhg_projection_dimension = 256
+    cbhg_highway_dimension = 128
+    cbhg_rnn_dim = 128
+    cbhg_dropout = 0.0
+
     # DATASET:
     
-    dataset = "ljspeech"        # one of: ljspeech, vctk, my_blizzard
+    dataset = "ljspeech"        # one of: ljspeech, vctk, my_blizzard, mailabs
     cache_spectrograms = True
+    multi_speaker = False
+    languages = ['en-us']       # espeak format: phonemize --help
 
     # TEXT:
 
@@ -77,14 +89,13 @@ class Params:
     remove_multiple_wspaces = False 
 
     use_punctuation = True      # punctuations_{in, out} are valid only if True
-    punctuations_out = '"(),.:;?!'
+    punctuations_out = '"(),.:;¿?¡!\\'
     punctuations_in  = '\'-'
 
-    use_phonemes = False        # phonemes are valid only if True
-    language = 'en-gb'          # espeak format: phonemize --help
     # all phonemes of IPA: 'iyɨʉɯuɪʏʊeøɘəɵɤoɛœɜɞʌɔæɐaɶɑɒᵻʘɓǀɗǃʄǂɠǁʛpbtdʈɖcɟkɡqɢʔɴŋɲɳnɱmʙrʀⱱɾɽɸβfvθðszʃʒʂʐçʝxɣχʁħʕhɦɬɮʋɹɻjɰlɭʎʟˈˌːˑʍwɥʜʢʡɕʑɺɧ ɚ˞ɫ'
-    phonemes = 'ɹɐpbtdkɡfvθðszʃʒhmnŋn̩ll̩rjwʔɪeœɒʌʊiᵻːaɔuəɑɜˌˈ '
-    
+    use_phonemes = False   # phonemes are valid only if True
+    phonemes = 'ɹɐpbtdkɡfvθðszʃʒhmnŋlrwjeəɪɒuːɛiaʌʊɑɜɔx '
+   
     # AUDIO:
 
     # ljspeech    - 22050, 2048

@@ -3,6 +3,7 @@ import string
 
 from phonemizer.separator import Separator
 from phonemizer.phonemize import phonemize
+import epitran
 from params.params import Params as hp
 from utils.logging import Logger
 
@@ -19,27 +20,30 @@ _phon_to_id = {s: i for i, s in enumerate(_other_symbols + list(hp.phonemes))}
 _id_to_phon = {i: s for i, s in enumerate(_other_symbols + list(hp.phonemes))}
 
 
-def build_phoneme_dict(texts):
-    '''Create a dictionary of words (from a list of texts) with IPA equivalents.'''
-    dictionary = {}
-    Logger.progress(0 / len(texts), prefix='Building phoneme dictionary:')
-    for i, t in enumerate(texts):
+def build_phoneme_dicts(text_lang_pairs):
+    '''Create dictionaries (possibly more languages) of words (from a list of texts) with IPA equivalents.'''
+    dictionaries = {}
+    Logger.progress(0 / len(text_lang_pairs), prefix='Building phoneme dictionary:')
+    for i, (t, l) in enumerate(text_lang_pairs):
+        if not (l in dictionaries):
+            dictionaries[l] = {}
         clear_words = remove_punctuation(t).split()
         for w in clear_words:
-            if w in dictionary: continue
-            dictionary[w] = _phonemize(w)[:-1]
-        Logger.progress((i+1) / len(texts), prefix='Building phoneme dictionary:')
-    return dictionary
+            if w in dictionaries[l]: continue
+            dictionaries[l][w] = _phonemize(w, l)[:-1]
+        Logger.progress((i+1) / len(text_lang_pairs), prefix='Building phoneme dictionary:')
+    return dictionaries
     
 
-def to_phoneme(text, ignore_punctuation, phoneme_dictionary=None):
+def to_phoneme(text, ignore_punctuation, language, phoneme_dictionary=None):
     '''Convert graphemes of the utterance without new line to phonemes.
     
     Keyword arguments:
         text (string): The text to be translated into IPA.
         ignore_punctuation (bool): Set to False if the punctuation should be preserved.
-        phoneme_dictionary (default None): A dictionary of words with IPA equivalents, used to 
-            speed up the translation which preserves punctuation (because the used phonemizer
+        language (default hp.language): language code (e.g. en-us)
+        phoneme_dictionary (default None): A language specific dictionary of words with IPA equivalents, 
+            used to speed up the translation which preserves punctuation (because the used phonemizer
             cannot handle punctuation properly, so we need to do it word by word).
     '''
     
@@ -52,7 +56,7 @@ def to_phoneme(text, ignore_punctuation, phoneme_dictionary=None):
     if not phoneme_dictionary: phoneme_dictionary = {}
     phonemes = []
     for w in clear_words:
-        phonemes.append(phoneme_dictionary[w] if w in phoneme_dictionary else _phonemize(w)[:-1])
+        phonemes.append(phoneme_dictionary[w] if w in phoneme_dictionary else _phonemize(w, language)[:-1])
     # add punctuation to match the punctuation in the input 
     in_word = False
     punctuation_seen = False
@@ -81,10 +85,14 @@ def to_phoneme(text, ignore_punctuation, phoneme_dictionary=None):
     return text_phonemes
 
 
-def _phonemize(text):
-    seperators = Separator(word=' ', phone='')
-    phonemes = phonemize(text, separator=seperators, backend='espeak', language=hp.language)
-    phonemes.replace('\n', ' ', 1)            
+def _phonemize(text, language):
+    try:
+        seperators = Separator(word=' ', phone='')
+        phonemes = phonemize(text, separator=seperators, backend='espeak', language=language)           
+    except RuntimeError:
+        epi = epitran.Epitran(language)
+        phonemes = epi.transliterate(text, normpunc=True)
+    phonemes.replace('\n', ' ', 1)   
     return phonemes
 
 

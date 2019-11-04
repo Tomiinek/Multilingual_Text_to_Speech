@@ -32,7 +32,8 @@ def trim_silence(data, window_ms, hop_ms, top_db=50, margin_ms=0):
     wf = ms_to_frames(window_ms)
     hf = ms_to_frames(hop_ms)
     mf = ms_to_frames(margin_ms)
-    return librosa.effects.trim(data[mf:-mf], top_db=top_db, frame_length=wf, hop_length=hf)
+    if mf != 0: data = data[mf:-mf]
+    return librosa.effects.trim(data, top_db=top_db, frame_length=wf, hop_length=hf)
   
 
 def duration(data):
@@ -109,15 +110,13 @@ def inverse_mel_spectrogram(s):
     return inverse_spectrogram(s, True)
 
 
-def normalize_spectrogram(S):
+def normalize_spectrogram(S, is_mel):
     """Normalize log-magnitude spectrogram."""
-    # One should consider other setup:
-    # https://github.com/keithito/tacotron/issues/98
-    # https://github.com/Rayhane-mamah/Tacotron-2/issues/18#issuecomment-382637788
-    assert S.max() <= 0
-    return (S - hp.normalize_mean) / hp.normalize_variance
+    if is_mel: return (S - hp.mel_normalize_mean) / hp.mel_normalize_variance
+    else:      return (S - hp.lin_normalize_mean) / hp.lin_normalize_variance
 
 
-def denormalize_spectrogram(S):
+def denormalize_spectrogram(S, is_mel):
     """Denormalize log-magnitude spectrogram."""
-    return S * hp.normalize_variance + hp.normalize_mean
+    if is_mel: return S * hp.mel_normalize_variance + hp.mel_normalize_mean
+    else:      return S * hp.lin_normalize_variance + hp.lin_normalize_mean

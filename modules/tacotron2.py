@@ -1,80 +1,16 @@
 import torch
 from torch.nn import functional as F
-from torch.nn import Sequential, ModuleList, Linear, ReLU, Sigmoid, Tanh, Identity, Dropout, Conv1d, BatchNorm1d, LSTM, LSTMCell, Embedding
+from torch.nn import Sequential, ModuleList, Linear, ReLU, Sigmoid, Tanh, Dropout, LSTM, Embedding
 
+from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
+from modules.cbhg import PostnetCBHG
 from params.params import Params as hp
-
-
-def get_activation(name):
-    """Get activation function by name."""
-    return {
-        'relu': ReLU(),
-        'sigmoid': Sigmoid(),
-        'tanh': Tanh(),
-        'identity': Identity()
-    }[name]
 
 
 def lengths_to_mask(lengths, max_length=None):
     ml = torch.max(lengths) if max_length is None else max_length
     return torch.arange(ml, device=lengths.device)[None, :] < lengths[:, None]
-
-
-class ZoneoutLSTMCell(torch.nn.LSTMCell):
-    """Wrapper around LSTM cell providing zoneout regularization."""
-
-    def __init__(self, input_size, hidden_size, zoneout_rate_hidden, zoneout_rate_cell, bias=True):
-        super(ZoneoutLSTMCell, self).__init__(input_size, hidden_size, bias)
-        self.zoneout_c = zoneout_rate_cell
-        self.zoneout_h = zoneout_rate_hidden
-
-    def forward(self, cell_input, h, c):
-        new_h, new_c = super(ZoneoutLSTMCell, self).forward(cell_input, (h, c))
-        if self.training:
-            new_h = (1-self.zoneout_h) * F.dropout(new_h - h, self.zoneout_h) + h
-            new_c = (1-self.zoneout_c) * F.dropout(new_c - c, self.zoneout_c) + c
-        else:
-            new_h = self.zoneout_h * h + (1-self.zoneout_h) * new_h
-            new_c = self.zoneout_c * c + (1-self.zoneout_c) * new_c
-        return new_h, new_c
-
-
-class DropoutLSTMCell(torch.nn.LSTMCell):
-    """Wrapper around LSTM cell providing hidden state dropout regularization."""
-
-    def __init__(self, input_size, hidden_size, dropout_rate, bias=True):
-        super(DropoutLSTMCell, self).__init__(input_size, hidden_size, bias)
-        self._dropout = Dropout(dropout_rate)
-
-    def forward(self, cell_input, h, c):
-        new_h, new_c = super(DropoutLSTMCell, self).forward(cell_input, (h, c))
-        new_h = self._dropout(new_h)
-        return new_h, new_c
-
-
-class ConvBlock(torch.nn.Module):
-    """One dimensional convolution with batchnorm and dropout, expected channel-first input.
-    
-    Keyword arguments:
-    input_channels -- number if input channels
-    output_channels -- number of output channels
-    kernel -- convolution kernel size ('same' padding is used)
-    dropout -- dropout rate to be aplied after the block
-    activation (optional) -- name of the activation function applied after batchnorm (default 'identity')
-    """
-
-    def __init__(self, input_channels, output_channels, kernel, dropout, activation='identity'):
-        super(ConvBlock, self).__init__()
-        self._block = Sequential(
-            Conv1d(input_channels, output_channels, kernel, padding=(kernel-1)//2, bias=False),
-            BatchNorm1d(output_channels),
-            get_activation(activation),
-            Dropout(dropout)
-        )
-
-    def forward(self, x):
-        return self._block(x)
 
 
 class Encoder(torch.nn.Module):
@@ -107,6 +43,7 @@ class Encoder(torch.nn.Module):
         x = x.transpose(1, 2)
         ml = x.size(1)
         x = torch.nn.utils.rnn.pack_padded_sequence(x, x_lenghts, batch_first=True)
+        self._lstm.flatten_parameters()
         x, _ = self._lstm(x)
         x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True, total_length=ml) 
         return x
@@ -129,7 +66,7 @@ class Prenet(torch.nn.Module):
         super(Prenet, self).__init__()
         assert num_layers > 0, ('There must be at least one layer in the pre-net.')
         self._dropout_rate = dropout
-        self._activation = get_activation('relu')
+        self._activation = ReLU()
         self._layers = ModuleList([Linear(input_dim, output_dim)] + [Linear(output_dim, output_dim)] * (num_layers - 1))
 
     def _layer_pass(self, x, layer):
@@ -166,8 +103,10 @@ class Postnet(torch.nn.Module):
             ConvBlock(postnet_dimension, input_dimension, kernel_size, dropout, 'identity')
         )
 
-    def forward(self, x):
+    def forward(self, x, x_lengths):
+        residual = x
         x = self._convs(x)
+        x += residual   
         return x
 
 
@@ -185,6 +124,8 @@ class Decoder(torch.nn.Module):
         output_dim -- size of the predicted frame, i.e. number of mels 
         decoder_dim -- size of the generator output (and also of all the LSTMs used in the decoder)
         attention -- instance of the location-sensitive attention module 
+        generator_rnn -- instance of generator RNN 
+        attention_rnn -- instance of attention RNN
         context_dim -- size of the context vector produced by the given attention
         prenet -- instance of the pre-net module
         prenet_dim -- output dimension of the pre-net
@@ -192,19 +133,15 @@ class Decoder(torch.nn.Module):
         max_frames -- maximal number of the predicted frames
     """
 
-    def __init__(self, output_dim, decoder_dim, attention, regularization, context_dim, prenet, prenet_dim, max_frames):
+    def __init__(self, output_dim, decoder_dim, attention, generator_rnn, attention_rnn, context_dim, prenet, prenet_dim, max_frames):
         super(Decoder, self).__init__()
         self._prenet = prenet
         self._attention = attention
         self._output_dim = output_dim
         self._decoder_dim = decoder_dim
         self._max_frames = max_frames
-        if regularization == 'zoneout':
-            self._attention_lstm = ZoneoutLSTMCell(context_dim + prenet_dim, decoder_dim, hp.zoneout_hidden, hp.zoneout_cell) 
-            self._generator_lstm = ZoneoutLSTMCell(context_dim + decoder_dim, decoder_dim, hp.zoneout_hidden, hp.zoneout_cell)
-        else:
-            self._attention_lstm = DropoutLSTMCell(context_dim + prenet_dim, decoder_dim, hp.dropout_hidden) 
-            self._generator_lstm = DropoutLSTMCell(context_dim + decoder_dim, decoder_dim, hp.dropout_hidden)
+        self._attention_lstm = attention_rnn
+        self._generator_lstm = generator_rnn
         self._frame_prediction = Linear(context_dim + decoder_dim, output_dim)
         self._stop_prediction = Linear(context_dim + decoder_dim, 1)
 
@@ -319,24 +256,46 @@ class Tacotron(torch.nn.Module):
                             hp.dropout
                         )              
         self._attention = self._get_attention(hp.attention_type)
+        gen_cell_dimension = hp.encoder_dimension + hp.decoder_dimension
+        att_cell_dimension = hp.encoder_dimension + hp.prenet_dimension
+        if hp.decoder_regularization == 'zoneout':
+            generator_rnn = ZoneoutLSTMCell(gen_cell_dimension, hp.decoder_dimension, hp.zoneout_hidden, hp.zoneout_cell) 
+            attention_rnn = ZoneoutLSTMCell(att_cell_dimension, hp.decoder_dimension, hp.zoneout_hidden, hp.zoneout_cell)
+        else:
+            generator_rnn = DropoutLSTMCell(gen_cell_dimension, hp.decoder_dimension, hp.dropout_hidden) 
+            attention_rnn = DropoutLSTMCell(att_cell_dimension, hp.decoder_dimension, hp.dropout_hidden)
         self._decoder = Decoder(
                             hp.num_mels, 
                             hp.decoder_dimension, 
                             self._attention, 
-                            hp.decoder_regularization,
-                            hp.encoder_dimension, 
+                            generator_rnn,
+                            attention_rnn, 
+                            hp.encoder_dimension,
                             self._prenet, 
                             hp.prenet_dimension,
                             hp.max_output_length
+                        )        
+        if hp.predict_linear:
+            self._postnet = PostnetCBHG(
+                            hp.num_mels, 
+                            hp.num_fft // 2 + 1, 
+                            hp.cbhg_bank_kernels, 
+                            hp.cbhg_bank_dimension, 
+                            hp.cbhg_projection_dimension, 
+                            hp.cbhg_projection_kernel_size,
+                            hp.cbhg_highway_dimension, 
+                            hp.cbhg_rnn_dim,
+                            hp.cbhg_dropout
                         )
-        self._postnet = Postnet(
+        else:
+            self._postnet = Postnet(
                             hp.num_mels, 
                             hp.postnet_dimension,
                             hp.postnet_blocks, 
                             hp.postnet_kernel_size, 
                             hp.dropout
                         )
-
+            
     def _get_attention(self, name):
         args = (hp.attention_dimension,
                 hp.decoder_dimension, 
@@ -356,17 +315,17 @@ class Tacotron(torch.nn.Module):
                 *args
             )
 
-    def forward(self, text, text_length, target, target_length, teacher_forcing_ratio=0.0):  
+    def forward(self, text, text_length, mel_target, target_length, speakers, teacher_forcing_ratio=0.0):  
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length)
-        decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio)
+        decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
-        post_prediction = self._postnet(pre_prediction)
-        post_prediction += pre_prediction
+        post_prediction = self._postnet(pre_prediction, target_length)
 
         # mask output paddings
-        target_mask = lengths_to_mask(target_length, target.size(2))
+        target_mask = lengths_to_mask(target_length, mel_target.size(2))
+        # TODO: this should be somehow unmasked for few following frames :/
         stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
         pre_prediction = pre_prediction * target_mask
@@ -374,66 +333,37 @@ class Tacotron(torch.nn.Module):
 
         return post_prediction, pre_prediction, stop_token, alignment
 
-    def inference(self, text):
+    def inference(self, text, speaker_embedding=None):
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, [encoded.size(1)])
         prediction = self._decoder.inference(encoded)
         prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(prediction)
-        post_prediction += pre_prediction
         return post_prediction
 
 
-class StopTokenLoss(torch.nn.Module):
-    """
-    Stop token loss function:
-        optimize probability of reaching the end of the spectrogram
-    """
-
-    def __init__(self):
-        super(StopTokenLoss, self).__init__()
-
-    def update_state(self):
-        pass
-
-    def forward(self, prediction, target):
-        target.requires_grad = False
-        return F.binary_cross_entropy_with_logits(prediction, target)
-
-
-class MelLoss(torch.nn.Module):
-    """
-    Tacotron 2 loss function:
-        minimize the summed MSE from before and after the post-net to aid convergence
-    """
-
-    def __init__(self):
-        super(MelLoss, self).__init__()
-
-    def update_state(self):
-        pass
-
-    def forward(self, prediction, target, target_lengths):
-        target.requires_grad = False
-        return F.mse_loss(prediction, target)
-
-
-class GuidedAttentionLoss(torch.nn.Module):
-    """
-    Guided attention loss:
+class TacotronLoss(torch.nn.Module):
+    """Wrapper around loss functions.
+    
+    - L2 or L1 of the prediction before and after the postnet.
+    - Cross entropy of the stop tokens (non masked)
+    - Guided attention loss:
         prompt the attention matrix to be nearly diagonal, this is how people usualy read text
         introduced by 'Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention'
     """
 
-    def __init__(self, variance, gamma):
-        super(GuidedAttentionLoss, self).__init__()
-        self._g = variance
-        self._gamma = gamma
+    def __init__(self, guided_att_epochs, guided_att_variance, guided_att_gamma):
+        super(TacotronLoss, self).__init__()
+        self._g = guided_att_variance
+        self._gamma = guided_att_gamma
+        self._g_epochs = guided_att_epochs
 
-    def update_state(self):
+    def update_states(self):
         self._g *= self._gamma
+        self._g_epochs = max(0, self._g_epochs - 1)
 
-    def forward(self, alignments, input_lengths, target_lengths):
+    def _guided_attention(self, alignments, input_lengths, target_lengths):
+        if not hp.guided_attention_loss or self._g_epochs == 0: return 0
         input_device = alignments.device
         weights = torch.zeros_like(alignments)
         for i, (f, l) in enumerate(zip(target_lengths, input_lengths)):
@@ -442,3 +372,22 @@ class GuidedAttentionLoss(torch.nn.Module):
         loss = torch.sum(weights * alignments, dim=(1,2))
         loss = torch.mean(loss / target_lengths.float())
         return loss
+
+    def forward(self, source_length, pre_prediction, pre_target, post_prediction, post_target, target_length, stop, target_stop, alignment):
+        pre_target.requires_grad = False
+        post_target.requires_grad = False
+        target_stop.requires_grad = False
+        
+        # F.l1_loss
+
+        losses = {
+            'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
+            'mel_pos' : F.l1_loss(post_prediction, post_target),
+            'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop) / hp.num_mels,
+            'guided_att' : self._guided_attention(alignment, source_length, target_length)
+        }
+
+        return sum(losses.values()), losses
+
+
+    
