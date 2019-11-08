@@ -12,12 +12,9 @@ _pad = '_'    # a dummy character for padding sequences to align text in batches
 _eos = '~'    # character which marks the end of a sequnce, further characters are invalid
 _unk = '@'    # symbols which are not in hp.characters and are present are substituted by this
 
-# make sure pad is first (as we would like to do zero-padding)
-_other_symbols = [_pad, _eos, _unk] + list(hp.punctuations_in) + list(hp.punctuations_out)
-_char_to_id = {s: i for i, s in enumerate(_other_symbols + list(hp.characters))}
-_id_to_char = {i: s for i, s in enumerate(_other_symbols + list(hp.characters))}
-_phon_to_id = {s: i for i, s in enumerate(_other_symbols + list(hp.phonemes))}
-_id_to_phon = {i: s for i, s in enumerate(_other_symbols + list(hp.phonemes))}
+
+def _other_symbols():
+    return [_pad, _eos, _unk] + list(hp.punctuations_in) + list(hp.punctuations_out)
 
 
 def build_phoneme_dicts(text_lang_pairs):
@@ -114,15 +111,15 @@ def remove_punctuation(text):
 
 def to_sequence(text, use_phonemes=False):
     '''Converts a string of text to a sequence of IDs corresponding to the symbols in the text.'''
-    transform_dict = _phon_to_id if use_phonemes else _char_to_id
+    transform_dict = {s: i for i, s in enumerate(_other_symbols() + list(hp.phonemes if use_phonemes else hp.characters))}
     sequence = [transform_dict[_unk] if c not in transform_dict else transform_dict[c] for c in text]
     sequence.append(transform_dict[_eos])
     return sequence
 
 
-def to_text(sequence, used_phonemes=False):
+def to_text(sequence, use_phonemes=False):
     '''Converts a sequence of IDs back to a string'''
-    transform_dict = _id_to_phon if used_phonemes else _id_to_char
+    transform_dict = {i: s for i, s in enumerate(_other_symbols() + list(hp.phonemes if use_phonemes else hp.characters))}
     result = ''
     for symbol_id in sequence:
         if symbol_id in transform_dict:

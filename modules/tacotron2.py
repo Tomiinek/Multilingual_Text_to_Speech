@@ -338,7 +338,7 @@ class Tacotron(torch.nn.Module):
         encoded = self._encoder(embedded, [encoded.size(1)])
         prediction = self._decoder.inference(encoded)
         prediction = prediction.transpose(1,2)
-        post_prediction = self._postnet(prediction)
+        post_prediction = self._postnet(prediction, [prediction.size(1)])
         return post_prediction
 
 
@@ -382,7 +382,7 @@ class TacotronLoss(torch.nn.Module):
 
         losses = {
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
-            'mel_pos' : F.l1_loss(post_prediction, post_target),
+            'mel_pos' : F.mse_loss(post_prediction, post_target),
             'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop) / hp.num_mels,
             'guided_att' : self._guided_attention(alignment, source_length, target_length)
         }

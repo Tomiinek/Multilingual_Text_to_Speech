@@ -4,16 +4,25 @@ import json
 class Params:
 
     @staticmethod
+    def load_state_dict(d):
+        for k, v in d.items(): setattr(Params, k, v)
+
+    @staticmethod
+    def state_dict():
+        members = [attr for attr in dir(Params) if not callable(getattr(Params, attr)) and not attr.startswith("__")]
+        return { k: Params.__dict__[k] for k in members }
+
+    @staticmethod
     def load(json_path):
         with open(json_path) as f:
             params = json.load(f)
-            for k, v in params.items(): setattr(Params, k, v)
+            Params.load_state_dict(params)
 
     @staticmethod
     def save(json_path):
         with open(json_path, 'w') as f:
-            members = [attr for attr in dir(Params) if not callable(getattr(Params, attr)) and not attr.startswith("__")]
-            json.dump({ k: Params.__dict__[k] for k in members }, f, indent=4)
+            d = Params.state_dict()
+            json.dump(d, f, indent=4)
 
     @staticmethod
     def symbols_count():
@@ -107,10 +116,10 @@ class Params:
 
     stft_window_ms = 50
     stft_shift_ms = 12.5
-    reference_spectrogram_db = 20
     
     griffin_lim_iters = 50
     griffin_lim_power = 1.5 
+    reference_spectrogram_db = 20
 
     normalize_spectrogram = True 
 

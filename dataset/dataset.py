@@ -197,7 +197,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             spectrogram_dirs = [os.path.join(dataset_root_dir, 'spectrograms'), 
                                 os.path.join(dataset_root_dir, 'linear_spectrograms')]
             for x in spectrogram_dirs:
-                if not os.path.exists(directory): os.makedirs(directory)
+                if not os.path.exists(x): os.makedirs(x)
 
         # iterate through items and build the meta-file
         metafile_path = os.path.join(dataset_root_dir, output_metafile_name)

@@ -76,6 +76,7 @@ def load_checkpoint(checkpoint, model, optimizer, scheduler):
     model.load_state_dict(state['model'])
     optimizer.load_state_dict(state['optimizer'])
     scheduler.load_state_dict(state['scheduler'])
+    hp.load_state_dict(sttate['parameters'])
     return state['epoch']
 
 
@@ -84,7 +85,8 @@ def save_checkpoint(checkpoint_path, epoch, model, optimizer, sheduler):
         'epoch': epoch,
         'model': model.state_dict(),
         'optimizer': optimizer.state_dict(),
-        'scheduler': sheduler.state_dict()
+        'scheduler': sheduler.state_dict(),
+        'parameters': hp.state_dict()
     }
     torch.save(state_dict, checkpoint_path)
 
