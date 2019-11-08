@@ -49,15 +49,23 @@ cd "$1"
 
 find . -type f -name "*.csv" | while read file; do normalize "$file"; done
 
+# rename directories to match language codes of Phonemizer 
 mv de_DE/ de/
 mv en_UK/ en-gb/
 mv en_US/ en-us/
 mkdir -p es/male/
 mv es_ES/male/tux/ es/male/tux/
-mv es_ES/ es-419/
+mv es_ES/ es-la/
 mv fr_FR/ fr-fr/
 mv it_IT/ it/
 mv pl_PL/ pl/
 mv ru_RU/ ru/
 mv uk_UK/ ukr-Cyrl/
 rm -rf ru/female/hajdurova/mnogo_shuma_iz_nichego
+
+# resample some files to match sampling rate of the rest of the dataset
+for i in de/female/rebecca_braunert_plunkett/das_letzte_marchen/wavs/*.wav; do ffmpeg -loglevel panic -y -i "$i" -ar 16000 "${i%.*}.wav"; done
+for i in de/female/rebecca_braunert_plunkett/ferien_vom_ich/wavs/*.wav;     do ffmpeg -loglevel panic -y -i "$i" -ar 16000 "${i%.*}.wav"; done
+
+# trim silence
+find . -type f -name "*.wav" | while read i; do sox "$i" "${i%.*}_tmp.wav" silence 1 0.05 0 reverse silence 1 0.05 0 reverse; mv "${i%.*}_tmp.wav" "$i"; done
