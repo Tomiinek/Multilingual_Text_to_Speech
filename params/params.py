@@ -95,7 +95,7 @@ class Params:
 
     characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
     case_sensitive = True
-    remove_multiple_wspaces = False 
+    remove_multiple_wspaces = True 
 
     use_punctuation = True      # punctuations_{in, out} are valid only if True
     punctuations_out = '"(),.:;¿?¡!\\'
@@ -119,7 +119,6 @@ class Params:
     
     griffin_lim_iters = 50
     griffin_lim_power = 1.5 
-    reference_spectrogram_db = 20
 
     normalize_spectrogram = True 
 

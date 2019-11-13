@@ -38,7 +38,7 @@ def trim_silence(data, window_ms, hop_ms, top_db=50, margin_ms=0):
 
 def duration(data):
     """Return duration of an audio signal in seconds."""
-    return librosa.get_duration(data)
+    return librosa.get_duration(data, sr=hp.sample_rate)
 
 
 def endpoint(data, silence_ms, top_db=-40):
@@ -86,7 +86,7 @@ def spectrogram(y, mel=False):
     hf = ms_to_frames(hp.stft_shift_ms)
     S = np.abs(librosa.stft(y, n_fft=hp.num_fft , hop_length=hf, win_length=wf))
     if mel: S = librosa.feature.melspectrogram(S=S, sr=hp.sample_rate, n_mels=hp.num_mels)
-    return amplitude_to_db(S) - hp.reference_spectrogram_db
+    return amplitude_to_db(S)
 
 
 def mel_spectrogram(y):
@@ -96,7 +96,7 @@ def mel_spectrogram(y):
 
 def inverse_spectrogram(s, mel=False):
     """Convert log-magnitude spectrogram to waveform."""
-    S = db_to_amplitude(s + hp.reference_spectrogram_db)
+    S = db_to_amplitude(s)
     wf = ms_to_frames(hp.stft_window_ms)
     hf = ms_to_frames(hp.stft_shift_ms)
     if mel: S = librosa.feature.inverse.mel_to_stft(S, power=1, sr=hp.sample_rate, n_fft=hp.num_fft)

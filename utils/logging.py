@@ -69,7 +69,7 @@ class Logger:
     @staticmethod
     def _plot_spectrogram(s):
         fig = plt.figure(figsize=(16, 4))
-        librosa.display.specshow(s + hp.reference_spectrogram_db, x_axis='time', y_axis='mel', cmap='magma')
+        librosa.display.specshow(s, x_axis='time', y_axis='mel', cmap='magma')
         plt.colorbar(format='%+2.0f dB')
         return fig
 
