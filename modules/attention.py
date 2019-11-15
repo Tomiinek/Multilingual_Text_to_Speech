@@ -27,7 +27,7 @@ class AttentionBase(torch.nn.Module):
         self._prev_context = torch.zeros(batch_size, self._memory_dim, device=device)
         return self._prev_context
 
-    def _attend(self, query, memory_transform, weights):      
+    def _attent(self, query, memory_transform, weights):      
         raise NotImplementedError
 
     def _combine_weights(self, previsous_weights, weights):      
@@ -37,7 +37,7 @@ class AttentionBase(torch.nn.Module):
         raise NotImplementedError
 
     def forward(self, query, memory, mask, prev_decoder_output):
-        energies = self._attend(query, self._memory_transform, self._prev_weights)
+        energies = self._attent(query, self._memory_transform, self._prev_weights)
         attention_weights = self._normalize(energies, mask)
         self._prev_weights = self._combine_weights(self._prev_weights, attention_weights)
         attention_weights = attention_weights.unsqueeze(1)
@@ -68,7 +68,7 @@ class LocationSensitiveAttention(AttentionBase):
         self._loc_features = Conv1d(1, channels, kernel_size, padding=(kernel_size-1)//2, bias=False)
         self._smoothing = smoothing
 
-    def _attend(self, query, memory_transform, cum_weights):
+    def _attent(self, query, memory_transform, cum_weights):
         query = self._query(query.unsqueeze(1))
         cum_weights = cum_weights.unsqueeze(-1)
         loc_features = self._loc_features(cum_weights.transpose(1,2))
@@ -117,7 +117,7 @@ class ForwardAttention(AttentionBase):
         shifted_weights = F.pad(weights, (1, 0))[:, :-1]
         return energy, shifted_weights
 
-    def _attend(self, query, memory_transform, cum_weights):
+    def _attent(self, query, memory_transform, cum_weights):
         energy, shifted_weights = self._prepare_transition(query, memory_transform, self._prev_weights)
         self._prev_weights = (self._prev_weights + shifted_weights) * energy
         return self._prev_weights
@@ -149,7 +149,7 @@ class ForwardAttentionWithTransition(ForwardAttention):
         self._t_prob = 0.5
         return self._prev_context
 
-    def _attend(self, query, memory_transform, cum_weights):
+    def _attent(self, query, memory_transform, cum_weights):
         energy, shifted_weights = self._prepare_transition(query, memory_transform, self._prev_weights)
         self._prev_weights = ((1 - self._t_prob) * self._prev_weights + self._t_prob * shifted_weights) * energy
         return self._prev_weights

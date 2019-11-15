@@ -14,13 +14,13 @@ class Params:
 
     @staticmethod
     def load(json_path):
-        with open(json_path) as f:
+        with open(json_path, 'r', encoding='utf-8') as f:
             params = json.load(f)
             Params.load_state_dict(params)
 
     @staticmethod
     def save(json_path):
-        with open(json_path, 'w') as f:
+        with open(json_path, 'w', encoding='utf-8') as f:
             d = Params.state_dict()
             json.dump(d, f, indent=4)
 
@@ -34,19 +34,20 @@ class Params:
     version = "1.0"
 
     # TRAINING:
-    epochs = 600
+    epochs = 300
     batch_size = 56
-    learning_rate = 5e-2
-    learning_rate_decay = 0.985
+    learning_rate = 2e-3
+    learning_rate_decay = 0.5
     learning_rate_decay_start = 35000
+    learning_rate_decay_each = 15000
     weight_decay = 1e-6
     max_output_length = 5000
     cudnn_enabled = True
-    gradient_clipping = 5
+    gradient_clipping = 0.25
     guided_attention_loss = True
-    guided_attention_epochs = 50
-    guided_attention_toleration = 0.45
-    guided_attention_gain = 1.0
+    guided_attention_steps = 20000
+    guided_attention_toleration = 0.25
+    guided_attention_gain = 1.03
     constant_teacher_forcing = True
     teacher_forcing = 1.0 
     teacher_forcing_steps = 100000
@@ -84,11 +85,18 @@ class Params:
     cbhg_rnn_dim = 128
     cbhg_dropout = 0.0
 
+    multi_speaker = False
+    multi_language = False
+    speaker_embedding_dimension = 64
+    language_embedding_dimension = 4
+    speaker_number = 0
+    language_number = 0
+
+
     # DATASET:
     
     dataset = "ljspeech"        # one of: ljspeech, vctk, my_blizzard, mailabs
     cache_spectrograms = True
-    multi_speaker = False
     languages = ['en-us']       # espeak format: phonemize --help
 
     # TEXT:
@@ -111,7 +119,7 @@ class Params:
     # vctk        - 48000, 2400
     # my_blizzard - 44100, 2250
     sample_rate = 22050 
-    num_fft = 2048
+    num_fft = 1102
     num_mels = 80
 
     stft_window_ms = 50

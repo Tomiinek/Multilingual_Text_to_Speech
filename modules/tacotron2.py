@@ -175,9 +175,9 @@ class Decoder(torch.nn.Module):
         h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size, input_device)      
         
         # prepare some inference or train specific variables (teacher forcing, max. predicted length)
-        frame = torch.zeros(batch_size, self._output_dim, device=input_device)
-        target = self._target_init(target, batch_size)   
+        frame = torch.zeros(batch_size, self._output_dim, device=input_device) 
         if not inference:
+            target = self._target_init(target, batch_size)  
             teacher = torch.rand([max_frames], device=input_device) > (1 - teacher_forcing_ratio)
         
         # tensors for storing output
@@ -218,9 +218,9 @@ class Decoder(torch.nn.Module):
         return self._decode(encoded_input, mask, target, teacher_forcing_ratio)
 
     def inference(self, encoded_input):
-        mask = lengths_to_mask([encoded_input.size(1)])
-        spectrogram, _, _ = self._decode(encoded_input.unsqueeze(0), mask, None, 0.0)
-        return spectrogram.squeeze(0)
+        mask = lengths_to_mask(torch.LongTensor([encoded_input.size(1)]))
+        spectrogram, _, _ = self._decode(encoded_input, mask, None, 0.0)
+        return spectrogram
      
 
 class Tacotron(torch.nn.Module):
@@ -256,8 +256,9 @@ class Tacotron(torch.nn.Module):
                             hp.dropout
                         )              
         self._attention = self._get_attention(hp.attention_type)
-        gen_cell_dimension = hp.encoder_dimension + hp.decoder_dimension
-        att_cell_dimension = hp.encoder_dimension + hp.prenet_dimension
+        decoder_input_dimension = hp.speaker_number + hp.language_number +  hp.encoder_dimension
+        gen_cell_dimension = decoder_input_dimension + hp.decoder_dimension
+        att_cell_dimension = decoder_input_dimension + hp.prenet_dimension
         if hp.decoder_regularization == 'zoneout':
             generator_rnn = ZoneoutLSTMCell(gen_cell_dimension, hp.decoder_dimension, hp.zoneout_hidden, hp.zoneout_cell) 
             attention_rnn = ZoneoutLSTMCell(att_cell_dimension, hp.decoder_dimension, hp.zoneout_hidden, hp.zoneout_cell)
@@ -270,7 +271,7 @@ class Tacotron(torch.nn.Module):
                             self._attention, 
                             generator_rnn,
                             attention_rnn, 
-                            hp.encoder_dimension,
+                            decoder_input_dimension,
                             self._prenet, 
                             hp.prenet_dimension,
                             hp.max_output_length
@@ -295,6 +296,12 @@ class Tacotron(torch.nn.Module):
                             hp.postnet_kernel_size, 
                             hp.dropout
                         )
+        if hp.multi_speaker:
+            self._speaker_embedding = Embedding(hp.speaker_number, hp.speaker_embedding_dimension)
+            torch.nn.init.xavier_uniform_(self._speaker_embedding.weight)
+        if hp.multi_language:
+            self._language_embedding = Embedding(hp.language_number, hp.language_embedding_dimension)
+            torch.nn.init.xavier_uniform_(self._language_embedding.weight)
             
     def _get_attention(self, name):
         args = (hp.attention_dimension,
@@ -315,7 +322,14 @@ class Tacotron(torch.nn.Module):
                 *args
             )
 
-    def forward(self, text, text_length, mel_target, target_length, speakers, teacher_forcing_ratio=0.0):  
+    def forward(self, text, text_length, mel_target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
+
+        if hp.multi_speaker:
+            embedded_speaker = self._speaker_embedding(speakers)
+        if hp.multi_language:
+            embedded_language = self._speaker_embedding(languages)  
+        torch.concat()    
+
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length)
         decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio)
@@ -326,20 +340,21 @@ class Tacotron(torch.nn.Module):
         # mask output paddings
         target_mask = lengths_to_mask(target_length, mel_target.size(2))
         # TODO: this should be somehow unmasked for few following frames :/
-        stop_token.masked_fill_(~target_mask, 1000)
+        # stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
         pre_prediction = pre_prediction * target_mask
         post_prediction = post_prediction * target_mask
 
         return post_prediction, pre_prediction, stop_token, alignment
 
-    def inference(self, text, speaker_embedding=None):
+    def inference(self, text, speaker_embedding=None, language_embedding=None):
+        text = text.unsqueeze(0)
         embedded = self._embedding(text)
-        encoded = self._encoder(embedded, [encoded.size(1)])
+        encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]))
         prediction = self._decoder.inference(encoded)
         prediction = prediction.transpose(1,2)
-        post_prediction = self._postnet(prediction, [prediction.size(1)])
-        return post_prediction
+        post_prediction = self._postnet(prediction, torch.LongTensor([prediction.size(2)]))
+        return post_prediction.squeeze(0)
 
 
 class TacotronLoss(torch.nn.Module):
@@ -352,18 +367,18 @@ class TacotronLoss(torch.nn.Module):
         introduced by 'Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention'
     """
 
-    def __init__(self, guided_att_epochs, guided_att_variance, guided_att_gamma):
+    def __init__(self, guided_att_steps, guided_att_variance, guided_att_gamma):
         super(TacotronLoss, self).__init__()
         self._g = guided_att_variance
         self._gamma = guided_att_gamma
-        self._g_epochs = guided_att_epochs
+        self._g_steps = guided_att_steps
 
-    def update_states(self):
+    def update_states(self, steps_since_last_update):
         self._g *= self._gamma
-        self._g_epochs = max(0, self._g_epochs - 1)
+        self._g_steps = max(0, self._g_steps - steps_since_last_update)
 
     def _guided_attention(self, alignments, input_lengths, target_lengths):
-        if not hp.guided_attention_loss or self._g_epochs == 0: return 0
+        if not hp.guided_attention_loss or self._g_steps == 0: return 0
         input_device = alignments.device
         weights = torch.zeros_like(alignments)
         for i, (f, l) in enumerate(zip(target_lengths, input_lengths)):
@@ -383,8 +398,8 @@ class TacotronLoss(torch.nn.Module):
         losses = {
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
-            'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop) / hp.num_mels,
-            'guided_att' : self._guided_attention(alignment, source_length, target_length)
+            'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop) / (hp.num_mels + 2),
+            'guided_att' : self._guided_attention(alignment, source_length, target_length) / (hp.num_mels + 2)
         }
 
         return sum(losses.values()), losses

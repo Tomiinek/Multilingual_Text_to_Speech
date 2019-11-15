@@ -33,11 +33,11 @@ def train(epoch, data, model, criterion, optimizer):
         start_time = time.time() 
         batch = list(map(to_gpu, batch))
         src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs = batch
-        optimizer.zero_grad()     
-        global_step = done + epoch * len(data)
+        optimizer.zero_grad()         
         if hp.constant_teacher_forcing:
             teacher_forcing_ratio = hp.teacher_forcing
         else:
+            global_step = done + epoch * len(data)
             teacher_forcing_ratio = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
         post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, teacher_forcing_ratio)
         post_trg_spec = trg_lin_spec if hp.predict_linear else trg_mel_spec
@@ -124,24 +124,6 @@ if __name__ == '__main__':
     torch.backends.cudnn.enabled = hp.cudnn_enabled
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    
-    # instantiate model, loss function, optimizer and learning rate scheduler
-    if torch.cuda.is_available(): 
-        model = Tacotron().cuda()
-        if args.max_gpus > 1 and torch.cuda.device_count() > 1:
-            model = torch.nn.DataParallel(model, device_ids=list(range(args.max_gpus)))    
-    else: model = Tacotron()
-
-    #optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
-    optimizer = Ranger(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
-    criterion = TacotronLoss(hp.guided_attention_epochs, hp.guided_attention_toleration, hp.guided_attention_gain)
-
-    # load checkpoint
-    if args.checkpoint:
-        checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
-        initial_epoch = load_checkpoint(checkpoint, model, optimizer, scheduler) + 1
-    else: initial_epoch = 0
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
@@ -152,11 +134,34 @@ if __name__ == '__main__':
     hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
     hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)
 
+    # find out number of unique speakers and languages (because of embedding dimension)
+    hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
+    hp.language_number = 0 if not hp.multi_language else dataset.train.get_num_languages()
+    
+    # instantiate model, loss function, optimizer and learning rate scheduler
+    if torch.cuda.is_available(): 
+        model = Tacotron().cuda()
+        if args.max_gpus > 1 and torch.cuda.device_count() > 1:
+            model = torch.nn.DataParallel(model, device_ids=list(range(args.max_gpus)))    
+    else: model = Tacotron()
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    #optimizer = Ranger(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each / len(train_data), gamma=hp.learning_rate_decay)
+    criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
+
+    # load checkpoint
+    if args.checkpoint:
+        checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
+        initial_epoch = load_checkpoint(checkpoint, model, optimizer, scheduler) + 1
+    else: initial_epoch = 0
+
     # training loop
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
         train(epoch, train_data, model, criterion, optimizer)
-        criterion.update_states()  
+        criterion.update_states(len(train_data))  
         if hp.learning_rate_decay_start < epoch * len(train_data):
             scheduler.step()
         # evaluate without teacher forcing
