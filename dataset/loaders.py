@@ -49,6 +49,25 @@ def mailabs(root_path, meta_files=None):
     return items
 
 
+def css10(root_path, meta_files=None):
+    """Load CSS10 sound and meta files."""
+    if meta_files is None: meta_files = glob(f"{root_path}/*/transcript.txt", recursive=True)
+    meta_files.sort()
+    items = []
+    for meta_file in meta_files:
+        language_dir = os.path.dirname(meta_file)
+        with open(meta_file, 'r', encoding='utf-8') as ttf:
+            language = os.path.basename(language_dir) 
+            speaker_name = language 
+            for line in ttf:         
+                cols = line.rstrip().split('|')    
+                audio = os.path.join(language, cols[0])
+                full_audio = os.path.join(root_path, audio)
+                if os.path.isfile(full_audio): items.append([cols[2], audio, speaker_name, language])
+                else: raise RuntimeError("> File %s does not exist!"%(full_audio))
+    return items
+
+
 def my_blizzard(root_path, meta_files=None):
     """Load My Blizzard 2013 audio and meta files."""
     if meta_files is None: transcript_files = glob(f"{root_path}/transcripts/**/*.txt", recursive=False)     

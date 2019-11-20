@@ -38,7 +38,7 @@ class Params:
     batch_size = 56
     learning_rate = 2e-3
     learning_rate_decay = 0.5
-    learning_rate_decay_start = 35000
+    learning_rate_decay_start = 25000
     learning_rate_decay_each = 15000
     weight_decay = 1e-6
     max_output_length = 5000
@@ -106,8 +106,8 @@ class Params:
     remove_multiple_wspaces = True 
 
     use_punctuation = True      # punctuations_{in, out} are valid only if True
-    punctuations_out = '"(),.:;¿?¡!\\'
-    punctuations_in  = '\'-'
+    punctuations_out = '、。，"(),.:;¿?¡!\\'
+    punctuations_in  = '’\'-'
 
     # all phonemes of IPA: 'iyɨʉɯuɪʏʊeøɘəɵɤoɛœɜɞʌɔæɐaɶɑɒᵻʘɓǀɗǃʄǂɠǁʛpbtdʈɖcɟkɡqɢʔɴŋɲɳnɱmʙrʀⱱɾɽɸβfvθðszʃʒʂʐçʝxɣχʁħʕhɦɬɮʋɹɻjɰlɭʎʟˈˌːˑʍwɥʜʢʡɕʑɺɧ ɚ˞ɫ'
     use_phonemes = False   # phonemes are valid only if True
