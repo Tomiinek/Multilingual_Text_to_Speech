@@ -324,14 +324,17 @@ class Tacotron(torch.nn.Module):
 
     def forward(self, text, text_length, mel_target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
-        if hp.multi_speaker:
-            embedded_speaker = self._speaker_embedding(speakers)
-        if hp.multi_language:
-            embedded_language = self._speaker_embedding(languages)  
-        torch.concat()    
-
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length)
+
+         if hp.multi_speaker:
+            embedded_speaker = self._speaker_embedding(speakers)
+            encoded = torch.cat((encoded, embedded_speaker), dim=1)   
+
+        if hp.multi_language:
+            embedded_language = self._speaker_embedding(languages)  
+            encoded = torch.cat((encoded, embedded_languages), dim=1)    
+
         decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
@@ -399,7 +402,7 @@ class TacotronLoss(torch.nn.Module):
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
             'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop) / (hp.num_mels + 2),
-            'guided_att' : self._guided_attention(alignment, source_length, target_length) / (hp.num_mels + 2)
+            'guided_att' : self._guided_attention(alignment, source_length, target_length)
         }
 
         return sum(losses.values()), losses
