@@ -88,7 +88,7 @@ class Params:
     multi_speaker = False
     multi_language = False
     speaker_embedding_dimension = 64
-    language_embedding_dimension = 4
+    language_embedding_dimension = 8
     speaker_number = 0
     language_number = 0
 

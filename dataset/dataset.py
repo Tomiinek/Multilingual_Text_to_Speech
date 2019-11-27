@@ -152,14 +152,14 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
 
     def get_num_speakers(self):
         """Get number of unique speakers in the dataset."""
-        speakers = {} 
+        speakers = set()
         for idx in range(len(self.items)):
             speakers.add(self.items[idx]['speaker'])
         return len(speakers)
 
     def get_num_languages(self):
         """Get number of unique languages in the dataset."""
-        languages = {} 
+        languages = set()
         for idx in range(len(self.items)):
             languages.add(self.items[idx]['language'])
         return len(languages)
@@ -229,11 +229,11 @@ class TextToSpeechCollate():
         # get lengths
         utterance_lengths, spectrogram_lengths = [], []
         speakers = []
-        # languages = []
+        languages = []
         max_frames = 0
         for s, l, u, a, _ in batch:
             speakers.append(s)
-            # languages.append(l)
+            languages.append(l)
             utterance_lengths.append(len(u))
             spectrogram_lengths.append(len(a[0]))
             if spectrogram_lengths[-1] > max_frames:
@@ -243,7 +243,7 @@ class TextToSpeechCollate():
         sorted_utterance_lengths, sorted_idxs = torch.sort(utterance_lengths, descending=True)
         spectrogram_lengths = torch.LongTensor(spectrogram_lengths)[sorted_idxs]
         speakers = None if not hp.multi_speaker else torch.LongTensor(speakers)[sorted_idxs]
-        # languages = torch.LongTensor(languages)[sorted_idxs]
+        languages = None if not hp.multi_language else torch.LongTensor(languages)[sorted_idxs]
 
         # zero-pad utterances, spectrograms
         batch_size = len(batch)
@@ -261,4 +261,4 @@ class TextToSpeechCollate():
                 lin_spectrograms[i, :, :b[0].size] = torch.FloatTensor(b) 
             stop_tokens[i, a[0].size-1:] = 1
 
-        return sorted_utterance_lengths, utterances, mel_spectrograms, lin_spectrograms, stop_tokens, spectrogram_lengths, speakers #, languages
+        return sorted_utterance_lengths, utterances, mel_spectrograms, lin_spectrograms, stop_tokens, spectrogram_lengths, speakers, languages

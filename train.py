@@ -32,14 +32,14 @@ def train(epoch, data, model, criterion, optimizer):
     for i, batch in enumerate(data):     
         start_time = time.time() 
         batch = list(map(to_gpu, batch))
-        src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs = batch
+        src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs, langs = batch
         optimizer.zero_grad()         
         if hp.constant_teacher_forcing:
             teacher_forcing_ratio = hp.teacher_forcing
         else:
             global_step = done + epoch * len(data)
             teacher_forcing_ratio = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
-        post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, None, teacher_forcing_ratio)
+        post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, langs, teacher_forcing_ratio)
         post_trg_spec = trg_lin_spec if hp.predict_linear else trg_mel_spec
         loss, batch_losses = criterion(src_len, pre_prediction, trg_mel_spec, post_prediction, post_trg_spec, trg_len, stop, trg_stop, alignment)
         loss.backward()      
@@ -57,8 +57,8 @@ def evaluate(epoch, data, model, criterion, teacher_forcing):
     with torch.no_grad():   
         for i, item in enumerate(data):
             item = map(to_gpu, item)
-            src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs = list(item)
-            post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, None, teacher_forcing)
+            src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs, langs = list(item)
+            post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, langs, teacher_forcing)
             post_trg_spec = trg_lin_spec if hp.predict_linear else trg_mel_spec
             loss, batch_losses = criterion(src_len, pre_prediction, trg_mel_spec, post_prediction, post_trg_spec, trg_len, stop, trg_stop, alignment)
             for k, v in batch_losses.items(): 

@@ -327,12 +327,12 @@ class Tacotron(torch.nn.Module):
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length)
 
-         if hp.multi_speaker:
+        if hp.multi_speaker:
             embedded_speaker = self._speaker_embedding(speakers)
             encoded = torch.cat((encoded, embedded_speaker), dim=1)   
 
         if hp.multi_language:
-            embedded_language = self._speaker_embedding(languages)  
+            embedded_language = self._language_embedding(languages)  
             encoded = torch.cat((encoded, embedded_languages), dim=1)    
 
         decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio)
