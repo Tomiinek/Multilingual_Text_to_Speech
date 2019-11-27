@@ -45,9 +45,9 @@ class Params:
     cudnn_enabled = True
     gradient_clipping = 0.25
     guided_attention_loss = True
-    guided_attention_steps = 20000
+    guided_attention_steps = 15000
     guided_attention_toleration = 0.25
-    guided_attention_gain = 1.03
+    guided_attention_gain = 1.015
     constant_teacher_forcing = True
     teacher_forcing = 1.0 
     teacher_forcing_steps = 100000

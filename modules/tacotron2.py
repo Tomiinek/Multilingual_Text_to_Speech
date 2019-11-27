@@ -255,8 +255,16 @@ class Tacotron(torch.nn.Module):
                             hp.prenet_layers, 
                             hp.dropout
                         )              
-        self._attention = self._get_attention(hp.attention_type)
-        decoder_input_dimension = hp.speaker_number + hp.language_number +  hp.encoder_dimension
+        decoder_input_dimension = hp.encoder_dimension
+        if hp.multi_speaker:
+            decoder_input_dimension += hp.speaker_embedding_dimension
+            self._speaker_embedding = Embedding(hp.speaker_number, hp.speaker_embedding_dimension)
+            torch.nn.init.xavier_uniform_(self._speaker_embedding.weight)
+        if hp.multi_language:
+            decoder_input_dimension += hp.language_embedding_dimension
+            self._language_embedding = Embedding(hp.language_number, hp.language_embedding_dimension)
+            torch.nn.init.xavier_uniform_(self._language_embedding.weight)
+        self._attention = self._get_attention(hp.attention_type, decoder_input_dimension)
         gen_cell_dimension = decoder_input_dimension + hp.decoder_dimension
         att_cell_dimension = decoder_input_dimension + hp.prenet_dimension
         if hp.decoder_regularization == 'zoneout':
@@ -296,17 +304,11 @@ class Tacotron(torch.nn.Module):
                             hp.postnet_kernel_size, 
                             hp.dropout
                         )
-        if hp.multi_speaker:
-            self._speaker_embedding = Embedding(hp.speaker_number, hp.speaker_embedding_dimension)
-            torch.nn.init.xavier_uniform_(self._speaker_embedding.weight)
-        if hp.multi_language:
-            self._language_embedding = Embedding(hp.language_number, hp.language_embedding_dimension)
-            torch.nn.init.xavier_uniform_(self._language_embedding.weight)
             
-    def _get_attention(self, name):
+    def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
                 hp.decoder_dimension, 
-                hp.encoder_dimension)
+                memory_dimension)
         if name == "location_sensitive":
             return LocationSensitiveAttention(
                 hp.attention_kernel_size,
@@ -328,13 +330,15 @@ class Tacotron(torch.nn.Module):
         encoded = self._encoder(embedded, text_length)
 
         if hp.multi_speaker:
-            embedded_speaker = self._speaker_embedding(speakers)
-            encoded = torch.cat((encoded, embedded_speaker), dim=1)   
+            embedded_speaker = self._speaker_embedding(speakers).unsqueeze_(1)
+            embedded_speaker = embedded_speaker.expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, embedded_speaker), dim=-1)   
 
         if hp.multi_language:
-            embedded_language = self._language_embedding(languages)  
-            encoded = torch.cat((encoded, embedded_languages), dim=1)    
-
+            embedded_language = self._language_embedding(languages).unsqueeze_(1)
+            embedded_language = embedded_language.expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, embedded_language), dim=-1)
+            
         decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)

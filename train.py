@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
     # find out number of unique speakers and languages (because of embedding dimension)
     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
-    hp.language_number = 0 if not hp.multi_language else dataset.train.get_num_languages()
+    hp.language_number = 0 if not hp.multi_language else len(hp.languages)
     
     # instantiate model, loss function, optimizer and learning rate scheduler
     if torch.cuda.is_available(): 
