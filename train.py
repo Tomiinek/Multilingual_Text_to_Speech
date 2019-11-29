@@ -71,26 +71,6 @@ def evaluate(epoch, data, model, criterion, teacher_forcing):
     return sum(eval_losses.values())
 
 
-def load_checkpoint(checkpoint, model, optimizer, scheduler):
-    state = torch.load(checkpoint)
-    model.load_state_dict(state['model'])
-    optimizer.load_state_dict(state['optimizer'])
-    scheduler.load_state_dict(state['scheduler'])
-    hp.load_state_dict(sttate['parameters'])
-    return state['epoch']
-
-
-def save_checkpoint(checkpoint_path, epoch, model, optimizer, sheduler):
-    state_dict = {
-        'epoch': epoch,
-        'model': model.state_dict(),
-        'optimizer': optimizer.state_dict(),
-        'scheduler': sheduler.state_dict(),
-        'parameters': hp.state_dict()
-    }
-    torch.save(state_dict, checkpoint_path)
-
-
 if __name__ == '__main__':
     import argparse
     import os
@@ -98,46 +78,60 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--base_directory", type=str, default=".", help="Base directory of the project.")
+    parser.add_argument('--fine_tuning', action='store_true')
     parser.add_argument("--checkpoint", type=str, default=None, help="Name of the initial checkpoint.")
+    parser.add_argument("--checkpoint_root", type=str, default="checkpoints", help="Base directory of checkpoints.")
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
     parser.add_argument("--flush_seconds", type=int, default=60, help="How often to flush pending summaries to tensorboard.")
     parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
     args = parser.parse_args()
 
+    # set up seeds and the target torch device
+    np.random.seed(42)
+    torch.manual_seed(42)
+    torch.backends.cudnn.enabled = True
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    # prepare directory for checkpoints 
+    checkpoint_dir = os.path.join(args.base_directory, args.checkpoint_root)
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+
+    # load checkpoint (dict) with saved hyper-parameters (let some of them be overwritten because of fine-tuning)
+    if args.checkpoint:
+        checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
+        checkpoint_state = torch.load(checkpoint)
+        hp.load_state_dict(checkpoint_state['parameters'])      
+        used_input_characters = hp.characters if hp.use_phonemes else hp.phonemes
+
     # load hyperparameters
     hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
     hp.load(hp_path)
 
-    # prepare directory for checkpoints 
-    checkpoint_dir = os.path.join(args.base_directory, 'checkpoints')
-    if not os.path.exists(checkpoint_dir):
-        os.makedirs(checkpoint_dir)
-
-    # initialize logger
-    log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
-    Logger.initialize(log_dir, args.flush_seconds)
-
-    # set up seeds and the target torch device
-    np.random.seed(42)
-    torch.manual_seed(42)
-    torch.backends.cudnn.enabled = hp.cudnn_enabled
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    # find characters which were not used in the input embedding of checkpoint
+    if args.checkpoint: 
+        new_input_characters = hp.characters if hp.use_phonemes else hp.phonemes
+        extra_input_characters = [x for x in new_input_characters if x not in used_input_characters]
+        ordered_new_input_characters = new_input_characters + ''.join(extra_input_characters)
+        if hp.use_phonemes: hp.phonemes = ordered_new_input_characters
+        else: hp.characters = ordered_new_input_characters
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
     train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=True, collate_fn=TextToSpeechCollate())
     eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate())
 
-    # compute per-channel constants for spectrogram normalization
-    hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
-    hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)
+    # acquire dataset-dependent constatnts, these should probably be the same while going from checkpoint
+    if not args.checkpoint:
+        # compute per-channel constants for spectrogram normalization
+        hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
+        hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)
+        # find out number of unique speakers and languages (because of embedding dimension)
+        hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
+        hp.language_number = 0 if not hp.multi_language else len(hp.languages)
 
-    # find out number of unique speakers and languages (because of embedding dimension)
-    hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
-    hp.language_number = 0 if not hp.multi_language else len(hp.languages)
-    
     # instantiate model, loss function, optimizer and learning rate scheduler
     if torch.cuda.is_available(): 
         model = Tacotron().cuda()
@@ -145,29 +139,58 @@ if __name__ == '__main__':
             model = torch.nn.DataParallel(model, device_ids=list(range(args.max_gpus)))    
     else: model = Tacotron()
 
+    # instantiate optimizer and scheduler
     optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     #optimizer = Ranger(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each / len(train_data), gamma=hp.learning_rate_decay)
     criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
 
-    # load checkpoint
+    # load model weights and optimizer, scheduler states from checkpoint state dictionary
+    initial_epoch = 0
     if args.checkpoint:
-        checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
-        initial_epoch = load_checkpoint(checkpoint, model, optimizer, scheduler) + 1
-    else: initial_epoch = 0
+        model.load_state_dict(checkpoint_state['model'])
+        if not args.fine_tuning:
+            initial_epoch = checkpoint_state['epoch'] + 1
+            optimizer.load_state_dict(checkpoint_state['optimizer'])
+            scheduler.load_state_dict(checkpoint_state['scheduler'])
+        else:
+            # make speaker and language embeddings constant
+            hp.embedding_type = "constant"
+            if hp.multi_speaker:
+                embedding = model._speaker_embedding.weight.mean(dim=0)
+                model._speaker_embedding = ConstantEmbedding(embedding)
+            if hp.multi_language:
+                embedding = model._language_embedding.weight.mean(dim=0)
+                model._language_embedding = ConstantEmbedding(embedding)
+            # enlarge the input embedding to fit all new characters
+            input_embedding = model._embedding.weight
+            input_embedding = torch.nn.functional.pad(input_embedding, (0,0,0, len(extra_input_characters)))
+            model._embedding = nn.Embedding.from_pretrained(input_embedding)
+            
+    # initialize logger
+    log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
+    Logger.initialize(log_dir, args.flush_seconds)
 
     # training loop
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
         train(epoch, train_data, model, criterion, optimizer)
         criterion.update_states(len(train_data))  
-        if hp.learning_rate_decay_start < epoch * len(train_data):
+        if hp.learning_rate_decay_start - learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()
         # evaluate without teacher forcing
         evaluate(epoch, eval_data, model, criterion, 0.0)   
         # evaluate with teacher forcing
         eval_loss = evaluate(epoch, eval_data, model, criterion, 1.0)   
         if (epoch + 1) % hp.checkpoint_each_epochs == 0:
+            # save checkpoint together with hyper-parameters, optimizer and scheduler states
             checkpoint_file = f'{checkpoint_dir}/{hp.version}_loss-{epoch}-{eval_loss:2.3f}'
-            save_checkpoint(checkpoint_file, epoch, model, optimizer, scheduler)
+            state_dict = {
+                'epoch': epoch,
+                'model': model.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'scheduler': sheduler.state_dict(),
+                'parameters': hp.state_dict()
+            }
+            torch.save(state_dict, checkpoint_file)

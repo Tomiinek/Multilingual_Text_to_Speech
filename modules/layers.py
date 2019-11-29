@@ -48,7 +48,7 @@ class DropoutLSTMCell(torch.nn.LSTMCell):
 class ConvBlock(torch.nn.Module):
     """One dimensional convolution with batchnorm and dropout, expected channel-first input.
     
-    Keyword arguments:
+    Arguments:
     input_channels -- number if input channels
     output_channels -- number of output channels<F4>
     kernel -- convolution kernel size ('same' padding is used)
@@ -70,3 +70,17 @@ class ConvBlock(torch.nn.Module):
 
     def forward(self, x):
         return self._block(x)
+
+
+class ConstantEmbedding(torch.nn.Module):
+    """Simple layer returning frozen constant embedding (suitable for fine-tuning). 
+    
+    Arguments:
+    weights -- The tensor to be returned for any input.
+    """
+
+    def __init__(self, weights):
+        self.register_buffer('embedding_weights', weights)
+
+    def forward(self, x):
+        return self.embedding_weights.unsqueeze(2).expand(x.shape[0], -1)

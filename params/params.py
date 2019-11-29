@@ -38,11 +38,10 @@ class Params:
     batch_size = 56
     learning_rate = 2e-3
     learning_rate_decay = 0.5
-    learning_rate_decay_start = 25000
+    learning_rate_decay_start = 15000
     learning_rate_decay_each = 15000
     weight_decay = 1e-6
     max_output_length = 5000
-    cudnn_enabled = True
     gradient_clipping = 0.25
     guided_attention_loss = True
     guided_attention_steps = 15000
@@ -87,6 +86,7 @@ class Params:
 
     multi_speaker = False
     multi_language = False
+    embedding_type = "simple"
     speaker_embedding_dimension = 64
     language_embedding_dimension = 8
     speaker_number = 0
@@ -132,5 +132,3 @@ class Params:
 
     use_preemphasis = True
     preemphasis = 0.97
-
-    

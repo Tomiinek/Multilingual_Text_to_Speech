@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, Linear, ReLU, Sigmoid, Tanh, Dropout, LSTM, Embedding
 
-from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock
+from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.cbhg import PostnetCBHG
 from params.params import Params as hp
@@ -235,6 +235,8 @@ class Tacotron(torch.nn.Module):
 
     def __init__(self):
         super(Tacotron, self).__init__()
+
+        # Encoder embedding 
         other_symbols = 3 # PAD, EOS, UNK
         self._embedding = Embedding(
                             hp.symbols_count() + other_symbols, 
@@ -242,6 +244,8 @@ class Tacotron(torch.nn.Module):
                             padding_idx=0
                         )
         torch.nn.init.xavier_uniform_(self._embedding.weight)
+
+        # Encoder transforming graphmenes or phonemes into abstract input representation
         self._encoder = Encoder(
                             hp.embedding_dimension, 
                             hp.encoder_dimension, 
@@ -249,22 +253,28 @@ class Tacotron(torch.nn.Module):
                             hp.encoder_kernel_size, 
                             hp.dropout
                         )
+
+        # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
                             hp.num_mels, 
                             hp.prenet_dimension, 
                             hp.prenet_layers, 
                             hp.dropout
                         )              
+
+        # Speaker and language embeddings
         decoder_input_dimension = hp.encoder_dimension
         if hp.multi_speaker:
+            self._speaker_embedding = self._get_embedding(hp.embedding_type, p.speaker_embedding_dimension, hp.speaker_number)
             decoder_input_dimension += hp.speaker_embedding_dimension
-            self._speaker_embedding = Embedding(hp.speaker_number, hp.speaker_embedding_dimension)
-            torch.nn.init.xavier_uniform_(self._speaker_embedding.weight)
         if hp.multi_language:
+            self._language_embedding = self._get_embedding(hp.embedding_type, p.language_embedding_dimension, hp.speaker_number)
             decoder_input_dimension += hp.language_embedding_dimension
-            self._language_embedding = Embedding(hp.language_number, hp.language_embedding_dimension)
-            torch.nn.init.xavier_uniform_(self._language_embedding.weight)
+
+        # Decoder attention layer 
         self._attention = self._get_attention(hp.attention_type, decoder_input_dimension)
+        
+        # Instantiate decoder RNN layers
         gen_cell_dimension = decoder_input_dimension + hp.decoder_dimension
         att_cell_dimension = decoder_input_dimension + hp.prenet_dimension
         if hp.decoder_regularization == 'zoneout':
@@ -273,6 +283,8 @@ class Tacotron(torch.nn.Module):
         else:
             generator_rnn = DropoutLSTMCell(gen_cell_dimension, hp.decoder_dimension, hp.dropout_hidden) 
             attention_rnn = DropoutLSTMCell(att_cell_dimension, hp.decoder_dimension, hp.dropout_hidden)
+
+        # Decoder which controls attention and produces mel frames and stop tokens 
         self._decoder = Decoder(
                             hp.num_mels, 
                             hp.decoder_dimension, 
@@ -283,7 +295,9 @@ class Tacotron(torch.nn.Module):
                             self._prenet, 
                             hp.prenet_dimension,
                             hp.max_output_length
-                        )        
+                        )      
+
+        # Postnet transforming predicted mel frames (residual mel or linear frames)
         if hp.predict_linear:
             self._postnet = PostnetCBHG(
                             hp.num_mels, 
@@ -323,6 +337,14 @@ class Tacotron(torch.nn.Module):
                 hp.prenet_dimension,
                 *args
             )
+
+    def _get_embedding(self, name, embedding_dimension, size=None):
+        if name == "simple":
+            embedding = Embedding(size, embedding_dimension)
+            torch.nn.init.xavier_uniform_(embedding)
+            return embedding
+        elif name == "constant":
+            return ConstantEmbedding(torch.zeros(embedding_dimension))  
 
     def forward(self, text, text_length, mel_target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
