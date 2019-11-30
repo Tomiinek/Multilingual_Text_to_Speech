@@ -265,10 +265,10 @@ class Tacotron(torch.nn.Module):
         # Speaker and language embeddings
         decoder_input_dimension = hp.encoder_dimension
         if hp.multi_speaker:
-            self._speaker_embedding = self._get_embedding(hp.embedding_type, p.speaker_embedding_dimension, hp.speaker_number)
+            self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
             decoder_input_dimension += hp.speaker_embedding_dimension
         if hp.multi_language:
-            self._language_embedding = self._get_embedding(hp.embedding_type, p.language_embedding_dimension, hp.speaker_number)
+            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.speaker_number)
             decoder_input_dimension += hp.language_embedding_dimension
 
         # Decoder attention layer 

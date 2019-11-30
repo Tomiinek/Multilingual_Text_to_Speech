@@ -71,6 +71,14 @@ def evaluate(epoch, data, model, criterion, teacher_forcing):
     return sum(eval_losses.values())
 
 
+class DataParallelPassthrough(torch.nn.DataParallel):
+    def __getattr__(self, name):
+        try:
+            return super().__getattr__(name)
+        except AttributeError:
+            return getattr(self.module, name)
+
+
 if __name__ == '__main__':
     import argparse
     import os
@@ -104,17 +112,17 @@ if __name__ == '__main__':
         checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
         checkpoint_state = torch.load(checkpoint)
         hp.load_state_dict(checkpoint_state['parameters'])      
-        used_input_characters = hp.characters if hp.use_phonemes else hp.phonemes
+        used_input_characters = hp.phonemes if hp.use_phonemes else hp.characters
 
     # load hyperparameters
     hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
     hp.load(hp_path)
 
     # find characters which were not used in the input embedding of checkpoint
-    if args.checkpoint: 
-        new_input_characters = hp.characters if hp.use_phonemes else hp.phonemes
+    if args.fine_tuning: 
+        new_input_characters = hp.phonemes if hp.use_phonemes else hp.characters
         extra_input_characters = [x for x in new_input_characters if x not in used_input_characters]
-        ordered_new_input_characters = new_input_characters + ''.join(extra_input_characters)
+        ordered_new_input_characters = used_input_characters + ''.join(extra_input_characters)
         if hp.use_phonemes: hp.phonemes = ordered_new_input_characters
         else: hp.characters = ordered_new_input_characters
 
@@ -132,11 +140,16 @@ if __name__ == '__main__':
         hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
         hp.language_number = 0 if not hp.multi_language else len(hp.languages)
 
+    # set the input charset to match characters of the checkpoint (in order to load model) 
+    if args.fine_tuning: 
+        if hp.use_phonemes: hp.phonemes = used_input_characters
+        else: hp.characters = used_input_characters
+
     # instantiate model, loss function, optimizer and learning rate scheduler
     if torch.cuda.is_available(): 
         model = Tacotron().cuda()
         if args.max_gpus > 1 and torch.cuda.device_count() > 1:
-            model = torch.nn.DataParallel(model, device_ids=list(range(args.max_gpus)))    
+            model = DataParallelPassthrough(model, device_ids=list(range(args.max_gpus)))    
     else: model = Tacotron()
 
     # instantiate optimizer and scheduler
@@ -164,9 +177,14 @@ if __name__ == '__main__':
                 embedding = model._language_embedding.weight.mean(dim=0)
                 model._language_embedding = ConstantEmbedding(embedding)
             # enlarge the input embedding to fit all new characters
-            input_embedding = model._embedding.weight
-            input_embedding = torch.nn.functional.pad(input_embedding, (0,0,0, len(extra_input_characters)))
-            model._embedding = nn.Embedding.from_pretrained(input_embedding)
+            if hp.use_phonemes: hp.phonemes = ordered_new_input_characters
+            else: hp.characters = ordered_new_input_characters
+            num_news = len(extra_input_characters)
+            input_embedding = model._embedding.weight     
+            with torch.no_grad():
+                input_embedding = torch.nn.functional.pad(input_embedding, (0,0,0, num_news))
+                torch.nn.init.xavier_uniform_(input_embedding[-num_news:, :])
+            model._embedding = torch.nn.Embedding.from_pretrained(input_embedding, padding_idx=0, freeze=False)
             
     # initialize logger
     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
@@ -190,7 +208,7 @@ if __name__ == '__main__':
                 'epoch': epoch,
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
-                'scheduler': sheduler.state_dict(),
+                'scheduler': scheduler.state_dict(),
                 'parameters': hp.state_dict()
             }
             torch.save(state_dict, checkpoint_file)
