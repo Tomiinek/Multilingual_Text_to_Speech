@@ -177,7 +177,7 @@ if __name__ == '__main__':
     for epoch in range(initial_epoch, hp.epochs):
         train(epoch, train_data, model, criterion, optimizer)
         criterion.update_states(len(train_data))  
-        if hp.learning_rate_decay_start - learning_rate_decay_each < epoch * len(train_data):
+        if hp.learning_rate_decay_start - hp.learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()
         # evaluate without teacher forcing
         evaluate(epoch, eval_data, model, criterion, 0.0)   

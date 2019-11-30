@@ -427,7 +427,7 @@ class TacotronLoss(torch.nn.Module):
         losses = {
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
-            'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop) / (hp.num_mels + 2),
+            'stop_token' : 2 * F.binary_cross_entropy_with_logits(stop, target_stop) / (hp.num_mels + 2),
             'guided_att' : self._guided_attention(alignment, source_length, target_length)
         }
 
