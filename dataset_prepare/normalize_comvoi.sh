@@ -58,15 +58,14 @@ for (( idx=0 ; idx<${#languages[@]} ; idx+=2 )) ; do
     
     awk -F"\t" '{print $2}' validated.tsv > valid_files.txt
     find clips -name "*.mp3" | grep -vFf valid_files.txt | xargs rm -rf
-    sed -i -e 's/\.mp3/\.wav/g' valid_files.txt
     
     rm valid_files.txt "$ZIPPED"
 
-    echo Converting "$LANG" to wavs
-
-    cd clips
-    find . -type f -name "*.mp3" | while read i; do ffmpeg -loglevel panic -y -i $i $(basename $i).wav; done
-    cd ../
+    #echo Converting "$LANG" to wavs
+    sed -i -e 's/\.mp3/\.wav/g' valid_files.txt
+    #cd clips
+    #find . -type f -name "*.mp3" | while read i; do ffmpeg -loglevel panic -y -i $i $(basename $i).wav; done
+    #cd ../
 
     cd ../
      
