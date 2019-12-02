@@ -268,7 +268,7 @@ class Tacotron(torch.nn.Module):
             self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
             decoder_input_dimension += hp.speaker_embedding_dimension
         if hp.multi_language:
-            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.speaker_number)
+            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.language_number)
             decoder_input_dimension += hp.language_embedding_dimension
 
         # Decoder attention layer 
@@ -341,7 +341,7 @@ class Tacotron(torch.nn.Module):
     def _get_embedding(self, name, embedding_dimension, size=None):
         if name == "simple":
             embedding = Embedding(size, embedding_dimension)
-            torch.nn.init.xavier_uniform_(embedding)
+            torch.nn.init.xavier_uniform_(embedding.weight)
             return embedding
         elif name == "constant":
             return ConstantEmbedding(torch.zeros(embedding_dimension))  

@@ -67,7 +67,7 @@ def evaluate(epoch, data, model, criterion, teacher_forcing):
         eval_losses[k] /= len(data)
     if not hp.guided_attention_loss: 
         eval_losses.pop('guided_att')
-    Logger.evaluation(f"eval_{teacher_forcing}", epoch+1, eval_losses, src, trg_lin_spec, post_prediction, trg_len, src_len, trg_stop, torch.sigmoid(stop), alignment)
+    Logger.evaluation(f"eval_{teacher_forcing}", epoch+1, eval_losses, src, post_trg_spec, post_prediction, trg_len, src_len, trg_stop, torch.sigmoid(stop), alignment)
     return sum(eval_losses.values())
 
 
