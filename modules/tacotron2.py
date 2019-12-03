@@ -1,6 +1,6 @@
 import torch
 from torch.nn import functional as F
-from torch.nn import Sequential, ModuleList, Linear, ReLU, Sigmoid, Tanh, Dropout, LSTM, Embedding
+from torch.nn import Sequential, ModuleList, ModuleDict, Linear, ReLU, Sigmoid, Tanh, Dropout, LSTM, Embedding
 
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
@@ -19,7 +19,7 @@ class Encoder(torch.nn.Module):
         stack of 3 conv. layers 5 × 1 with BN and ReLU, dropout
         output is passed into a Bi-LSTM layer
 
-    Keyword arguments:
+    Arguments:
         input_dim -- size of the input (supposed character embedding)
         output_dim -- number of channels of the convolutional blocks and last Bi-LSTM
         num_blocks -- number of the convolutional blocks (at least one)
@@ -37,7 +37,8 @@ class Encoder(torch.nn.Module):
         )
         self._lstm = LSTM(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
 
-    def forward(self, x, x_lenghts):  
+    def forward(self, x, x_lenghts, x_langs=None):  
+        # x_langs argument is there just for convinience
         x = x.transpose(1, 2)
         x = self._convs(x)
         x = x.transpose(1, 2)
@@ -49,13 +50,37 @@ class Encoder(torch.nn.Module):
         return x
 
 
+class MultiEncoder(torch.nn.Module):
+    """
+    Bunch of language-dependent encoders with output masking.
+
+    Arguments:
+        num_langs -- number of languages (and encoders to be instiantiated)
+        encoder_args -- tuple of arguments for encoder
+    """
+
+    def __init__(self, num_langs, encoder_args):
+        self._num_langs = num_langs
+        self._encoders = ModuleList([Encoder(*encoder_args)] * num_langs)
+
+    def forward(self, x, x_lenghts, x_langs):
+        xs = None
+        for l in self._num_langs:
+            mask = (x_langs == l)
+            ex = self._encoders[l](x)
+            if xs is None:
+                xs = torch.zeros_like(ex)
+            xs[mask] = ex[mask]
+        return xs
+
+
 class Prenet(torch.nn.Module):
     """
     Prenet:
         stack of 2 linear layers with dropout which is enabled even during inference (output variation)
         should act as bottleneck for attention
 
-    Keyword arguments:
+    Arguments:
         input_dim -- size of the input (supposed the number of frame mels)
         output_dim -- size of the output
         num_layers -- number of the linear layers (at least one)
@@ -86,7 +111,7 @@ class Postnet(torch.nn.Module):
     Postnet:
         stack of 5 conv. layers 5 × 1 with BN and tanh (except last), dropout
 
-    Keyword arguments:
+    Arguments:
         input_dimension -- size of the input and output (supposed the number of frame mels)
         postnet_dimension -- size of the internal convolutional blocks
         num_blocks -- number of the convolutional blocks (at least one)
@@ -120,7 +145,7 @@ class Decoder(torch.nn.Module):
         input of the second LSTM is current context vector and output of the first LSTM
         output is passed through stop token layer, frame prediction layer and pre-ne
 
-    Keyword arguments:
+    Arguments:
         output_dim -- size of the predicted frame, i.e. number of mels 
         decoder_dim -- size of the generator output (and also of all the LSTMs used in the decoder)
         attention -- instance of the location-sensitive attention module 
@@ -246,13 +271,7 @@ class Tacotron(torch.nn.Module):
         torch.nn.init.xavier_uniform_(self._embedding.weight)
 
         # Encoder transforming graphmenes or phonemes into abstract input representation
-        self._encoder = Encoder(
-                            hp.embedding_dimension, 
-                            hp.encoder_dimension, 
-                            hp.encoder_blocks, 
-                            hp.encoder_kernel_size, 
-                            hp.dropout
-                        )
+        self._encoder = _get_encoder(hp.encoder_type)
 
         # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
@@ -318,6 +337,17 @@ class Tacotron(torch.nn.Module):
                             hp.postnet_kernel_size, 
                             hp.dropout
                         )
+
+    def _get_encoder(self, name):
+        args = (hp.embedding_dimension,
+                hp.encoder_dimension, 
+                hp.encoder_blocks,
+                hp.encoder_kernel_size,
+                hp.dropout)
+        if name == "shared":
+            return Encoder(args)
+        elif name == "separate":
+            return MultiEncoder(hp.language_number, args)  
             
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
