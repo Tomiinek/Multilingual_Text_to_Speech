@@ -44,9 +44,9 @@ class Params:
     max_output_length = 5000
     gradient_clipping = 0.25
     guided_attention_loss = True
-    guided_attention_steps = 15000
+    guided_attention_steps = 20000
     guided_attention_toleration = 0.25
-    guided_attention_gain = 1.015
+    guided_attention_gain = 1.0225
     constant_teacher_forcing = True
     teacher_forcing = 1.0 
     teacher_forcing_steps = 100000
@@ -56,6 +56,7 @@ class Params:
     # MODEL:
 
     embedding_dimension = 512
+    encoder_type = "shared" # one of: shared (single encoder for all languages), separate (distinct encoders for each language)
     encoder_dimension = 512
     encoder_blocks = 3
     encoder_kernel_size = 5
@@ -86,7 +87,7 @@ class Params:
 
     multi_speaker = False
     multi_language = False
-    embedding_type = "simple"
+    embedding_type = "simple"  # one of: simple (for usual lookup embedding), constant (returning a constant vector)
     speaker_embedding_dimension = 64
     language_embedding_dimension = 8
     speaker_number = 0

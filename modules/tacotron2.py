@@ -60,14 +60,16 @@ class MultiEncoder(torch.nn.Module):
     """
 
     def __init__(self, num_langs, encoder_args):
+        super(MultiEncoder, self).__init__()
         self._num_langs = num_langs
         self._encoders = ModuleList([Encoder(*encoder_args)] * num_langs)
 
     def forward(self, x, x_lenghts, x_langs):
         xs = None
-        for l in self._num_langs:
+        for l in range(self._num_langs):
             mask = (x_langs == l)
-            ex = self._encoders[l](x)
+            if not mask.any(): continue
+            ex = self._encoders[l](x, x_lenghts)
             if xs is None:
                 xs = torch.zeros_like(ex)
             xs[mask] = ex[mask]
@@ -271,7 +273,7 @@ class Tacotron(torch.nn.Module):
         torch.nn.init.xavier_uniform_(self._embedding.weight)
 
         # Encoder transforming graphmenes or phonemes into abstract input representation
-        self._encoder = _get_encoder(hp.encoder_type)
+        self._encoder = self._get_encoder(hp.encoder_type)
 
         # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
@@ -379,7 +381,7 @@ class Tacotron(torch.nn.Module):
     def forward(self, text, text_length, mel_target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
         embedded = self._embedding(text)
-        encoded = self._encoder(embedded, text_length)
+        encoded = self._encoder(embedded, text_length, languages)
 
         if hp.multi_speaker:
             embedded_speaker = self._speaker_embedding(speakers).unsqueeze_(1)
