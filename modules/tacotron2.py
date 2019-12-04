@@ -38,7 +38,7 @@ class Encoder(torch.nn.Module):
         self._lstm = LSTM(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
 
     def forward(self, x, x_lenghts, x_langs=None):  
-        # x_langs argument is there just for convinience
+        # x_langs argument is there just for convenience
         x = x.transpose(1, 2)
         x = self._convs(x)
         x = x.transpose(1, 2)
@@ -56,7 +56,7 @@ class MultiEncoder(torch.nn.Module):
 
     Arguments:
         num_langs -- number of languages (and encoders to be instiantiated)
-        encoder_args -- tuple of arguments for encoder
+        encoder_args -- tuple or list of arguments for encoder
     """
 
     def __init__(self, num_langs, encoder_args):
@@ -189,7 +189,7 @@ class Decoder(torch.nn.Module):
         c_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
         return h_att, c_att, h_gen, c_gen
 
-    def _decode(self, encoded_input, mask, target, teacher_forcing_ratio):
+    def _decode(self, encoded_input, mask, target, teacher_forcing_ratio, speaker_embedding, language_embedding):
         """Perform decoding of the encoded input sequence."""
         
         # attention and decoder states initialization
@@ -220,7 +220,7 @@ class Decoder(torch.nn.Module):
             attention_input = torch.cat((prev_frame, context), dim=1)
             h_att, c_att = self._attention_lstm(attention_input, h_att, c_att)
             context, weights = self._attention(h_att, encoded_input, mask, prev_frame)
-            generator_input = torch.cat((h_att, context), dim=1)
+            generator_input = torch.cat((h_att, context, speaker_embedding, language_embedding), dim=1)
             h_gen, c_gen = self._generator_lstm(generator_input, h_gen, c_gen)
             
             # predict frame and stop token
@@ -284,19 +284,24 @@ class Tacotron(torch.nn.Module):
                         )              
 
         # Speaker and language embeddings
+        generator_input_dimension = 0
         decoder_input_dimension = hp.encoder_dimension
         if hp.multi_speaker:
             self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
+            self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
+            generator_input_dimension += hp.speaker_decoder_dimension
             decoder_input_dimension += hp.speaker_embedding_dimension
         if hp.multi_language:
             self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.language_number)
+            self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
+            generator_input_dimension += hp.language_decoder_dimension
             decoder_input_dimension += hp.language_embedding_dimension
 
         # Decoder attention layer 
         self._attention = self._get_attention(hp.attention_type, decoder_input_dimension)
         
         # Instantiate decoder RNN layers
-        gen_cell_dimension = decoder_input_dimension + hp.decoder_dimension
+        gen_cell_dimension = generator_input_dimension + decoder_input_dimension + hp.decoder_dimension
         att_cell_dimension = decoder_input_dimension + hp.prenet_dimension
         if hp.decoder_regularization == 'zoneout':
             generator_rnn = ZoneoutLSTMCell(gen_cell_dimension, hp.decoder_dimension, hp.zoneout_hidden, hp.zoneout_cell) 
@@ -346,10 +351,12 @@ class Tacotron(torch.nn.Module):
                 hp.encoder_blocks,
                 hp.encoder_kernel_size,
                 hp.dropout)
-        if name == "shared":
+        if name == "simple":
             return Encoder(args)
         elif name == "separate":
             return MultiEncoder(hp.language_number, args)  
+        #elif name == "shared":
+
             
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
@@ -383,17 +390,21 @@ class Tacotron(torch.nn.Module):
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length, languages)
 
+        decoder_speaker = torch.FloatTensor(text.size()[0], 0, device=text.device)
         if hp.multi_speaker:
             embedded_speaker = self._speaker_embedding(speakers).unsqueeze_(1)
-            embedded_speaker = embedded_speaker.expand((-1, encoded.shape[1], -1))
-            encoded = torch.cat((encoded, embedded_speaker), dim=-1)   
+            expanded_speaker = embedded_speaker.expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_speaker), dim=-1) 
+            decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
 
+        decoder_language = torch.FloatTensor(text.size()[0], 0, device=text.device)
         if hp.multi_language:
             embedded_language = self._language_embedding(languages).unsqueeze_(1)
-            embedded_language = embedded_language.expand((-1, encoded.shape[1], -1))
-            encoded = torch.cat((encoded, embedded_language), dim=-1)
-            
-        decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio)
+            expanded_language = embedded_language.expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_language), dim=-1)
+            decoder_language = F.softsign(self._language_decoder(embedded_language))
+                    
+        decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio, decoder_speaker, decoder_language)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(pre_prediction, target_length)
@@ -401,6 +412,7 @@ class Tacotron(torch.nn.Module):
         # mask output paddings
         target_mask = lengths_to_mask(target_length, mel_target.size(2))
         # TODO: this should be somehow unmasked for few following frames :/
+        # TODO: and maybe for few previous frames
         # stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
         pre_prediction = pre_prediction * target_mask

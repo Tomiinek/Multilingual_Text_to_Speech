@@ -56,13 +56,18 @@ class Params:
     # MODEL:
 
     embedding_dimension = 512
-    encoder_type = "shared" # one of: shared (single encoder for all languages), separate (distinct encoders for each language)
+    encoder_type = "simple" # one of: simple (single encoder for all languages without embedding), 
+                            #         separate (distinct encoders for each language)
+                            #         shared (single encoder for all languages with embedding)
+                            #         meta (TODO: an encoder parameter generator network)
     encoder_dimension = 512
     encoder_blocks = 3
     encoder_kernel_size = 5
     prenet_dimension = 256
     prenet_layers = 2
-    attention_type = "location_sensitive"   # one of: location_sensitive, forward, forward_transition_agent
+    attention_type = "location_sensitive"   # one of: location_sensitive (Tacotron 2 vanilla), 
+                                            #         forward (undebugged, should allow just monotonous att.) 
+                                            #         forward_transition_agent (undebugged, fwd with explicit transition agent)
     attention_dimension = 128
     attention_kernel_size = 31
     attention_location_dimension = 32
@@ -87,9 +92,12 @@ class Params:
 
     multi_speaker = False
     multi_language = False
-    embedding_type = "simple"  # one of: simple (for usual lookup embedding), constant (returning a constant vector)
-    speaker_embedding_dimension = 64
-    language_embedding_dimension = 8
+    embedding_type = "simple"  # one of: simple (for usual lookup embedding), 
+                               #         constant (returning a constant vector)
+    speaker_embedding_dimension = 32
+    speaker_decoder_dimension = 64
+    language_embedding_dimension = 32
+    language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
 
