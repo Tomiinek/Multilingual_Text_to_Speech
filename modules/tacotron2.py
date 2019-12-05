@@ -239,14 +239,14 @@ class Decoder(torch.nn.Module):
         
         return spectrogram, stop_tokens.squeeze(2), alignments
 
-    def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing_ratio):
+    def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing_ratio, speaker_embedding, language_embedding):
         ml = encoded_input.size(1)
         mask = lengths_to_mask(encoded_lenghts, max_length=ml)
-        return self._decode(encoded_input, mask, target, teacher_forcing_ratio)
+        return self._decode(encoded_input, mask, target, teacher_forcing_ratio, speaker_embedding, language_embedding)
 
-    def inference(self, encoded_input):
+    def inference(self, encoded_input, speaker_embedding, language_embedding):
         mask = lengths_to_mask(torch.LongTensor([encoded_input.size(1)]))
-        spectrogram, _, _ = self._decode(encoded_input, mask, None, 0.0)
+        spectrogram, _, _ = self._decode(encoded_input, mask, None, 0.0, speaker_embedding, language_embedding)
         return spectrogram
      
 
@@ -390,17 +390,17 @@ class Tacotron(torch.nn.Module):
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length, languages)
 
-        decoder_speaker = torch.FloatTensor(text.size()[0], 0, device=text.device)
+        decoder_speaker = torch.empty(text.size()[0], 0, device=text.device)
         if hp.multi_speaker:
-            embedded_speaker = self._speaker_embedding(speakers).unsqueeze_(1)
-            expanded_speaker = embedded_speaker.expand((-1, encoded.shape[1], -1))
+            embedded_speaker = self._speaker_embedding(speakers)
+            expanded_speaker = embedded_speaker.unsqueeze(1).expand((-1, encoded.shape[1], -1))
             encoded = torch.cat((encoded, expanded_speaker), dim=-1) 
             decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
 
-        decoder_language = torch.FloatTensor(text.size()[0], 0, device=text.device)
+        decoder_language = torch.empty(text.size()[0], 0, device=text.device)
         if hp.multi_language:
-            embedded_language = self._language_embedding(languages).unsqueeze_(1)
-            expanded_language = embedded_language.expand((-1, encoded.shape[1], -1))
+            embedded_language = self._language_embedding(languages)
+            expanded_language = embedded_language.unsqueeze(1).expand((-1, encoded.shape[1], -1))
             encoded = torch.cat((encoded, expanded_language), dim=-1)
             decoder_language = F.softsign(self._language_decoder(embedded_language))
                     
@@ -424,7 +424,11 @@ class Tacotron(torch.nn.Module):
         text = text.unsqueeze(0)
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]))
-        prediction = self._decoder.inference(encoded)
+        input_device = text.device
+        prediction = self._decoder.inference(
+            encoded, 
+            torch.empty(text.size()[0], 0, device=input_device), 
+            torch.empty(text.size()[0], 0, device=input_device))
         prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(prediction, torch.LongTensor([prediction.size(2)]))
         return post_prediction.squeeze(0)
