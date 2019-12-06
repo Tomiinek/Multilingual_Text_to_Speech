@@ -89,6 +89,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                     unique_speakers.add(line_tokens[1])
                     self.items.append(item)
         unique_speakers = list(unique_speakers)
+        hp.unique_speakers = unique_speakers
 
         # clean text with basic stuff -- multiple spaces, case sensitivity and punctuation
         for idx in range(len(self.items)):
@@ -109,7 +110,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         for idx in range(len(self.items)):
             self.items[idx]['phonemes'] = text.to_sequence(self.items[idx]['phonemes'], use_phonemes=True)
             self.items[idx]['text'] = text.to_sequence(self.items[idx]['text'], use_phonemes=False)
-            self.items[idx]['speaker'] = unique_speakers.index(self.items[idx]['speaker'])
+            self.items[idx]['speaker'] = hp.unique_speakers.index(self.items[idx]['speaker'])
             self.items[idx]['language'] = hp.languages.index(self.items[idx]['language'])
 
     def __len__(self):

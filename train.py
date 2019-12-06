@@ -25,7 +25,7 @@ def cos_decay(global_step, decay_steps):
     return 0.5 * (1 + math.cos(math.pi * global_step / decay_steps))
 
 
-def train(epoch, data, model, criterion, optimizer):
+def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
     done = 0
@@ -47,7 +47,8 @@ def train(epoch, data, model, criterion, optimizer):
         optimizer.step()   
         if not hp.guided_attention_loss: 
             batch_losses.pop('guided_att')
-        Logger.training(done + epoch * len(data), batch_losses, gradient, learning_rate, time.time() - start_time) 
+        if epoch >= logging_start_epoch:
+            Logger.training(done + epoch * len(data), batch_losses, gradient, learning_rate, time.time() - start_time) 
         done += 1 
     
 
@@ -92,6 +93,7 @@ if __name__ == '__main__':
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
     parser.add_argument("--flush_seconds", type=int, default=60, help="How often to flush pending summaries to tensorboard.")
     parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
+    parser.add_argument('--logging_start', type=int, default=2, help="First epoch to be logged")
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
     args = parser.parse_args()
 
@@ -193,7 +195,7 @@ if __name__ == '__main__':
     # training loop
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
-        train(epoch, train_data, model, criterion, optimizer)
+        train(args.logging_start, epoch, train_data, model, criterion, optimizer)
         criterion.update_states(len(train_data))  
         if hp.learning_rate_decay_start - hp.learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()

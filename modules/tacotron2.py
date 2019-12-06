@@ -171,6 +171,20 @@ class Decoder(torch.nn.Module):
         self._generator_lstm = generator_rnn
         self._frame_prediction = Linear(context_dim + decoder_dim, output_dim)
         self._stop_prediction = Linear(context_dim + decoder_dim, 1)
+        if hp.multi_speaker:
+            self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
+            self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
+        if hp.multi_language:
+            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.language_number)
+            self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
+
+    def _get_embedding(self, name, embedding_dimension, size=None):
+        if name == "simple":
+            embedding = Embedding(size, embedding_dimension)
+            torch.nn.init.xavier_uniform_(embedding.weight)
+            return embedding
+        elif name == "constant":
+            return ConstantEmbedding(torch.zeros(embedding_dimension))  
 
     def _target_init(self, target, batch_size):
         """Prepend target spectrogram with a zero frame and pass it through pre-net."""
@@ -189,15 +203,40 @@ class Decoder(torch.nn.Module):
         c_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
         return h_att, c_att, h_gen, c_gen
 
-    def _decode(self, encoded_input, mask, target, teacher_forcing_ratio, speaker_embedding, language_embedding):
+    def _get_conditional_embeddings(self, encoded, speakers, languages, batch_size, device):
+        """Compute speaker (lang.) embeddings or return empty dummy tensor."""
+
+        decoder_speaker = torch.empty(batch_size, 0, device=device)
+        if hp.multi_speaker:
+            embedded_speaker = self._speaker_embedding(speakers)
+            expanded_speaker = embedded_speaker.unsqueeze(1).expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_speaker), dim=-1) 
+            decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
+
+        decoder_language = torch.empty(batch_size, 0, device=device)
+        if hp.multi_language:
+            embedded_language = self._language_embedding(language)
+            expanded_language = embedded_language.unsqueeze(1).expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_language), dim=-1)
+            decoder_language = F.softsign(self._language_decoder(embedded_language))
+
+        return encoded, decoder_speaker, decoder_language
+
+
+    def _decode(self, encoded_input, mask, target, teacher_forcing_ratio, speaker, language):
         """Perform decoding of the encoded input sequence."""
-        
-        # attention and decoder states initialization
+
         batch_size = encoded_input.size(0)
         max_length = encoded_input.size(1)
         inference = target is None
         max_frames = self._max_frames if inference else target.size(2) 
         input_device = encoded_input.device
+
+        # obtain speaker and language embeddings (or a dummy tensor)
+        encoded_input, speaker_embedding, language_embedding = self._get_conditional_embeddings(
+            encoded_input, speaker, language, batch_size, input_device)   
+        
+        # attention and decoder states initialization  
         context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
         h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size, input_device)      
         
@@ -239,14 +278,14 @@ class Decoder(torch.nn.Module):
         
         return spectrogram, stop_tokens.squeeze(2), alignments
 
-    def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing_ratio, speaker_embedding, language_embedding):
+    def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing_ratio, speaker, language):
         ml = encoded_input.size(1)
         mask = lengths_to_mask(encoded_lenghts, max_length=ml)
-        return self._decode(encoded_input, mask, target, teacher_forcing_ratio, speaker_embedding, language_embedding)
+        return self._decode(encoded_input, mask, target, teacher_forcing_ratio, speaker, language)
 
-    def inference(self, encoded_input, speaker_embedding, language_embedding):
+    def inference(self, encoded_input, speaker, language):
         mask = lengths_to_mask(torch.LongTensor([encoded_input.size(1)]))
-        spectrogram, _, _ = self._decode(encoded_input, mask, None, 0.0, speaker_embedding, language_embedding)
+        spectrogram, _, _ = self._decode(encoded_input, mask, None, 0.0, speaker, language)
         return spectrogram
      
 
@@ -283,17 +322,13 @@ class Tacotron(torch.nn.Module):
                             hp.dropout
                         )              
 
-        # Speaker and language embeddings
+        # Speaker and language embeddings make decoder bigger
         generator_input_dimension = 0
         decoder_input_dimension = hp.encoder_dimension
         if hp.multi_speaker:
-            self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
-            self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
             generator_input_dimension += hp.speaker_decoder_dimension
             decoder_input_dimension += hp.speaker_embedding_dimension
         if hp.multi_language:
-            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.language_number)
-            self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
             generator_input_dimension += hp.language_decoder_dimension
             decoder_input_dimension += hp.language_embedding_dimension
 
@@ -377,34 +412,12 @@ class Tacotron(torch.nn.Module):
                 *args
             )
 
-    def _get_embedding(self, name, embedding_dimension, size=None):
-        if name == "simple":
-            embedding = Embedding(size, embedding_dimension)
-            torch.nn.init.xavier_uniform_(embedding.weight)
-            return embedding
-        elif name == "constant":
-            return ConstantEmbedding(torch.zeros(embedding_dimension))  
-
     def forward(self, text, text_length, mel_target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length, languages)
-
-        decoder_speaker = torch.empty(text.size()[0], 0, device=text.device)
-        if hp.multi_speaker:
-            embedded_speaker = self._speaker_embedding(speakers)
-            expanded_speaker = embedded_speaker.unsqueeze(1).expand((-1, encoded.shape[1], -1))
-            encoded = torch.cat((encoded, expanded_speaker), dim=-1) 
-            decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
-
-        decoder_language = torch.empty(text.size()[0], 0, device=text.device)
-        if hp.multi_language:
-            embedded_language = self._language_embedding(languages)
-            expanded_language = embedded_language.unsqueeze(1).expand((-1, encoded.shape[1], -1))
-            encoded = torch.cat((encoded, expanded_language), dim=-1)
-            decoder_language = F.softsign(self._language_decoder(embedded_language))
-                    
-        decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio, decoder_speaker, decoder_language)
+          
+        decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(pre_prediction, target_length)
@@ -420,15 +433,20 @@ class Tacotron(torch.nn.Module):
 
         return post_prediction, pre_prediction, stop_token, alignment
 
-    def inference(self, text, speaker_embedding=None, language_embedding=None):
-        text = text.unsqueeze(0)
+    def inference(self, text, speaker=None, language=None):
+        # Pretend having a batch of size 1
+        text.unsqueeze_(0)
+        if language: language.unsqueeze_(0)
+        if speaker: speaker.unsqueeze_(0)
+
+        # Encode input
         embedded = self._embedding(text)
-        encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]))
-        input_device = text.device
-        prediction = self._decoder.inference(
-            encoded, 
-            torch.empty(text.size()[0], 0, device=input_device), 
-            torch.empty(text.size()[0], 0, device=input_device))
+        encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
+
+        # Decode with respect to speaker and language embeddings
+        prediction = self._decoder.inference(encoded, speaker, language)
+
+        # Post process generated spectrogram
         prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(prediction, torch.LongTensor([prediction.size(2)]))
         return post_prediction.squeeze(0)

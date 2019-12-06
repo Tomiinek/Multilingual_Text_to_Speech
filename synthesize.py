@@ -40,13 +40,23 @@ if __name__ == '__main__':
     model = build_model(args.checkpoint)
     model.eval()
 
-    inputs = [l.rstrip() for l in sys.stdin.readlines() if l]
+    # Expected inputs is in case of
+    # - mono-lingual and single-speaker model:  single input utterance per line
+    # - otherwise:                              speaker|language|single input utterance
+    inputs = [l.rstrip().split('|') for l in sys.stdin.readlines() if l]
 
     spectrograms = []
     for i in inputs:
-        i = torch.LongTensor(text.to_sequence(i, use_phonemes=hp.use_phonemes))
-        if torch.cuda.is_available(): i = i.cuda(non_blocking=True)
-        spectrograms.append(model.inference(i).cpu().detach().numpy())
+        t = torch.LongTensor(text.to_sequence(i[2], use_phonemes=hp.use_phonemes))
+        l = torch.LongTensor(hp.languages.index(i[1])) if hp.multi_language else None
+        s = torch.LongTensor(hp.unique_speakers.index(i[0])) if hp.multi_speaker else None
+
+        if torch.cuda.is_available(): 
+            t = t.cuda(non_blocking=True)
+            if l: l = l.cuda(non_blocking=True)
+            if s: s = s.cuda(non_blocking=True)
+
+        spectrograms.append(model.inference(t, speaker=s, language=l).cpu().detach().numpy())
 
     for i, s in enumerate(spectrograms):
         s = audio.denormalize_spectrogram(s, not hp.predict_linear)
