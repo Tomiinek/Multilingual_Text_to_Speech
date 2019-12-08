@@ -12,7 +12,7 @@ normalize()
 
     # substitute some less frequent characters
 
-    sed -i -e 's/[―—－]/–/g' tmp
+    sed -i -e 's/[―—－–]/-/g' tmp
     sed -i -e 's/œ/oe/g' tmp
     sed -i -e 's/æ/ae/g' tmp
     sed -i -e 's/々//g' tmp
@@ -28,20 +28,36 @@ normalize()
     sed -i -e 's/；/;/g' tmp
     sed -i -e 's/？/?/g' tmp
     sed -i -e 's/·/./g' tmp
+    sed -i -e "s/’/'/g" tmp
+    
+    # remove spaces before dots, exclamation marks and etc
+    sed -i -e 's/\s\+\([、。，?!,\.:;]\+\)/\1/g' tmp
 
-    # some dashes at the beginning
-    sed -i -e 's/^\s*[–\-]\+\s*//' \
-           -e 's/\s*[–\-]\+\s*$//' tmp
-    sed -i -e 's/--/–/g' tmp
+    # multiple sentence ends change to a single
+    sed -i -e 's/:\(\s*[、。，?!,\.:;]\+\)\+/:/g' tmp
+    sed -i -e 's/\([?!;\.,]\)[?!;\.,]\+/\1/g' tmp
 
-    # multiple dots change to a single dot
-    sed -i -e 's/\.\.\+/\./g' tmp
+    # comma, dash in sentence
+    sed -i -e 's/,\s\+-/,-/g' tmp
 
+    # some dashes
+    sed -i -e 's/\(\s\+\)\(-\+\s*\)\(-\+\s*\)\+/\1/' tmp
+    sed -i -e 's/\(\s\+\)\(-\+\s*\)\(-\+\s*\)\+/\1/' tmp    
+    sed -i -e 's/^\([^\-]*\)-[ \.?!]\+\([^\-]*\)$/\1\2/' tmp
+    sed -i -e 's/^\([^\-]*\)[ \.?!]\+-\([^\-]*\)$/\1\2/' tmp
+    sed -i -e 's/^\s*\([、。，?!,\.:;\-]\+\s*\)\+//' tmp
+    
     # remove redundant minus
-    sed -i -e 's/\([¿?!¡\.:;]\s*\)[–\-]\+/\1/g' tmp
+    sed -i -e 's/\([¿?!¡\.:;]\s*\)[\-]\+\s*/\1/g' tmp
+
+    # lines with interpunction only
+    sed -i -e "d/^\(\s*[、。，(),\.:;¿?¡!\-]\)*\s*$/" tmp
 
     # remove whitespaces
     awk '{$1=$1};1' tmp > tmp3 && mv tmp3 tmp
+
+    # remove empty lines
+    sed -i -e '/^$/d' tmp
 
     paste -d '|' tmp2 tmp > "$1"
 
