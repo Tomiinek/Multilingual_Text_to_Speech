@@ -260,6 +260,6 @@ class TextToSpeechCollate():
             mel_spectrograms[i, :, :a[0].size] = torch.FloatTensor(a)
             if hp.predict_linear:
                 lin_spectrograms[i, :, :b[0].size] = torch.FloatTensor(b) 
-            stop_tokens[i, a[0].size-1:] = 1
+            stop_tokens[i, a[0].size-5:] = 1
 
         return sorted_utterance_lengths, utterances, mel_spectrograms, lin_spectrograms, stop_tokens, spectrogram_lengths, speakers, languages

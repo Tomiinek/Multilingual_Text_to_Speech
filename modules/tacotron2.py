@@ -387,7 +387,7 @@ class Tacotron(torch.nn.Module):
                 hp.encoder_kernel_size,
                 hp.dropout)
         if name == "simple":
-            return Encoder(args)
+            return Encoder(*args)
         elif name == "separate":
             return MultiEncoder(hp.language_number, args)  
         #elif name == "shared":
@@ -424,9 +424,7 @@ class Tacotron(torch.nn.Module):
 
         # mask output paddings
         target_mask = lengths_to_mask(target_length, mel_target.size(2))
-        # TODO: this should be somehow unmasked for few following frames :/
-        # TODO: and maybe for few previous frames
-        # stop_token.masked_fill_(~target_mask, 1000)
+        stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
         pre_prediction = pre_prediction * target_mask
         post_prediction = post_prediction * target_mask
@@ -489,11 +487,12 @@ class TacotronLoss(torch.nn.Module):
         target_stop.requires_grad = False
         
         # F.l1_loss
-
+        
+        stop_balance = torch.tensor([100], device=stop.device)
         losses = {
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
-            'stop_token' : 2 * F.binary_cross_entropy_with_logits(stop, target_stop) / (hp.num_mels + 2),
+            'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop, pos_weight=stop_balance) / (hp.num_mels + 2),
             'guided_att' : self._guided_attention(alignment, source_length, target_length)
         }
 
