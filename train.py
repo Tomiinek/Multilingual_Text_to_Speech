@@ -31,44 +31,72 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
     done = 0
     for i, batch in enumerate(data):     
         start_time = time.time() 
+        global_step = done + epoch * len(data)
+        optimizer.zero_grad() 
+
+        # Parse batch
         batch = list(map(to_gpu, batch))
-        src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs, langs = batch
-        optimizer.zero_grad()         
-        if hp.constant_teacher_forcing:
-            teacher_forcing_ratio = hp.teacher_forcing
-        else:
-            global_step = done + epoch * len(data)
-            teacher_forcing_ratio = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
-        post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, langs, teacher_forcing_ratio)
-        post_trg_spec = trg_lin_spec if hp.predict_linear else trg_mel_spec
-        loss, batch_losses = criterion(src_len, pre_prediction, trg_mel_spec, post_prediction, post_trg_spec, trg_len, stop, trg_stop, alignment)
+        src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
+
+        # Get teacher forcing ratio
+        if hp.constant_teacher_forcing: tf = hp.teacher_forcing
+        else: tf = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
+
+        # Run the model
+        post_pred, pre_pred, stop_pred, alignment = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
+        
+        # Evaluate loss function
+        post_trg = trg_lin if hp.predict_linear else trg_mel
+        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment)
+        
+        # Comptute gradients and make a step
         loss.backward()      
         gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
         optimizer.step()   
-        if not hp.guided_attention_loss: 
-            batch_losses.pop('guided_att')
+        
+        # Logg training progress
+        if not hp.guided_attention_loss: batch_losses.pop('guided_att')
         if epoch >= logging_start_epoch:
-            Logger.training(done + epoch * len(data), batch_losses, gradient, learning_rate, time.time() - start_time) 
+            Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time) 
         done += 1 
     
 
-def evaluate(epoch, data, model, criterion, teacher_forcing):      
+def evaluate(epoch, data, model, criterion):     
     model.eval()
+    mcd, mcd_count = 0, 0
     eval_losses = {}
-    with torch.no_grad():   
-        for i, item in enumerate(data):
-            item = map(to_gpu, item)
-            src_len, src, trg_mel_spec, trg_lin_spec, trg_stop, trg_len, spkrs, langs = list(item)
-            post_prediction, pre_prediction, stop, alignment = model(src, src_len, trg_mel_spec, trg_len, spkrs, langs, teacher_forcing)
-            post_trg_spec = trg_lin_spec if hp.predict_linear else trg_mel_spec
-            loss, batch_losses = criterion(src_len, pre_prediction, trg_mel_spec, post_prediction, post_trg_spec, trg_len, stop, trg_stop, alignment)
+    with torch.no_grad():  
+        for i, batch in enumerate(data):
+
+            # Parse batch
+            batch = map(to_gpu, batch)
+            src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
+
+            # Run the model (twice, with and without teacher forcing)
+            post_pred, pre_pred, stop_pred, alignment = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
+            post_pred_0, _, stop_pred_0, alignment_0 = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
+
+            # Evaluate loss function
+            post_trg = trg_lin if hp.predict_linear else trg_mel
+            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment)
+            
+            # Compute mel cepstral distorsion
+            for i, (gen, ref) in enumerate(zip(post_pred_0, trg_mel))
+                if hp.predict_linear: gen = audio.linear_to_mel(gen)
+                mcd = (mcd_count * mcd + audio.mel_cepstral_distorision(gen, ref, 'stretch')) / (mcd_count+1)
+                mcd_count += 1
+
             for k, v in batch_losses.items(): 
                 eval_losses[k] = v + eval_losses[k] if k in eval_losses else v 
+    
+    # Normalize loss per batch
     for k in eval_losses.keys():
         eval_losses[k] /= len(data)
-    if not hp.guided_attention_loss: 
-        eval_losses.pop('guided_att')
-    Logger.evaluation(f"eval_{teacher_forcing}", epoch+1, eval_losses, src, post_trg_spec, post_prediction, trg_len, src_len, trg_stop, torch.sigmoid(stop), alignment)
+
+    # Logg evaluation
+    if not hp.guided_attention_loss: eval_losses.pop('guided_att')
+    Logger.evaluation(epoch+1, mcd, eval_losses, src_len, trg_len, src, post_trg, post_pred_0, torch.sigmoid(stop_pred_0), stop_trg, alignment_0)
+    
     return sum(eval_losses.values())
 
 
@@ -95,6 +123,7 @@ if __name__ == '__main__':
     parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
     parser.add_argument('--logging_start', type=int, default=2, help="First epoch to be logged")
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
+    parser.add_argument('--loader_workers', type=int, default=1, help="Number of subprocesses to use for data loading.")
     args = parser.parse_args()
 
     # set up seeds and the target torch device
@@ -130,8 +159,8 @@ if __name__ == '__main__':
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
-    train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=True, collate_fn=TextToSpeechCollate())
-    eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate())
+    train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=True, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+    eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
 
     # acquire dataset-dependent constatnts, these should probably be the same while going from checkpoint
     if not args.checkpoint:
@@ -199,10 +228,7 @@ if __name__ == '__main__':
         criterion.update_states(len(train_data))  
         if hp.learning_rate_decay_start - hp.learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()
-        # evaluate without teacher forcing
-        evaluate(epoch, eval_data, model, criterion, 0.0)   
-        # evaluate with teacher forcing
-        eval_loss = evaluate(epoch, eval_data, model, criterion, 1.0)   
+        eval_loss = evaluate(epoch, eval_data, model, criterion)   
         if (epoch + 1) % hp.checkpoint_each_epochs == 0:
             # save checkpoint together with hyper-parameters, optimizer and scheduler states
             checkpoint_file = f'{checkpoint_dir}/{hp.version}_loss-{epoch}-{eval_loss:2.3f}'

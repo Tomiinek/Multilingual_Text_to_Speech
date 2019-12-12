@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+from fastdtw import fastdtw
 
 import librosa
 import librosa.feature
@@ -84,7 +85,7 @@ def spectrogram(y, mel=False):
     if hp.use_preemphasis: y = preemphasis(y)
     wf = ms_to_frames(hp.stft_window_ms)
     hf = ms_to_frames(hp.stft_shift_ms)
-    S = np.abs(librosa.stft(y, n_fft=hp.num_fft , hop_length=hf, win_length=wf))
+    S = np.abs(librosa.stft(y, n_fft=hp.num_fft, hop_length=hf, win_length=wf))
     if mel: S = librosa.feature.melspectrogram(S=S, sr=hp.sample_rate, n_mels=hp.num_mels)
     return amplitude_to_db(S)
 
@@ -92,6 +93,13 @@ def spectrogram(y, mel=False):
 def mel_spectrogram(y):
     """Convert waveform to log-mel-spectrogram."""
     return spectrogram(y, True)
+
+
+def linear_to_mel(S):
+    """Convert linear to mel spectrogram."""
+    S = db_to_amplitude(S)
+    S = librosa.feature.melspectrogram(S=S, sr=hp.sample_rate, n_mels=hp.num_mels)
+    return amplitude_to_db(S)
 
 
 def inverse_spectrogram(s, mel=False):
@@ -120,3 +128,54 @@ def denormalize_spectrogram(S, is_mel):
     """Denormalize log-magnitude spectrogram."""
     if is_mel: return S * hp.mel_normalize_variance + hp.mel_normalize_mean
     else:      return S * hp.lin_normalize_variance + hp.lin_normalize_mean
+
+
+def get_spectrogram_mfcc(S):
+    """Compute MFCCs of a mel spectrogram."""
+    return librosa.feature.mfcc(n_mfcc=hp.num_mfcc, S=(S/10))
+
+
+def get_mfcc(y):
+    """Compute MFCCs of a waveform."""
+    return get_mfcc(audio.mel_spectrogram(y))
+
+
+def mel_cepstral_distorision(S1, S2, mode):
+    """
+    Compute Mel Cepstral Distorsion between two mel spectrograms.
+
+        See Towards End-to-End Prosody Transfer for Expressive Speech 
+        Synthesis with Tacotron for further details.
+    
+    Arguments:
+        x and y -- mel spectrograms
+        mode -- 'cut' to cut off frames of longer seq.
+                'stretch' to stretch linearly the shorter seq.
+                'dtw' to compute DTW with minimal possible MCD
+    """
+
+    def mcd(s1, s2):
+        diff = s1 - s2
+        return np.average(np.sqrt(np.sum(diff*diff, axis=0)))
+
+    x, y = get_spectrogram_mfcc(S1)[1:], get_spectrogram_mfcc(S2)[1:]
+
+    if mode == 'cut':
+        if y.shape[1] > x.shape[1]: y = y[:,:x.shape[1]]
+        if x.shape[1] > y.shape[1]: x = x[:,:y.shape[1]]
+
+    elif mode == 'stretch':
+        if x.shape[1] > y.shape[1]:
+            m = x.shape[1]
+            y = np.array([y[:, i * y.shape[1]//m] for i in range(m)]).T
+        else:
+            m = y.shape[1]
+            x = np.array([x[:, i * x.shape[1]//m] for i in range(m)]).T
+
+    elif mode == 'dtw':       
+        x, y = x.T, y.T
+        _, path = fastdtw(x, y, dist=mcd)     
+        pathx, pathy = map(list,zip(*path))    
+        x, y = x[pathx].T, y[pathy].T
+
+    return mcd(x, y)

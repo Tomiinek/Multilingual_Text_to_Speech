@@ -412,18 +412,18 @@ class Tacotron(torch.nn.Module):
                 *args
             )
 
-    def forward(self, text, text_length, mel_target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
+    def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length, languages)
           
-        decoded = self._decoder(encoded, text_length, mel_target, teacher_forcing_ratio, speakers, languages)
+        decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(pre_prediction, target_length)
 
         # mask output paddings
-        target_mask = lengths_to_mask(target_length, mel_target.size(2))
+        target_mask = lengths_to_mask(target_length, target.size(2))
         stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
         pre_prediction = pre_prediction * target_mask
@@ -481,7 +481,7 @@ class TacotronLoss(torch.nn.Module):
         loss = torch.mean(loss / target_lengths.float())
         return loss
 
-    def forward(self, source_length, pre_prediction, pre_target, post_prediction, post_target, target_length, stop, target_stop, alignment):
+    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment):
         pre_target.requires_grad = False
         post_target.requires_grad = False
         target_stop.requires_grad = False
@@ -497,6 +497,3 @@ class TacotronLoss(torch.nn.Module):
         }
 
         return sum(losses.values()), losses
-
-
-    

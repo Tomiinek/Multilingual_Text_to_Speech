@@ -262,4 +262,4 @@ class TextToSpeechCollate():
                 lin_spectrograms[i, :, :b[0].size] = torch.FloatTensor(b) 
             stop_tokens[i, a[0].size-5:] = 1
 
-        return sorted_utterance_lengths, utterances, mel_spectrograms, lin_spectrograms, stop_tokens, spectrogram_lengths, speakers, languages
+        return utterances, sorted_utterance_lengths, mel_spectrograms, lin_spectrograms, spectrogram_lengths, stop_tokens, speakers, languages
