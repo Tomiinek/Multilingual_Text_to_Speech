@@ -27,44 +27,48 @@ class Logger:
     def training(train_step, losses, gradient, learning_rate, duration):
         """Log batch training."""  
         total_loss = sum(losses.values())
-        Logger._sw.add_scalar(f'Loss/train_total', total_loss, train_step)
+        Logger._sw.add_scalar(f'Train/loss_total', total_loss, train_step)
         for n, l in losses.items():
-            Logger._sw.add_scalar(f'Loss/train_{n}', l, train_step)  
-        Logger._sw.add_scalar("GradientNorm/train", gradient, train_step)
-        Logger._sw.add_scalar("LearningRate/train", learning_rate, train_step)
-        Logger._sw.add_scalar("Duration/train", duration, train_step)
+            Logger._sw.add_scalar(f'Train/loss_{n}', l, train_step)  
+        Logger._sw.add_scalar("Train/gradient_norm", gradient, train_step)
+        Logger._sw.add_scalar("Train/learning_rate", learning_rate, train_step)
+        Logger._sw.add_scalar("Train/duration", duration, train_step)
 
     @staticmethod
-    def evaluation(log_name, epoch, losses, source, target, prediction, target_len, source_len, stop_target, stop_prediction, alignment):
+    def evaluation(eval_step, losses, mcd, source_len, target_len, source, target, prediction, stop_prediction, stop_target, alignment):
         """Log evaluation results."""
 
-        # log loss functions
+        # Log losses
         total_loss = sum(losses.values())
-        Logger._sw.add_scalar(f'Loss/{log_name}_total', total_loss, epoch)
+        Logger._sw.add_scalar(f'Eval/loss_total', total_loss, eval_step)
         for n, l in losses.items():
-            Logger._sw.add_scalar(f'Loss/{log_name}_{n}', l, epoch) 
+            Logger._sw.add_scalar(f'Eval/loss_{n}', l, eval_step) 
 
-        # show random output - spectrogram, stop token, alignment and audio
+        # Show random sample: spectrogram, stop token probability, alignment and audio
         idx = random.randint(0, alignment.size(0) - 1)
-        # log spectrograms
-        predicted_spec = prediction[idx].data.cpu().numpy()[:, :target_len[idx]]
-        target_spec = target[idx].data.cpu().numpy()[:, :target_len[idx]]
+        predicted_spec = prediction[idx, :, :target_len[idx]].data.cpu().numpy()
+        target_spec = target[idx, :, :target_len[idx]].data.cpu().numpy()  
+
+        # Log spectrograms
         if hp.normalize_spectrogram:
             predicted_spec = audio.denormalize_spectrogram(predicted_spec, not hp.predict_linear)
             target_spec = audio.denormalize_spectrogram(target_spec, not hp.predict_linear)
+        Logger._sw.add_figure(f"Predicted/eval", Logger._plot_spectrogram(predicted_spec), eval_step)
+        Logger._sw.add_figure(f"Target/eval", Logger._plot_spectrogram(target_spec), eval_step) 
+        # Log audio
         waveform = audio.inverse_spectrogram(predicted_spec, not hp.predict_linear)
-        Logger._sw.add_audio(f"Audio/{log_name}", waveform, epoch, sample_rate=hp.sample_rate)
-        Logger._sw.add_figure(f"Mel_predicted/{log_name}", Logger._plot_spectrogram(predicted_spec), epoch)
-        Logger._sw.add_figure(f"Mel_target/{log_name}", Logger._plot_spectrogram(target_spec), epoch)     
-        # log alignment
-        alignment = alignment[idx].data.cpu().numpy().T
-        alignment = alignment[:source_len[idx], :target_len[idx]]
-        Logger._sw.add_figure(f"Alignment/{log_name}", Logger._plot_alignment(alignment), epoch)          
-        # log source text
+        Logger._sw.add_audio(f"Audio/eval", waveform, eval_step, sample_rate=hp.sample_rate)          
+        # Log alignment
+        alignment = alignment[idx, :target_len[idx], :source_len[idx]].data.cpu().numpy().T
+        Logger._sw.add_figure(f"Alignment/eval", Logger._plot_alignment(alignment), eval_step)                
+        # Log source text
         utterance = text.to_text(source[idx].data.cpu().numpy()[:source_len[idx]], hp.use_phonemes)
-        Logger._sw.add_text(f"Text/{log_name}", utterance, epoch) 
-        # log stop tokens
-        Logger._sw.add_figure(f"Stop/{log_name}", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), epoch) 
+        Logger._sw.add_text(f"Text/eval", utterance, eval_step)      
+        # Log stop tokens
+        Logger._sw.add_figure(f"Stop/eval", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), eval_step) 
+        # Log mel cepstral distorsion
+        Logger._sw.add_scalar(f'Eval/mcd', mcd, eval_step)
+
 
     @staticmethod
     def _plot_spectrogram(s):
@@ -94,4 +98,14 @@ class Logger:
         plt.xlabel("Frames (Blue target, Red predicted)")
         plt.ylabel("Stop token probability")
         plt.tight_layout()
+        return fig
+
+    @staticmethod
+    def _plot_mfcc(mfcc):
+        fig = plt.figure(figsize=(16, 4))
+        librosa.display.specshow(mfcc, x_axis='time', cmap='magma')
+        plt.colorbar()
+        plt.title('MFCC')
+        plt.tight_layout()
+        plt.show()
         return fig
