@@ -42,14 +42,14 @@ if __name__ == '__main__':
 
     # Expected inputs is in case of
     # - mono-lingual and single-speaker model:  single input utterance per line
-    # - otherwise:                              speaker|language|single input utterance
+    # - otherwise:                              single input utterance|speaker|language
     inputs = [l.rstrip().split('|') for l in sys.stdin.readlines() if l]
 
     spectrograms = []
     for i in inputs:
-        t = torch.LongTensor(text.to_sequence(i[2], use_phonemes=hp.use_phonemes))
-        l = torch.LongTensor(hp.languages.index(i[1])) if hp.multi_language else None
-        s = torch.LongTensor(hp.unique_speakers.index(i[0])) if hp.multi_speaker else None
+        t = torch.LongTensor(text.to_sequence(i[0], use_phonemes=hp.use_phonemes))
+        l = torch.LongTensor(hp.languages.index(i[2])) if hp.multi_language else None
+        s = torch.LongTensor(hp.unique_speakers.index(i[1])) if hp.multi_speaker else None
 
         if torch.cuda.is_available(): 
             t = t.cuda(non_blocking=True)
