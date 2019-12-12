@@ -116,7 +116,7 @@ class Params:
 
     use_punctuation = True      # punctuations_{in, out} are valid only if True
     punctuations_out = '、。，"(),.:;¿?¡!\\'
-    punctuations_in  = '’\'-'
+    punctuations_in  = '\'-'
 
     # all phonemes of IPA: 'iyɨʉɯuɪʏʊeøɘəɵɤoɛœɜɞʌɔæɐaɶɑɒᵻʘɓǀɗǃʄǂɠǁʛpbtdʈɖcɟkɡqɢʔɴŋɲɳnɱmʙrʀⱱɾɽɸβfvθðszʃʒʂʐçʝxɣχʁħʕhɦɬɮʋɹɻjɰlɭʎʟˈˌːˑʍwɥʜʢʡɕʑɺɧ ɚ˞ɫ'
     use_phonemes = False   # phonemes are valid only if True
@@ -130,6 +130,7 @@ class Params:
     sample_rate = 22050 
     num_fft = 1102
     num_mels = 80
+    num_mfcc = 13 # just just for an objective metric computation
 
     stft_window_ms = 50
     stft_shift_ms = 12.5
@@ -140,4 +141,4 @@ class Params:
     normalize_spectrogram = True 
 
     use_preemphasis = True
-    preemphasis = 0.97
+    preemphasis = 0.97 
