@@ -28,9 +28,9 @@ def cos_decay(global_step, decay_steps):
 def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
-    done = 0
+    done, start_time = 0, time.time()
     for i, batch in enumerate(data):     
-        start_time = time.time() 
+
         global_step = done + epoch * len(data)
         optimizer.zero_grad() 
 
@@ -58,6 +58,8 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         if not hp.guided_attention_loss: batch_losses.pop('guided_att')
         if epoch >= logging_start_epoch:
             Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time) 
+        
+        start_time = time.time()
         done += 1 
     
 
