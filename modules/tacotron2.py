@@ -252,6 +252,7 @@ class Decoder(torch.nn.Module):
         stop_tokens = torch.zeros(batch_size, max_frames, 1, device=input_device)
         
         # decoding loop
+        stop_frames = -1
         for i in range(max_frames):
             prev_frame = self._prenet(frame) if inference or not teacher[i] else target[:,i]
 
@@ -274,7 +275,12 @@ class Decoder(torch.nn.Module):
             
             # stop decoding if predicted (just during inference)
             if inference and torch.sigmoid(stop_logits).ge(0.5):
-                return spectrogram[:,:i+1], stop_tokens[:,:i+1].squeeze(2), alignments[:,:i+1]
+                if stop_frames == -1: 
+                    stop_frames = hp.stop_frames
+                    continue
+                stop_frames -= 1
+                if stop_frames == 0:
+                    return spectrogram[:,:i+1], stop_tokens[:,:i+1].squeeze(2), alignments[:,:i+1]
         
         return spectrogram, stop_tokens.squeeze(2), alignments
 

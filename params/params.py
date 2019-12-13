@@ -36,7 +36,7 @@ class Params:
     # TRAINING:
     epochs = 300
     batch_size = 56
-    learning_rate = 2e-3
+    learning_rate = 1.5e-3
     learning_rate_decay = 0.5
     learning_rate_decay_start = 15000
     learning_rate_decay_each = 15000
@@ -100,6 +100,8 @@ class Params:
     language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
+
+    stop_frames = 5  # number of frames at the end which are considered as "ending sequence"
 
 
     # DATASET:

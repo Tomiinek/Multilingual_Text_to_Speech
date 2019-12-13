@@ -35,7 +35,7 @@ class Logger:
         Logger._sw.add_scalar("Train/duration", duration, train_step)
 
     @staticmethod
-    def evaluation(eval_step, losses, mcd, source_len, target_len, source, target, prediction, stop_prediction, stop_target, alignment):
+    def evaluation(eval_step, losses, mcd, source_len, target_len, source, target, prediction_forced, prediction, stop_prediction, stop_target, alignment):
         """Log evaluation results."""
 
         # Log losses
@@ -47,17 +47,22 @@ class Logger:
         # Show random sample: spectrogram, stop token probability, alignment and audio
         idx = random.randint(0, alignment.size(0) - 1)
         predicted_spec = prediction[idx, :, :target_len[idx]].data.cpu().numpy()
+        f_predicted_spec = prediction_forced[idx, :, :target_len[idx]].data.cpu().numpy()
         target_spec = target[idx, :, :target_len[idx]].data.cpu().numpy()  
 
         # Log spectrograms
         if hp.normalize_spectrogram:
             predicted_spec = audio.denormalize_spectrogram(predicted_spec, not hp.predict_linear)
+            f_predicted_spec = audio.denormalize_spectrogram(f_predicted_spec, not hp.predict_linear)
             target_spec = audio.denormalize_spectrogram(target_spec, not hp.predict_linear)
-        Logger._sw.add_figure(f"Predicted/eval", Logger._plot_spectrogram(predicted_spec), eval_step)
+        Logger._sw.add_figure(f"Predicted/generated", Logger._plot_spectrogram(predicted_spec), eval_step)
+        Logger._sw.add_figure(f"Predicted/forced", Logger._plot_spectrogram(f_predicted_spec), eval_step)
         Logger._sw.add_figure(f"Target/eval", Logger._plot_spectrogram(target_spec), eval_step) 
         # Log audio
         waveform = audio.inverse_spectrogram(predicted_spec, not hp.predict_linear)
-        Logger._sw.add_audio(f"Audio/eval", waveform, eval_step, sample_rate=hp.sample_rate)          
+        Logger._sw.add_audio(f"Audio/generated", waveform, eval_step, sample_rate=hp.sample_rate)  
+        waveform = audio.inverse_spectrogram(f_predicted_spec, not hp.predict_linear)
+        Logger._sw.add_audio(f"Audio/forced", waveform, eval_step, sample_rate=hp.sample_rate)              
         # Log alignment
         alignment = alignment[idx, :target_len[idx], :source_len[idx]].data.cpu().numpy().T
         Logger._sw.add_figure(f"Alignment/eval", Logger._plot_alignment(alignment), eval_step)                

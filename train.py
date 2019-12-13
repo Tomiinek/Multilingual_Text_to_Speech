@@ -75,13 +75,21 @@ def evaluate(epoch, data, model, criterion):
             # Run the model (twice, with and without teacher forcing)
             post_pred, pre_pred, stop_pred, alignment = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
             post_pred_0, _, stop_pred_0, alignment_0 = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
+            stop_pred_probs = torch.sigmoid(stop_pred_0)
 
             # Evaluate loss function
             post_trg = trg_lin if hp.predict_linear else trg_mel
             loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment)
             
             # Compute mel cepstral distorsion
-            for i, (gen, ref) in enumerate(zip(post_pred_0, trg_mel))
+            for j, (gen, ref, stop) in enumerate(zip(post_pred_0, trg_mel, stop_pred_probs)):
+                stop_idxes = np.where(stop.cpu().numpy() > 0.5)[0]
+                stop_idx = min(np.min(stop_idxes) + hp.stop_frames, gen.size()[1]) if len(stop_idxes) > 0 else gen.size()[1]
+                gen = gen[:, :stop_idx].data.cpu().numpy()
+                ref = ref[:, :trg_len[j]].data.cpu().numpy()
+                if hp.normalize_spectrogram:
+                    gen = audio.denormalize_spectrogram(gen, not hp.predict_linear)
+                    ref = audio.denormalize_spectrogram(ref, True)
                 if hp.predict_linear: gen = audio.linear_to_mel(gen)
                 mcd = (mcd_count * mcd + audio.mel_cepstral_distorision(gen, ref, 'stretch')) / (mcd_count+1)
                 mcd_count += 1
@@ -95,7 +103,7 @@ def evaluate(epoch, data, model, criterion):
 
     # Logg evaluation
     if not hp.guided_attention_loss: eval_losses.pop('guided_att')
-    Logger.evaluation(epoch+1, mcd, eval_losses, src_len, trg_len, src, post_trg, post_pred_0, torch.sigmoid(stop_pred_0), stop_trg, alignment_0)
+    Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0)
     
     return sum(eval_losses.values())
 
@@ -121,9 +129,9 @@ if __name__ == '__main__':
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
     parser.add_argument("--flush_seconds", type=int, default=60, help="How often to flush pending summaries to tensorboard.")
     parser.add_argument('--hyper_parameters', type=str, default="train_en", help="Name of the hyperparameters file.")
-    parser.add_argument('--logging_start', type=int, default=2, help="First epoch to be logged")
+    parser.add_argument('--logging_start', type=int, default=1, help="First epoch to be logged")
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
-    parser.add_argument('--loader_workers', type=int, default=1, help="Number of subprocesses to use for data loading.")
+    parser.add_argument('--loader_workers', type=int, default=2, help="Number of subprocesses to use for data loading.")
     args = parser.parse_args()
 
     # set up seeds and the target torch device
