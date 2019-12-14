@@ -2,6 +2,8 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, Linear, ReLU, Sigmoid, Tanh, Identity, Dropout, Conv1d, ConstantPad1d, BatchNorm1d, LSTMCell
 
+from modules.generated import Conv1dGenerated, BatchNorm1dGenerated
+
 
 def get_activation(name):
     """Get activation function by name."""
@@ -54,16 +56,18 @@ class ConvBlock(torch.nn.Module):
     kernel -- convolution kernel size ('same' padding is used)
     dropout -- dropout rate to be aplied after the block
     activation (optional) -- name of the activation function applied after batchnorm (default 'identity')
+    generated -- enables meta-learning approach which generates parameters of the internal layers
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity'):
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', generated=False):
         super(ConvBlock, self).__init__()
         p = (kernel-1)//2 
         padding = p if kernel % 2 != 0 else (p, p+1)
         self._block = Sequential(
             ConstantPad1d(padding, 0.0),
+            Conv1dGenerated(input_channels, output_channels, kernel, padding=0, bias=False) if generated else \
             Conv1d(input_channels, output_channels, kernel, padding=0, bias=False),
-            BatchNorm1d(output_channels),
+            BatchNorm1dGenerated(output_channels) if generated else BatchNorm1d(output_channels),
             get_activation(activation),
             Dropout(dropout)
         )

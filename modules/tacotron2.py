@@ -1,9 +1,10 @@
 import torch
 from torch.nn import functional as F
-from torch.nn import Sequential, ModuleList, ModuleDict, Linear, ReLU, Sigmoid, Tanh, Dropout, LSTM, Embedding
+from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedding
 
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
+from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
 from params.params import Params as hp
 
@@ -11,69 +12,6 @@ from params.params import Params as hp
 def lengths_to_mask(lengths, max_length=None):
     ml = torch.max(lengths) if max_length is None else max_length
     return torch.arange(ml, device=lengths.device)[None, :] < lengths[:, None]
-
-
-class Encoder(torch.nn.Module):
-    """
-    Encoder:
-        stack of 3 conv. layers 5 × 1 with BN and ReLU, dropout
-        output is passed into a Bi-LSTM layer
-
-    Arguments:
-        input_dim -- size of the input (supposed character embedding)
-        output_dim -- number of channels of the convolutional blocks and last Bi-LSTM
-        num_blocks -- number of the convolutional blocks (at least one)
-        kernel_size -- kernel size of the encoder's convolutional blocks
-        dropout -- dropout rate to be aplied after each convolutional block
-    """
-    
-    def __init__(self, input_dim, output_dim, num_blocks, kernel_size, dropout):
-        super(Encoder, self).__init__()
-        assert num_blocks > 0, ('There must be at least one convolutional block in the encoder.')
-        assert output_dim % 2 == 0, ('Bidirectional LSTM output dimension must be divisible by 2.')
-        self._convs = Sequential(
-            ConvBlock(input_dim, output_dim, kernel_size, dropout, 'relu'),
-            *[ConvBlock(output_dim, output_dim, kernel_size, dropout, 'relu')] * (num_blocks - 1)
-        )
-        self._lstm = LSTM(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
-
-    def forward(self, x, x_lenghts, x_langs=None):  
-        # x_langs argument is there just for convenience
-        x = x.transpose(1, 2)
-        x = self._convs(x)
-        x = x.transpose(1, 2)
-        ml = x.size(1)
-        x = torch.nn.utils.rnn.pack_padded_sequence(x, x_lenghts, batch_first=True)
-        self._lstm.flatten_parameters()
-        x, _ = self._lstm(x)
-        x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True, total_length=ml) 
-        return x
-
-
-class MultiEncoder(torch.nn.Module):
-    """
-    Bunch of language-dependent encoders with output masking.
-
-    Arguments:
-        num_langs -- number of languages (and encoders to be instiantiated)
-        encoder_args -- tuple or list of arguments for encoder
-    """
-
-    def __init__(self, num_langs, encoder_args):
-        super(MultiEncoder, self).__init__()
-        self._num_langs = num_langs
-        self._encoders = ModuleList([Encoder(*encoder_args)] * num_langs)
-
-    def forward(self, x, x_lenghts, x_langs):
-        xs = None
-        for l in range(self._num_langs):
-            mask = (x_langs == l)
-            if not mask.any(): continue
-            ex = self._encoders[l](x, x_lenghts)
-            if xs is None:
-                xs = torch.zeros_like(ex)
-            xs[mask] = ex[mask]
-        return xs
 
 
 class Prenet(torch.nn.Module):
