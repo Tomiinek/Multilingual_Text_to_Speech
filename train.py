@@ -12,6 +12,7 @@ from utils import audio, text
 from modules.tacotron2 import Tacotron, TacotronLoss
 from utils.logging import Logger
 from utils.optimizers import Ranger
+from utils.samplers import RandomImbalancedSampler
 
 
 def to_gpu(x):
@@ -169,8 +170,11 @@ if __name__ == '__main__':
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
-    train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=True, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
-    eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+    sampler = RandomImbalancedSampler(dataset.train) if hp.multi_language and hp.balanced_sampling else None
+    train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=(not hp.multi_language or not hp.balanced_sampling), \
+                            sampler=sampler, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+    eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, \
+                           collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
 
     # acquire dataset-dependent constatnts, these should probably be the same while going from checkpoint
     if not args.checkpoint:

@@ -109,6 +109,7 @@ class Params:
     dataset = "ljspeech"        # one of: ljspeech, vctk, my_blizzard, mailabs
     cache_spectrograms = True
     languages = ['en-us']       # espeak format: phonemize --help
+    balanced_sampling = True    # enables balanced sampling per languages (multinomial distr. with replacement), multi_language must be True
 
     # TEXT:
 
