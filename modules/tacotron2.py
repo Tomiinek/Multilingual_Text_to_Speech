@@ -111,10 +111,10 @@ class Decoder(torch.nn.Module):
         self._stop_prediction = Linear(context_dim + decoder_dim, 1)
         if hp.multi_speaker:
             self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
-            self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
+            # self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
         if hp.multi_language:
             self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.language_number)
-            self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
+            # self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
 
     def _get_embedding(self, name, embedding_dimension, size=None):
         if name == "simple":
@@ -141,24 +141,24 @@ class Decoder(torch.nn.Module):
         c_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
         return h_att, c_att, h_gen, c_gen
 
-    def _get_conditional_embeddings(self, encoded, speakers, languages, batch_size, device):
+    def _get_conditional_embeddings(self, encoded, speakers, languages): # , batch_size, device
         """Compute speaker (lang.) embeddings or return empty dummy tensor."""
 
-        decoder_speaker = torch.empty(batch_size, 0, device=device)
+        # decoder_speaker = torch.empty(batch_size, 0, device=device)
         if hp.multi_speaker:
             embedded_speaker = self._speaker_embedding(speakers)
             expanded_speaker = embedded_speaker.unsqueeze(1).expand((-1, encoded.shape[1], -1))
             encoded = torch.cat((encoded, expanded_speaker), dim=-1) 
-            decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
+            # decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
 
-        decoder_language = torch.empty(batch_size, 0, device=device)
+        # decoder_language = torch.empty(batch_size, 0, device=device)
         if hp.multi_language:
-            embedded_language = self._language_embedding(language)
+            embedded_language = self._language_embedding(languages)
             expanded_language = embedded_language.unsqueeze(1).expand((-1, encoded.shape[1], -1))
             encoded = torch.cat((encoded, expanded_language), dim=-1)
-            decoder_language = F.softsign(self._language_decoder(embedded_language))
+            # decoder_language = F.softsign(self._language_decoder(embedded_language))
 
-        return encoded, decoder_speaker, decoder_language
+        return encoded # , decoder_speaker, decoder_language
 
 
     def _decode(self, encoded_input, mask, target, teacher_forcing_ratio, speaker, language):
@@ -171,8 +171,7 @@ class Decoder(torch.nn.Module):
         input_device = encoded_input.device
 
         # obtain speaker and language embeddings (or a dummy tensor)
-        encoded_input, speaker_embedding, language_embedding = self._get_conditional_embeddings(
-            encoded_input, speaker, language, batch_size, input_device)   
+        encoded_input = self._get_conditional_embeddings(encoded_input, speaker, language)   
         
         # attention and decoder states initialization  
         context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
@@ -198,7 +197,7 @@ class Decoder(torch.nn.Module):
             attention_input = torch.cat((prev_frame, context), dim=1)
             h_att, c_att = self._attention_lstm(attention_input, h_att, c_att)
             context, weights = self._attention(h_att, encoded_input, mask, prev_frame)
-            generator_input = torch.cat((h_att, context, speaker_embedding, language_embedding), dim=1)
+            generator_input = torch.cat((h_att, context), dim=1) # , speaker_embedding, language_embedding
             h_gen, c_gen = self._generator_lstm(generator_input, h_gen, c_gen)
             
             # predict frame and stop token
@@ -334,7 +333,8 @@ class Tacotron(torch.nn.Module):
             return Encoder(*args)
         elif name == "separate":
             return MultiEncoder(hp.language_number, args)  
-        #elif name == "shared":
+        elif name == "shared":
+            return ConditionalEncoder(*args)
 
             
     def _get_attention(self, name, memory_dimension):

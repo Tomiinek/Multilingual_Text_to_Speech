@@ -1,6 +1,6 @@
 import torch
 from torch.nn import functional as F
-from torch.nn import Sequential, ModuleList, ReLU, LSTM
+from torch.nn import Sequential, ModuleList, ReLU, LSTM, Embedding
 
 from modules.layers import ConvBlock
 from modules.generated import LSTMGenerated
@@ -49,8 +49,31 @@ class Encoder(torch.nn.Module):
 
 
 class ConditionalEncoder(torch.nn.Module):
-    # TODO:
-    pass
+    """
+    Encoder which has a language embeddings concatenated to each input character embedding.
+
+    Arguments:
+        input_dim -- total number of languages in the dataset
+        langs_embedding_dim -- output size of the language embedding
+        encoder_args -- tuple or list of arguments for encoder (input dimension without the embedding dimension)
+
+    TODO: conditioning after convolutional layers?
+    TODO: larger dimension of the other conv. layers or of the LSTM? 
+    """
+    
+    def __init__(self, num_langs, langs_embedding_dim, encoder_args):
+        super(ConditionalEncoder, self).__init__()
+        self._language_embedding = Embedding(num_langs, langs_embedding_dim)
+        # modify input_dim of the underlying Encoder
+        encoder_args[0] += langs_embedding_dim
+        self._encoder = Encoder(*encoder_args)
+
+    def forward(self, x, x_lenghts, x_langs):  
+        l = self._language_embedding(x_langs)
+        expanded_l = l.unsqueeze(1).expand((-1, x.shape[1], -1))
+        x = torch.cat((x, expanded_l), dim=-1) 
+        x = self._encoder(x, x_lenghts)
+        return x
 
 
 class MultiEncoder(torch.nn.Module):
