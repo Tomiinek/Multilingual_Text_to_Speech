@@ -42,19 +42,9 @@ def duration(data):
     return librosa.get_duration(data, sr=hp.sample_rate)
 
 
-def endpoint(data, silence_ms, top_db=-40):
-    """Return endpoint (frame index) of an audio signal."""
-    silence_frames = ms_to_frames(silence_ms)
-    hop_frames = int(silence_frames / 4)
-    threshold = db_to_amplitude(top_db)
-    for x in range(hop_frames, len(data) - silence_frames, hop_length):
-        if np.max(data[x:(x + silence_frames)]) < threshold: return x + hop_length
-    return len(data)
-
-
 def amplitude_to_db(x):
     """Convert amplitude to decibels."""
-    return librosa.amplitude_to_db(x, top_db=None)
+    return librosa.amplitude_to_db(x, ref=np.max, top_db=None)
 
 
 def db_to_amplitude(x):
@@ -96,7 +86,7 @@ def mel_spectrogram(y):
 
 
 def linear_to_mel(S):
-    """Convert linear to mel spectrogram."""
+    """Convert linear to mel spectrogram (this does not return the same spec. as mel_spec. method due to the db->amplitude conversion)."""
     S = db_to_amplitude(S)
     S = librosa.feature.melspectrogram(S=S, sr=hp.sample_rate, n_mels=hp.num_mels)
     return amplitude_to_db(S)

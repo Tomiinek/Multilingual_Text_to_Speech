@@ -4,7 +4,7 @@ from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedd
 
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
-from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, GeneratedEncoder
+from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder #, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
 from params.params import Params as hp
 
@@ -32,7 +32,8 @@ class Prenet(torch.nn.Module):
         assert num_layers > 0, ('There must be at least one layer in the pre-net.')
         self._dropout_rate = dropout
         self._activation = ReLU()
-        self._layers = ModuleList([Linear(input_dim, output_dim)] + [Linear(output_dim, output_dim)] * (num_layers - 1))
+        layers = [Linear(input_dim, output_dim)] + [Linear(output_dim, output_dim) for _ in range(num_layers - 1)]
+        self._layers = ModuleList(layers)
 
     def _layer_pass(self, x, layer):
         x = layer(x)
@@ -64,7 +65,7 @@ class Postnet(torch.nn.Module):
         assert num_blocks > 1, ('There must be at least two convolutional blocks in the post-net.')
         self._convs = Sequential(
             ConvBlock(input_dimension, postnet_dimension, kernel_size, dropout, 'tanh'),
-            *[ConvBlock(postnet_dimension, postnet_dimension, kernel_size, dropout, 'tanh')] * (num_blocks - 2),
+            *[ConvBlock(postnet_dimension, postnet_dimension, kernel_size, dropout, 'tanh') for _ in range(num_blocks - 2)],
             ConvBlock(postnet_dimension, input_dimension, kernel_size, dropout, 'identity')
         )
 
@@ -269,10 +270,10 @@ class Tacotron(torch.nn.Module):
         generator_input_dimension = 0
         decoder_input_dimension = hp.encoder_dimension
         if hp.multi_speaker:
-            generator_input_dimension += hp.speaker_decoder_dimension
+            # generator_input_dimension += hp.speaker_decoder_dimension
             decoder_input_dimension += hp.speaker_embedding_dimension
         if hp.multi_language:
-            generator_input_dimension += hp.language_decoder_dimension
+            # generator_input_dimension += hp.language_decoder_dimension
             decoder_input_dimension += hp.language_embedding_dimension
 
         # Decoder attention layer 
@@ -378,9 +379,7 @@ class Tacotron(torch.nn.Module):
     def inference(self, text, speaker=None, language=None):
         # Pretend having a batch of size 1
         text.unsqueeze_(0)
-        if language: language.unsqueeze_(0)
-        if speaker: speaker.unsqueeze_(0)
-
+        
         # Encode input
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)

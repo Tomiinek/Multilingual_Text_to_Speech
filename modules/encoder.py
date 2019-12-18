@@ -26,10 +26,9 @@ class Encoder(torch.nn.Module):
         super(Encoder, self).__init__()
         assert num_blocks > 0, ('There must be at least one convolutional block in the encoder.')
         assert output_dim % 2 == 0, ('Bidirectional LSTM output dimension must be divisible by 2.')
-        self._convs = Sequential(
-            ConvBlock(input_dim, output_dim, kernel_size, dropout, 'relu', generated),
-            *[ConvBlock(output_dim, output_dim, kernel_size, dropout, 'relu', generated)] * (num_blocks - 1)
-        )
+        convs = [ConvBlock(input_dim, output_dim, kernel_size, dropout, 'relu', generated)] + \
+                [ConvBlock(output_dim, output_dim, kernel_size, dropout, 'relu', generated) for _ in range(num_blocks - 1)]
+        self._convs = Sequential(*convs)
         if generated:
             self._lstm = LSTMGenerated(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
         else:
@@ -88,7 +87,7 @@ class MultiEncoder(torch.nn.Module):
     def __init__(self, num_langs, encoder_args):
         super(MultiEncoder, self).__init__()
         self._num_langs = num_langs
-        self._encoders = ModuleList([Encoder(*encoder_args)] * num_langs)
+        self._encoders = ModuleList([Encoder(*encoder_args) for _ in range(num_langs)])
 
     def forward(self, x, x_lenghts, x_langs):
         xs = None

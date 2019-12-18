@@ -36,7 +36,7 @@ class Params:
     # TRAINING:
     epochs = 300
     batch_size = 56
-    learning_rate = 1.5e-3
+    learning_rate = 1e-3
     learning_rate_decay = 0.5
     learning_rate_decay_start = 15000
     learning_rate_decay_each = 15000
@@ -95,9 +95,9 @@ class Params:
     embedding_type = "simple"  # one of: simple (for usual lookup embedding), 
                                #         constant (returning a constant vector)
     speaker_embedding_dimension = 32
-    speaker_decoder_dimension = 64
+    # speaker_decoder_dimension = 64
     language_embedding_dimension = 32
-    language_decoder_dimension = 64
+    # language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
 
@@ -127,7 +127,7 @@ class Params:
    
     # AUDIO:
 
-    # ljspeech    - 22050, 2048
+    # ljspeech    - 22050, 1102
     # vctk        - 48000, 2400
     # my_blizzard - 44100, 2250
     sample_rate = 22050 

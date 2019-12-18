@@ -33,10 +33,11 @@ class PostnetCBHG(torch.nn.Module):
             ConvBlock(bank_channels * bank_size, projection_channels, projection_kernel_size, dropout, 'relu'),
             ConvBlock(projection_channels, input_dim, projection_kernel_size, dropout, 'identity')
         )
+        highways = [HighwayLayer(highway_dim) for _ in range(4)]
         self._highway_layers = Sequential(
             Linear(input_dim, highway_dim),
             ReLU(),
-            *[HighwayLayer(highway_dim)] * 4
+            *highways
         )
         self._gru = GRU(highway_dim, gru_dim // 2, batch_first=True, bidirectional=True)
         self._output_layer = Linear(gru_dim, output_dim)
