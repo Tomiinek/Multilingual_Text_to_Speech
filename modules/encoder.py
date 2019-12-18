@@ -64,7 +64,9 @@ class ConditionalEncoder(torch.nn.Module):
         super(ConditionalEncoder, self).__init__()
         self._language_embedding = Embedding(num_langs, langs_embedding_dim)
         # modify input_dim of the underlying Encoder
+        encoder_args = list(encoder_args)
         encoder_args[0] += langs_embedding_dim
+        encoder_args = tuple(encoder_args)
         self._encoder = Encoder(*encoder_args)
 
     def forward(self, x, x_lenghts, x_langs):  
