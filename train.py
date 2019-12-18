@@ -94,7 +94,7 @@ def evaluate(epoch, data, model, criterion):
                     gen = audio.denormalize_spectrogram(gen, not hp.predict_linear)
                     ref = audio.denormalize_spectrogram(ref, True)
                 if hp.predict_linear: gen = audio.linear_to_mel(gen)
-                mcd = (mcd_count * mcd + audio.mel_cepstral_distorision(gen, ref, 'stretch')) / (mcd_count+1)
+                mcd = (mcd_count * mcd + audio.mel_cepstral_distorision(gen, ref, 'dtw')) / (mcd_count+1)
                 mcd_count += 1
 
             for k, v in batch_losses.items(): 
