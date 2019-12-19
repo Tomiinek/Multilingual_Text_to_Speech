@@ -14,6 +14,13 @@ from utils.logging import Logger
 from utils.optimizers import Ranger
 from utils.samplers import RandomImbalancedSampler
 
+def to_distributed_gpu(self, batch):
+    gpu1 = torch.device("cuda:0")
+    gpu2 = torch.device("cuda:1")
+    for i in [0, 1, 5]: batch[i] = batch[i].to(gpu1)
+    for i in [2, 3, 4]: batch[i] = batch[i].to(gpu2)
+    return batch
+
 
 def to_gpu(x):
     if x is None: return x
@@ -36,7 +43,8 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         optimizer.zero_grad() 
 
         # Parse batch
-        batch = list(map(to_gpu, batch))
+        if hp.parallelization == "model": batch = to_distributed_gpu(batch)
+        else: batch = list(map(to_gpu, batch))
         src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
         # Get teacher forcing ratio
@@ -72,7 +80,8 @@ def evaluate(epoch, data, model, criterion):
         for i, batch in enumerate(data):
 
             # Parse batch
-            batch = map(to_gpu, batch)
+            if hp.parallelization == "model": batch = to_distributed_gpu(batch)
+            else: batch = list(map(to_gpu, batch))
             src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
             # Run the model (twice, with and without teacher forcing)
@@ -190,11 +199,14 @@ if __name__ == '__main__':
         if hp.use_phonemes: hp.phonemes = used_input_characters
         else: hp.characters = used_input_characters
 
-    # instantiate model, loss function, optimizer and learning rate scheduler
+    # instantiate model
     if torch.cuda.is_available(): 
-        model = Tacotron().cuda()
-        if args.max_gpus > 1 and torch.cuda.device_count() > 1:
-            model = DataParallelPassthrough(model, device_ids=list(range(args.max_gpus)))    
+        if hp.parallelization == "data":
+            model = Tacotron().cuda()
+            if args.max_gpus > 1 and torch.cuda.device_count() > 1:
+                model = DataParallelPassthrough(model, device_ids=list(range(args.max_gpus)))
+        elif hp.parallelization == "model":
+            model = ModelParallelTacotron()
     else: model = Tacotron()
 
     # instantiate optimizer and scheduler
