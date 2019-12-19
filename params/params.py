@@ -97,6 +97,7 @@ class Params:
     speaker_embedding_dimension = 32
     # speaker_decoder_dimension = 64
     language_embedding_dimension = 32
+    input_language_embedding = 4
     # language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
