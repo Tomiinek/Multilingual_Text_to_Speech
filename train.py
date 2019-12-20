@@ -9,17 +9,18 @@ from torch.utils.data import DataLoader
 from dataset.dataset import TextToSpeechDatasetCollection, TextToSpeechCollate
 from params.params import Params as hp
 from utils import audio, text
-from modules.tacotron2 import Tacotron, TacotronLoss
+from modules.tacotron2 import Tacotron, ModelParallelTacotron, TacotronLoss
 from utils.logging import Logger
 from utils.optimizers import Ranger
 from utils.samplers import RandomImbalancedSampler
 
-def to_distributed_gpu(self, batch):
+def to_distributed_gpu(batch):
     gpu1 = torch.device("cuda:0")
     gpu2 = torch.device("cuda:1")
-    for i in [0, 1, 5]: batch[i] = batch[i].to(gpu1)
-    for i in [2, 3, 4]: batch[i] = batch[i].to(gpu2)
-    return batch
+    gpu_batch = [None] * len(batch)
+    for i in [0, 1, 7]: gpu_batch[i] = batch[i].to(gpu1) if batch[i] is not None else None
+    for i in [2, 3, 4, 5, 6]: gpu_batch[i] = batch[i].to(gpu2) if batch[i] is not None else None
+    return tuple(gpu_batch)
 
 
 def to_gpu(x):
