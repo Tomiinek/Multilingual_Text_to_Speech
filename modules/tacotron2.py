@@ -335,7 +335,7 @@ class Tacotron(torch.nn.Module):
         elif name == "separate":
             return MultiEncoder(hp.language_number, args)  
         elif name == "shared":
-            return ConditionalEncoder(*args)
+            return ConditionalEncoder(hp.language_number, hp.input_language_embedding, args)
 
             
     def _get_attention(self, name, memory_dimension):
