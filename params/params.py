@@ -101,6 +101,8 @@ class Params:
     # language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
+    reversal_classifier = True
+    reversal_classifier_dim = 256
 
     stop_frames = 5  # number of frames at the end which are considered as "ending sequence"
 
