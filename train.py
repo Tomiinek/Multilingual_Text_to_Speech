@@ -13,6 +13,7 @@ from modules.tacotron2 import Tacotron, TacotronLoss
 from utils.logging import Logger
 from utils.optimizers import Ranger
 from utils.samplers import RandomImbalancedSampler
+from utils import lengths_to_mask
 
 
 def to_gpu(x):
@@ -59,7 +60,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         if not hp.guided_attention_loss: batch_losses.pop('guided_att')
         if epoch >= logging_start_epoch:
             Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time) 
-        
+
         start_time = time.time()
         done += 1 
     
@@ -67,6 +68,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
 def evaluate(epoch, data, model, criterion):     
     model.eval()
     mcd, mcd_count = 0, 0
+    cla, cla_count = 0, 0
     eval_losses = {}
     with torch.no_grad():  
         for i, batch in enumerate(data):
@@ -97,16 +99,28 @@ def evaluate(epoch, data, model, criterion):
                 mcd = (mcd_count * mcd + audio.mel_cepstral_distorision(gen, ref, 'dtw')) / (mcd_count+1)
                 mcd_count += 1
 
+            # Compute language classifier accuracy
+            if hp.reversal_classifier:
+                input_mask = lengths_to_mask(src_len)
+                trg_langs = torch.zeros_like(input_mask, dtype=torch.int64)     
+                for l in range(hp.language_number):
+                    language_mask = (langs == l)
+                    trg_langs[language_mask] = l
+                matches = (trg_langs == torch.argmax(torch.nn.functional.softmax(langs_pred, dim=-1), dim=-1))
+                matches[~input_mask] = False
+                cla = (cla_count * cla + torch.sum(matches).item() / torch.sum(input_mask).item()) / (cla_count+1)
+                cla_count += 1
+
             for k, v in batch_losses.items(): 
                 eval_losses[k] = v + eval_losses[k] if k in eval_losses else v 
-    
+
     # Normalize loss per batch
     for k in eval_losses.keys():
         eval_losses[k] /= len(data)
 
     # Logg evaluation
     if not hp.guided_attention_loss: eval_losses.pop('guided_att')
-    Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0)
+    Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
     
     return sum(eval_losses.values())
 

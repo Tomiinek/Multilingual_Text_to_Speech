@@ -35,7 +35,7 @@ class Logger:
         Logger._sw.add_scalar("Train/duration", duration, train_step)
 
     @staticmethod
-    def evaluation(eval_step, losses, mcd, source_len, target_len, source, target, prediction_forced, prediction, stop_prediction, stop_target, alignment):
+    def evaluation(eval_step, losses, mcd, source_len, target_len, source, target, prediction_forced, prediction, stop_prediction, stop_target, alignment, classifier):
         """Log evaluation results."""
 
         # Log losses
@@ -73,6 +73,9 @@ class Logger:
         Logger._sw.add_figure(f"Stop/eval", Logger._plot_stop_tokens(stop_target[idx].data.cpu().numpy(), stop_prediction[idx].data.cpu().numpy()), eval_step) 
         # Log mel cepstral distorsion
         Logger._sw.add_scalar(f'Eval/mcd', mcd, eval_step)
+        # Log reversal language classifier accuracy
+        if hp.reversal_classifier:
+            Logger._sw.add_scalar(f'Eval/cla', cla, eval_step)
 
 
     @staticmethod

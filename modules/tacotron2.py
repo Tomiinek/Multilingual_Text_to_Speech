@@ -2,17 +2,13 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedding
 
+from utils import lengths_to_mask
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder #, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
 from modules.reversal_classifier import ReversalClassifier
 from params.params import Params as hp
-
-
-def lengths_to_mask(lengths, max_length=None):
-    ml = torch.max(lengths) if max_length is None else max_length
-    return torch.arange(ml, device=lengths.device)[None, :] < lengths[:, None]
 
 
 class Prenet(torch.nn.Module):
@@ -450,7 +446,7 @@ class TacotronLoss(torch.nn.Module):
         post_target.requires_grad = False
         target_stop.requires_grad = False
         
-        stop_balance = torch.tensor([100], device=stop.device)
+        stop_balance = torch.tensor([100], device=stop.device, dtype=torch.float32)
         losses = {
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
