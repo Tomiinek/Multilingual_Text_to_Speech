@@ -43,6 +43,7 @@ class Params:
     weight_decay = 1e-6
     max_output_length = 5000
     gradient_clipping = 0.25
+    reversal_gradient_clipping = 0.25 # used if reversal_classifier is True
     guided_attention_loss = True
     guided_attention_steps = 20000
     guided_attention_toleration = 0.25

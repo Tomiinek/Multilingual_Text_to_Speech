@@ -51,6 +51,16 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         post_trg = trg_lin if hp.predict_linear else trg_mel
         loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred)
         
+        if hp.reversal_classifier:
+            input_mask = lengths_to_mask(src_len)
+            trg_langs = torch.zeros_like(input_mask, dtype=torch.int64)     
+            for l in range(hp.language_number):
+                language_mask = (langs == l)
+                trg_langs[language_mask] = l
+            matches = (trg_langs == torch.argmax(torch.nn.functional.softmax(langs_pred, dim=-1), dim=-1))
+            matches[~input_mask] = False
+            cla = torch.sum(matches).item() / torch.sum(input_mask).item()
+
         # Comptute gradients and make a step
         loss.backward()      
         gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
@@ -59,7 +69,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         # Logg training progress
         if not hp.guided_attention_loss: batch_losses.pop('guided_att')
         if epoch >= logging_start_epoch:
-            Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time) 
+            Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
 
         start_time = time.time()
         done += 1 

@@ -24,7 +24,7 @@ class Logger:
         print(f'\r{prefix} {loading_bar} {progress:.1f}%', end=('' if progress < 100 else '\n'), flush=True)
 
     @staticmethod
-    def training(train_step, losses, gradient, learning_rate, duration):
+    def training(train_step, losses, gradient, learning_rate, duration, classifier):
         """Log batch training."""  
         total_loss = sum(losses.values())
         Logger._sw.add_scalar(f'Train/loss_total', total_loss, train_step)
@@ -33,6 +33,8 @@ class Logger:
         Logger._sw.add_scalar("Train/gradient_norm", gradient, train_step)
         Logger._sw.add_scalar("Train/learning_rate", learning_rate, train_step)
         Logger._sw.add_scalar("Train/duration", duration, train_step)
+        if hp.reversal_classifier:
+            Logger._sw.add_scalar(f'Train/classifier', classifier, train_step)
 
     @staticmethod
     def evaluation(eval_step, losses, mcd, source_len, target_len, source, target, prediction_forced, prediction, stop_prediction, stop_target, alignment, classifier):
@@ -75,7 +77,7 @@ class Logger:
         Logger._sw.add_scalar(f'Eval/mcd', mcd, eval_step)
         # Log reversal language classifier accuracy
         if hp.reversal_classifier:
-            Logger._sw.add_scalar(f'Eval/cla', cla, eval_step)
+            Logger._sw.add_scalar(f'Eval/classifier', classifier, eval_step)
 
 
     @staticmethod

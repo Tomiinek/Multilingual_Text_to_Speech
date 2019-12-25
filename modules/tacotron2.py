@@ -260,7 +260,8 @@ class Tacotron(torch.nn.Module):
             self._reversal_classifier = ReversalClassifier(
                 hp.encoder_dimension, 
                 hp.reversal_classifier_dim, 
-                hp.language_number
+                hp.language_number,
+                hp.reversal_gradient_clipping
             )
 
         # Prenet for transformation of previous predicted frame
