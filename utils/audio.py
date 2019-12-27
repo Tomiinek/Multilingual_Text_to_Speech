@@ -100,6 +100,7 @@ def inverse_spectrogram(s, mel=False):
     if mel: S = librosa.feature.inverse.mel_to_stft(S, power=1, sr=hp.sample_rate, n_fft=hp.num_fft)
     y = librosa.griffinlim(S ** hp.griffin_lim_power, n_iter=hp.griffin_lim_iters, hop_length=hf, win_length=wf)
     if hp.use_preemphasis: y = deemphasis(y)
+    y /= max(y)
     return y
 
 
