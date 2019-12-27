@@ -1,3 +1,4 @@
+import math
 import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedding
@@ -336,8 +337,7 @@ class Tacotron(torch.nn.Module):
             return MultiEncoder(hp.language_number, args)  
         elif name == "shared":
             return ConditionalEncoder(hp.language_number, hp.input_language_embedding, args)
-
-            
+           
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
                 hp.decoder_dimension, 
@@ -347,15 +347,13 @@ class Tacotron(torch.nn.Module):
                 hp.attention_kernel_size,
                 hp.attention_location_dimension,
                 False,
-                *args
-            )
+                *args)
         elif name == "forward":
             return ForwardAttention(*args)
         elif name == "forward_transition_agent":
             return ForwardAttentionWithTransition(
                 hp.prenet_dimension,
-                *args
-            )
+                *args)
 
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
@@ -391,6 +389,68 @@ class Tacotron(torch.nn.Module):
         prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(prediction, torch.LongTensor([prediction.size(2)]))
         return post_prediction.squeeze(0)
+
+
+class ModelParallelTacotron(Tacotron):
+    def __init__(self, *args, **kwargs):
+        super(ModelParallelTacotron, self).__init__()
+        assert hp.batch_size % hp.modelparallel_split_size == 0, ('Batch size must be divisible by model parallel split size.')
+        self._split_size = hp.modelparallel_split_size
+        self._gpu1 = torch.device("cuda:0")
+        self._gpu2 = torch.device("cuda:1")
+        self._embedding.to(self._gpu1)
+        self._encoder.to(self._gpu1)
+        self._prenet.to(self._gpu2)
+        self._attention.to(self._gpu2)
+        self._decoder.to(self._gpu2)
+        self._postnet.to(self._gpu2)
+
+    def _encoder_forward(self, splits):
+        embedded = self._embedding(splits[0])
+        return self._encoder(embedded, splits[1], splits[5])
+
+    def _decoder_forward(self, encoded, splits, ret, teacher_forcing_ratio):
+        encoded = encoded.to(self._gpu2)
+        encoded_length = splits[1].to(self._gpu2)
+        speaker = None if splits[4] is None else splits[4].to(self._gpu2)
+        language = None if splits[5] is None else splits[5].to(self._gpu2)
+        
+        decoded = self._decoder(encoded, encoded_length, splits[2], teacher_forcing_ratio, speaker, language)
+        prediction, stop_token, alignment = decoded
+        pre_prediction = prediction.transpose(1,2)
+        post_prediction = self._postnet(pre_prediction, splits[3])
+
+        target_mask = lengths_to_mask(splits[3], splits[2].size(2))
+        stop_token.masked_fill_(~target_mask, 1000)
+        target_mask = target_mask.unsqueeze(1).float()
+        pre_prediction = pre_prediction * target_mask
+        post_prediction = post_prediction * target_mask
+
+        ret[0].append(post_prediction)
+        ret[1].append(pre_prediction)
+        ret[2].append(stop_token)
+        ret[3].append(alignment)
+
+    def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0):
+       
+        batch = [text, text_length, target, target_length, speakers, languages]
+        ns = math.ceil(text.size(0) / self._split_size)
+        batch_splits = [iter([None]*ns) if x is None else iter(x.split(self._split_size, dim=0)) for x in batch]
+        
+        ret = [[],[],[],[]]
+
+        next_splits = next(zip(*batch_splits))
+        encoded = self._encoder_forward(next_splits)
+        prev_splits = next_splits
+
+        for next_splits in zip(*batch_splits):
+            self._decoder_forward(encoded, prev_splits, ret, teacher_forcing_ratio)
+            encoded = self._encoder_forward(next_splits)
+            prev_splits = next_splits
+
+        self._decoder_forward(encoded, prev_splits, ret, teacher_forcing_ratio)
+
+        return tuple([torch.cat(x) for x in ret])
 
 
 class TacotronLoss(torch.nn.Module):
