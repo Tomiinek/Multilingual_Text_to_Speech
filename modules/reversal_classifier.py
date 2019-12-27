@@ -14,7 +14,7 @@ class GradientReversalFunction(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_output):
         grad_output = grad_output.clamp(-ctx.c, ctx.c)
-        return ctx.l * grad_output.neg(), None
+        return ctx.l * grad_output.neg(), None, None
 
 
 class ReversalClassifier(torch.nn.Module):
