@@ -7,7 +7,7 @@ from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, Constant
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder #, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
-from modules.reversal_classifier import ReversalClassifier
+from modules.classifier import ReversalClassifier
 from params.params import Params as hp
 
 
@@ -432,16 +432,6 @@ class TacotronLoss(torch.nn.Module):
         loss = torch.mean(loss / target_lengths.float())
         return loss
 
-    def _language_classification(self, input_lengths, languages, prediction):
-        ignore_index = -100
-        input_mask = lengths_to_mask(input_lengths)
-        target = torch.zeros_like(input_mask, dtype=torch.int64)     
-        for l in range(self._num_languages):
-            language_mask = (languages == l)
-            target[language_mask] = l
-        target[~input_mask] = ignore_index
-        return F.cross_entropy(prediction.transpose(1,2), target, ignore_index=ignore_index)
-
     def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, lang, lang_prediction):
         pre_target.requires_grad = False
         post_target.requires_grad = False
@@ -456,6 +446,6 @@ class TacotronLoss(torch.nn.Module):
         }
 
         if hp.reversal_classifier:
-            losses['lang_class'] = self._language_classification(source_length, lang, lang_prediction) / (hp.num_mels + 2)
+            losses['lang_class'] = ReversalClassifier.loss(source_length, lang, lang_prediction) / (hp.num_mels + 2)
 
         return sum(losses.values()), losses
