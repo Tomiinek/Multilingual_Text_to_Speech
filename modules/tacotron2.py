@@ -7,6 +7,7 @@ from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, Constant
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder #, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
+from modules.residual_encoder import ResidualEncoder
 from params.params import Params as hp
 
 
@@ -259,13 +260,23 @@ class Tacotron(torch.nn.Module):
         # Encoder transforming graphmenes or phonemes into abstract input representation
         self._encoder = self._get_encoder(hp.encoder_type)
 
+        if hp.residual_encoder:
+            self._residual_encoder = ResidualEncoder(
+                                        hp.num_mels,
+                                        hp.residual_dimension,
+                                        hp.residual_latent_dimenstion,
+                                        hp.residual_blocks,
+                                        hp.residual_kernel_size,
+                                        hp.residual_dropout
+                                    )
+
         # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
-                            hp.num_mels, 
-                            hp.prenet_dimension, 
-                            hp.prenet_layers, 
-                            hp.dropout
-                        )              
+                        hp.num_mels, 
+                        hp.prenet_dimension, 
+                        hp.prenet_layers, 
+                        hp.dropout
+                    )              
 
         # Speaker and language embeddings make decoder bigger
         generator_input_dimension = 0
@@ -292,16 +303,16 @@ class Tacotron(torch.nn.Module):
 
         # Decoder which controls attention and produces mel frames and stop tokens 
         self._decoder = Decoder(
-                            hp.num_mels, 
-                            hp.decoder_dimension, 
-                            self._attention, 
-                            generator_rnn,
-                            attention_rnn, 
-                            decoder_input_dimension,
-                            self._prenet, 
-                            hp.prenet_dimension,
-                            hp.max_output_length
-                        )      
+                        hp.num_mels, 
+                        hp.decoder_dimension, 
+                        self._attention, 
+                        generator_rnn,
+                        attention_rnn, 
+                        decoder_input_dimension,
+                        self._prenet, 
+                        hp.prenet_dimension,
+                        hp.max_output_length
+                    )      
 
         # Postnet transforming predicted mel frames (residual mel or linear frames)
         if hp.predict_linear:
@@ -359,6 +370,12 @@ class Tacotron(torch.nn.Module):
 
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length, languages)
+
+        latent_mean, latent_var = None, None
+        if hp.residual_encoder:
+            latent, latent_mean, latent_var = self._residual_encoder(target, target_length)
+            expanded_latent = latent.unsqueeze(1).expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_latent), dim=-1) 
           
         decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
@@ -372,7 +389,7 @@ class Tacotron(torch.nn.Module):
         pre_prediction = pre_prediction * target_mask
         post_prediction = post_prediction * target_mask
 
-        return post_prediction, pre_prediction, stop_token, alignment
+        return post_prediction, pre_prediction, stop_token, alignment, latent_mean, latent_var
 
     def inference(self, text, speaker=None, language=None):
         # Pretend having a batch of size 1
@@ -381,6 +398,12 @@ class Tacotron(torch.nn.Module):
         # Encode input
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
+
+        # Add a latent vector (sampling or mean)
+        if hp.residual_encoder:
+            latent = self._residual_encoder.inference(1)
+            expanded_latent = latent.unsqueeze(1).expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_latent), dim=-1) 
 
         # Decode with respect to speaker and language embeddings
         prediction = self._decoder.inference(encoded, speaker, language)
@@ -484,7 +507,7 @@ class TacotronLoss(torch.nn.Module):
         loss = torch.mean(loss / target_lengths.float())
         return loss
 
-    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment):
+    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, pre_mean, pre_var):
         pre_target.requires_grad = False
         post_target.requires_grad = False
         target_stop.requires_grad = False
@@ -496,7 +519,12 @@ class TacotronLoss(torch.nn.Module):
             'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
             'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop, pos_weight=stop_balance) / (hp.num_mels + 2),
-            'guided_att' : self._guided_attention(alignment, source_length, target_length)
         }
+
+        if hp.guided_attention_loss: 
+            losses['guided_att'] = self._guided_attention(alignment, source_length, target_length)
+
+        if hp.residual_encoder:
+            losses['latent'] = ResidualEncoder.loss(pre_mean, pre_var)
 
         return sum(losses.values()), losses
