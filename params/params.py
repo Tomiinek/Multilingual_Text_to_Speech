@@ -94,6 +94,13 @@ class Params:
     cbhg_rnn_dim = 128
     cbhg_dropout = 0.0
 
+    residual_encoder = True
+    residual_latent_dimension = 16
+    residual_blocks = 2
+    residual_kernel_size = 3
+    residual_dimension = 512
+    residual_dropout = 0.0
+
     multi_speaker = False
     multi_language = False
     embedding_type = "simple"  # one of: simple (for usual lookup embedding), 

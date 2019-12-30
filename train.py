@@ -53,11 +53,11 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         else: tf = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
 
         # Run the model
-        post_pred, pre_pred, stop_pred, alignment = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
+        post_pred, pre_pred, stop_pred, alignment, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
         
         # Evaluate loss function
         post_trg = trg_lin if hp.predict_linear else trg_mel
-        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment)
+        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, pre_mean, pre_var)
         
         # Comptute gradients and make a step
         loss.backward()      
@@ -65,7 +65,6 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         optimizer.step()   
         
         # Logg training progress
-        if not hp.guided_attention_loss: batch_losses.pop('guided_att')
         if epoch >= logging_start_epoch:
             Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time) 
         
@@ -86,13 +85,13 @@ def evaluate(epoch, data, model, criterion):
             src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
             # Run the model (twice, with and without teacher forcing)
-            post_pred, pre_pred, stop_pred, alignment = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
-            post_pred_0, _, stop_pred_0, alignment_0 = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
+            post_pred, pre_pred, stop_pred, alignment, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
+            post_pred_0, _, stop_pred_0, alignment_0, _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
             stop_pred_probs = torch.sigmoid(stop_pred_0)
 
             # Evaluate loss function
             post_trg = trg_lin if hp.predict_linear else trg_mel
-            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment)
+            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, pre_mean, pre_var)
             
             # Compute mel cepstral distorsion
             for j, (gen, ref, stop) in enumerate(zip(post_pred_0, trg_mel, stop_pred_probs)):
@@ -115,7 +114,6 @@ def evaluate(epoch, data, model, criterion):
         eval_losses[k] /= len(data)
 
     # Logg evaluation
-    if not hp.guided_attention_loss: eval_losses.pop('guided_att')
     Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0)
     
     return sum(eval_losses.values())
