@@ -28,31 +28,30 @@ class ResidualEncoder(torch.nn.Module):
         self._latent_dim = latent_dim
         self._convs = Sequential(
             ConvBlock(input_dim, hidden_dim, kernel_size, dropout, 'relu'),
-            *[ConvBlock(output_dim, hidden_dim, kernel_size, dropout, 'relu') for _ in range(num_blocks - 1)]
+            *[ConvBlock(hidden_dim, hidden_dim, kernel_size, dropout, 'relu') for _ in range(num_blocks - 1)]
         )
-        self._lstm = LSTM(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
-        self._mean = Linear(output_dim, latent_dim)
-        self._log_variance = Linear(output_dim, latent_dim)
+        self._lstm = LSTM(hidden_dim, hidden_dim // 2, batch_first=True, bidirectional=True)
+        self._mean = Linear(hidden_dim, latent_dim)
+        self._log_variance = Linear(hidden_dim, latent_dim)
 
     def forward(self, x, x_lenghts):
 
-        if not zero_mean:
-        x = x.transpose(1, 2)
         x = self._convs(x)
         x = x.transpose(1, 2)
         ml = x.size(1)
-        x = torch.nn.utils.rnn.pack_padded_sequence(x, x_lenghts, batch_first=True)
+        sorted_x_lenghts, sorted_idxs = torch.sort(x_lenghts, descending=True)
+        x = x[sorted_idxs]
+        x = torch.nn.utils.rnn.pack_padded_sequence(x, x_lenghts[sorted_idxs], batch_first=True)
         self._lstm.flatten_parameters()
         x, _ = self._lstm(x)
         x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True, total_length=ml) 
+        x[sorted_idxs] = x
         x = torch.mean(x, dim=1)
         
         mean = self._mean(x)
         log_variance = self._log_variance(x)
-
         std = torch.exp(log_variance / 2)
-        z = torch.empty_like(mean)
-        z.normal_(mean=mean,std=std)
+        z = mean + torch.randn_like(std) * std
 
         return z, mean, std
 
@@ -60,14 +59,14 @@ class ResidualEncoder(torch.nn.Module):
         return torch.zeros(batch_size, self._latent_dim)
 
     @staticmethod
-    def _kl_divergence(self, a_mean, a_sd, b_mean, b_sd):
+    def _kl_divergence(a_mean, a_sd, b_mean, b_sd):
         """Method for computing KL divergence of two normal distributions."""
         a_sd_squared, b_sd_squared = a_sd ** 2, b_sd ** 2
         ratio = a_sd_squared / b_sd_squared
         return (a_mean - b_mean) ** 2 / (2 * b_sd_squared) + (ratio - torch.log(ratio) - 1) / 2
 
     @staticmethod
-    def loss(self, mean, std, predicted=None, target=None):
+    def loss(mean, std, predicted=None, target=None):
         return torch.mean(ResidualEncoder._kl_divergence(mean, std, 0.0, 1.0))
         # FIXME: weight the losses
         # FIXME: BCE as reconstruction loss?

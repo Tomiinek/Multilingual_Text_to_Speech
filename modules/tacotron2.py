@@ -260,25 +260,25 @@ class Tacotron(torch.nn.Module):
         # Encoder transforming graphmenes or phonemes into abstract input representation
         self._encoder = self._get_encoder(hp.encoder_type)
 
-        if hp.residual_encoder:
-            self._residual_encoder = ResidualEncoder(
-                                        hp.num_mels,
-                                        hp.residual_dimension,
-                                        hp.residual_latent_dimenstion,
-                                        hp.residual_blocks,
-                                        hp.residual_kernel_size,
-                                        hp.residual_dropout
-                                    )
-
         # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
                         hp.num_mels, 
                         hp.prenet_dimension, 
                         hp.prenet_layers, 
                         hp.dropout
-                    )              
+                    )     
 
-        # Speaker and language embeddings make decoder bigger
+        if hp.residual_encoder:
+            self._residual_encoder = ResidualEncoder(
+                                        hp.num_mels,
+                                        hp.residual_dimension,
+                                        hp.residual_latent_dimension,
+                                        hp.residual_blocks,
+                                        hp.residual_kernel_size,
+                                        hp.residual_dropout
+                                    )
+
+        # Speaker and language embeddings and latent vector make decoder bigger
         generator_input_dimension = 0
         decoder_input_dimension = hp.encoder_dimension
         if hp.multi_speaker:
@@ -287,6 +287,8 @@ class Tacotron(torch.nn.Module):
         if hp.multi_language:
             # generator_input_dimension += hp.language_decoder_dimension
             decoder_input_dimension += hp.language_embedding_dimension
+        if hp.residual_encoder:
+            decoder_input_dimension += hp.residual_latent_dimension
 
         # Decoder attention layer 
         self._attention = self._get_attention(hp.attention_type, decoder_input_dimension)
@@ -516,7 +518,7 @@ class TacotronLoss(torch.nn.Module):
         
         stop_balance = torch.tensor([100], device=stop.device)
         losses = {
-            'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
+            'mel_pre' : F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
             'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop, pos_weight=stop_balance) / (hp.num_mels + 2),
         }
@@ -525,6 +527,6 @@ class TacotronLoss(torch.nn.Module):
             losses['guided_att'] = self._guided_attention(alignment, source_length, target_length)
 
         if hp.residual_encoder:
-            losses['latent'] = ResidualEncoder.loss(pre_mean, pre_var)
+            losses['latent'] = hp.residual_latent_dimension * ResidualEncoder.loss(pre_mean, pre_var)
 
         return sum(losses.values()), losses

@@ -95,7 +95,7 @@ class Params:
     cbhg_dropout = 0.0
 
     residual_encoder = True
-    residual_latent_dimenstion = 16
+    residual_latent_dimension = 16
     residual_blocks = 2
     residual_kernel_size = 3
     residual_dimension = 512
