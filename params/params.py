@@ -35,7 +35,7 @@ class Params:
 
     # TRAINING:
     epochs = 300
-    batch_size = 56
+    batch_size = 52
     learning_rate = 1e-3
     learning_rate_decay = 0.5
     learning_rate_decay_start = 15000
@@ -49,10 +49,14 @@ class Params:
     guided_attention_toleration = 0.25
     guided_attention_gain = 1.0225
     constant_teacher_forcing = True
-    teacher_forcing = 1.0 
+    teacher_forcing = 1.0
     teacher_forcing_steps = 100000
     teacher_forcing_start_steps = 50000
     checkpoint_each_epochs = 10
+    parallelization = "data"        # 'data' for Data Parallel (parallel batch), supports any number of GPUs
+                                    # 'model' for Model Parallel (batch pipelining), supports exactly two GPUs
+                                    #         encoder is moved to cuda:0 and the decoder is moved to cuda:1 device.  
+    modelparallel_split_size = 13   # used if parallelization == 'model', the size of batch split for pipelining
 
     # MODEL:
 
@@ -90,6 +94,13 @@ class Params:
     cbhg_highway_dimension = 128
     cbhg_rnn_dim = 128
     cbhg_dropout = 0.0
+
+    residual_encoder = True
+    residual_latent_dimension = 16
+    residual_blocks = 2
+    residual_kernel_size = 3
+    residual_dimension = 512
+    residual_dropout = 0.0
 
     multi_speaker = False
     multi_language = False

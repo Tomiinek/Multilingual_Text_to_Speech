@@ -9,11 +9,20 @@ from torch.utils.data import DataLoader
 from dataset.dataset import TextToSpeechDatasetCollection, TextToSpeechCollate
 from params.params import Params as hp
 from utils import audio, text
-from modules.tacotron2 import Tacotron, TacotronLoss
+from modules.tacotron2 import Tacotron, ModelParallelTacotron, TacotronLoss
+from modules.layers import ConstantEmbedding
 from utils.logging import Logger
 from utils.optimizers import Ranger
 from utils.samplers import RandomImbalancedSampler
 from utils import lengths_to_mask
+
+def to_distributed_gpu(batch):
+    gpu1 = torch.device("cuda:0")
+    gpu2 = torch.device("cuda:1")
+    gpu_batch = [None] * len(batch)
+    for i in [0, 1, 7]: gpu_batch[i] = batch[i].to(gpu1) if batch[i] is not None else None
+    for i in [2, 3, 4, 5, 6]: gpu_batch[i] = batch[i].to(gpu2) if batch[i] is not None else None
+    return tuple(gpu_batch)
 
 
 def to_gpu(x):
@@ -37,7 +46,8 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         optimizer.zero_grad() 
 
         # Parse batch
-        batch = list(map(to_gpu, batch))
+        if hp.parallelization == "model": batch = to_distributed_gpu(batch)
+        else: batch = list(map(to_gpu, batch))
         src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
         # Get teacher forcing ratio
@@ -45,12 +55,12 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         else: tf = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
 
         # Run the model
-        post_pred, pre_pred, stop_pred, alignment, langs_pred = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
+        post_pred, pre_pred, stop_pred, alignment, langs_pred, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
         
         # Evaluate loss function
         post_trg = trg_lin if hp.predict_linear else trg_mel
-        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred)
-        
+        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred, pre_mean, pre_var)
+
         if hp.reversal_classifier:
             input_mask = lengths_to_mask(src_len)
             trg_langs = torch.zeros_like(input_mask, dtype=torch.int64)     
@@ -67,7 +77,6 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         optimizer.step()   
         
         # Logg training progress
-        if not hp.guided_attention_loss: batch_losses.pop('guided_att')
         if epoch >= logging_start_epoch:
             Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
 
@@ -84,17 +93,18 @@ def evaluate(epoch, data, model, criterion):
         for i, batch in enumerate(data):
 
             # Parse batch
-            batch = map(to_gpu, batch)
+            if hp.parallelization == "model": batch = to_distributed_gpu(batch)
+            else: batch = list(map(to_gpu, batch))
             src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
             # Run the model (twice, with and without teacher forcing)
-            post_pred, pre_pred, stop_pred, alignment, langs_pred = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
-            post_pred_0, _, stop_pred_0, alignment_0, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
+            post_pred, pre_pred, stop_pred, alignment, langs_pred, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
+            post_pred_0, _, stop_pred_0, alignment_0, _,  _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
             stop_pred_probs = torch.sigmoid(stop_pred_0)
 
             # Evaluate loss function
             post_trg = trg_lin if hp.predict_linear else trg_mel
-            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred)
+            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred, pre_mean, pre_var)
             
             # Compute mel cepstral distorsion
             for j, (gen, ref, stop) in enumerate(zip(post_pred_0, trg_mel, stop_pred_probs)):
@@ -129,7 +139,6 @@ def evaluate(epoch, data, model, criterion):
         eval_losses[k] /= len(data)
 
     # Logg evaluation
-    if not hp.guided_attention_loss: eval_losses.pop('guided_att')
     Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
     
     return sum(eval_losses.values())
@@ -214,11 +223,14 @@ if __name__ == '__main__':
         if hp.use_phonemes: hp.phonemes = used_input_characters
         else: hp.characters = used_input_characters
 
-    # instantiate model, loss function, optimizer and learning rate scheduler
+    # instantiate model
     if torch.cuda.is_available(): 
-        model = Tacotron().cuda()
-        if args.max_gpus > 1 and torch.cuda.device_count() > 1:
-            model = DataParallelPassthrough(model, device_ids=list(range(args.max_gpus)))    
+        if hp.parallelization == "data":
+            model = Tacotron().cuda()
+            if args.max_gpus > 1 and torch.cuda.device_count() > 1:
+                model = DataParallelPassthrough(model, device_ids=list(range(args.max_gpus)))
+        elif hp.parallelization == "model":
+            model = ModelParallelTacotron()
     else: model = Tacotron()
 
     # instantiate optimizer and scheduler
@@ -240,11 +252,11 @@ if __name__ == '__main__':
             # make speaker and language embeddings constant
             hp.embedding_type = "constant"
             if hp.multi_speaker:
-                embedding = model._speaker_embedding.weight.mean(dim=0)
-                model._speaker_embedding = ConstantEmbedding(embedding)
+                embedding = model._decoder._speaker_embedding.weight.mean(dim=0)
+                model._decoder._speaker_embedding = ConstantEmbedding(embedding)
             if hp.multi_language:
-                embedding = model._language_embedding.weight.mean(dim=0)
-                model._language_embedding = ConstantEmbedding(embedding)
+                embedding = model._decoder._language_embedding.weight.mean(dim=0)
+                model._decoder._language_embedding = ConstantEmbedding(embedding)
             # enlarge the input embedding to fit all new characters
             if hp.use_phonemes: hp.phonemes = ordered_new_input_characters
             else: hp.characters = ordered_new_input_characters
