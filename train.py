@@ -10,6 +10,7 @@ from dataset.dataset import TextToSpeechDatasetCollection, TextToSpeechCollate
 from params.params import Params as hp
 from utils import audio, text
 from modules.tacotron2 import Tacotron, ModelParallelTacotron, TacotronLoss
+from modules.layers import ConstantEmbedding
 from utils.logging import Logger
 from utils.optimizers import Ranger
 from utils.samplers import RandomImbalancedSampler
@@ -227,11 +228,11 @@ if __name__ == '__main__':
             # make speaker and language embeddings constant
             hp.embedding_type = "constant"
             if hp.multi_speaker:
-                embedding = model._speaker_embedding.weight.mean(dim=0)
-                model._speaker_embedding = ConstantEmbedding(embedding)
+                embedding = model._decoder._speaker_embedding.weight.mean(dim=0)
+                model._decoder._speaker_embedding = ConstantEmbedding(embedding)
             if hp.multi_language:
-                embedding = model._language_embedding.weight.mean(dim=0)
-                model._language_embedding = ConstantEmbedding(embedding)
+                embedding = model._decoder._language_embedding.weight.mean(dim=0)
+                model._decoder._language_embedding = ConstantEmbedding(embedding)
             # enlarge the input embedding to fit all new characters
             if hp.use_phonemes: hp.phonemes = ordered_new_input_characters
             else: hp.characters = ordered_new_input_characters
