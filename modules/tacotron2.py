@@ -144,25 +144,11 @@ class Decoder(torch.nn.Module):
         c_gen = torch.zeros(batch_size, self._decoder_dim, device=device)
         return h_att, c_att, h_gen, c_gen
 
-    def _get_conditional_embeddings(self, encoded, speakers, languages): # , batch_size, device
-        """Compute speaker (lang.) embeddings or return empty dummy tensor."""
-
-        # decoder_speaker = torch.empty(batch_size, 0, device=device)
-        if hp.multi_speaker:
-            embedded_speaker = self._speaker_embedding(speakers)
-            expanded_speaker = embedded_speaker.unsqueeze(1).expand((-1, encoded.shape[1], -1))
-            encoded = torch.cat((encoded, expanded_speaker), dim=-1) 
-            # decoder_speaker = F.softsign(self._speaker_decoder(embedded_speaker))
-
-        # decoder_language = torch.empty(batch_size, 0, device=device)
-        if hp.multi_language:
-            embedded_language = self._language_embedding(languages)
-            expanded_language = embedded_language.unsqueeze(1).expand((-1, encoded.shape[1], -1))
-            encoded = torch.cat((encoded, expanded_language), dim=-1)
-            # decoder_language = F.softsign(self._language_decoder(embedded_language))
-
-        return encoded # , decoder_speaker, decoder_language
-
+    def _add_conditional_embedding(self, encoded, layer, condition):
+        """Compute speaker (lang.) embedding and concat it to the encoder output."""
+        embedded = layer(encoded.shape[0] if condition is None else condition)
+        expanded = embedded.unsqueeze(1).expand((-1, encoded.shape[1], -1))
+        return torch.cat((encoded, expanded), dim=-1) 
 
     def _decode(self, encoded_input, mask, target, teacher_forcing_ratio, speaker, language):
         """Perform decoding of the encoded input sequence."""
@@ -174,7 +160,10 @@ class Decoder(torch.nn.Module):
         input_device = encoded_input.device
 
         # obtain speaker and language embeddings (or a dummy tensor)
-        encoded_input = self._get_conditional_embeddings(encoded_input, speaker, language)   
+        if hp.multi_speaker:
+            encoded_input = self._add_conditional_embedding(encoded_input, self._speaker_embedding, speaker)
+        if hp.multi_language:
+            encoded_input = self._add_conditional_embedding(encoded_input, self._language_embedding, language)
         
         # attention and decoder states initialization  
         context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
