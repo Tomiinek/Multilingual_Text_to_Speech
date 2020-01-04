@@ -14,6 +14,7 @@ from modules.layers import ConstantEmbedding
 from utils.logging import Logger
 from utils.optimizers import Ranger
 from utils.samplers import RandomImbalancedSampler
+from utils import lengths_to_mask
 
 def to_distributed_gpu(batch):
     gpu1 = torch.device("cuda:0")
@@ -38,6 +39,7 @@ def cos_decay(global_step, decay_steps):
 def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
+    cla = 0
     done, start_time = 0, time.time()
     for i, batch in enumerate(data):     
 
@@ -54,12 +56,22 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         else: tf = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
 
         # Run the model
-        post_pred, pre_pred, stop_pred, alignment, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
+        post_pred, pre_pred, stop_pred, alignment, langs_pred, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
         
         # Evaluate loss function
         post_trg = trg_lin if hp.predict_linear else trg_mel
-        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, pre_mean, pre_var)
-        
+        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred, pre_mean, pre_var)
+
+        if hp.reversal_classifier:
+            input_mask = lengths_to_mask(src_len)
+            trg_langs = torch.zeros_like(input_mask, dtype=torch.int64)     
+            for l in range(hp.language_number):
+                language_mask = (langs == l)
+                trg_langs[language_mask] = l
+            matches = (trg_langs == torch.argmax(torch.nn.functional.softmax(langs_pred, dim=-1), dim=-1))
+            matches[~input_mask] = False
+            cla = torch.sum(matches).item() / torch.sum(input_mask).item()
+
         # Comptute gradients and make a step
         loss.backward()      
         gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
@@ -67,8 +79,8 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         
         # Logg training progress
         if epoch >= logging_start_epoch:
-            Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time) 
-        
+            Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
+
         start_time = time.time()
         done += 1 
     
@@ -76,6 +88,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
 def evaluate(epoch, data, model, criterion):     
     model.eval()
     mcd, mcd_count = 0, 0
+    cla, cla_count = 0, 0
     eval_losses = {}
     with torch.no_grad():  
         for i, batch in enumerate(data):
@@ -86,13 +99,13 @@ def evaluate(epoch, data, model, criterion):
             src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
             # Run the model (twice, with and without teacher forcing)
-            post_pred, pre_pred, stop_pred, alignment, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
-            post_pred_0, _, stop_pred_0, alignment_0, _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
+            post_pred, pre_pred, stop_pred, alignment, langs_pred, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
+            post_pred_0, _, stop_pred_0, alignment_0, _,  _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
             stop_pred_probs = torch.sigmoid(stop_pred_0)
 
             # Evaluate loss function
             post_trg = trg_lin if hp.predict_linear else trg_mel
-            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, pre_mean, pre_var)
+            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, langs, langs_pred, pre_mean, pre_var)
             
             # Compute mel cepstral distorsion
             for j, (gen, ref, stop) in enumerate(zip(post_pred_0, trg_mel, stop_pred_probs)):
@@ -107,15 +120,27 @@ def evaluate(epoch, data, model, criterion):
                 mcd = (mcd_count * mcd + audio.mel_cepstral_distorision(gen, ref, 'dtw')) / (mcd_count+1)
                 mcd_count += 1
 
+            # Compute language classifier accuracy
+            if hp.reversal_classifier:
+                input_mask = lengths_to_mask(src_len)
+                trg_langs = torch.zeros_like(input_mask, dtype=torch.int64)     
+                for l in range(hp.language_number):
+                    language_mask = (langs == l)
+                    trg_langs[language_mask] = l
+                matches = (trg_langs == torch.argmax(torch.nn.functional.softmax(langs_pred, dim=-1), dim=-1))
+                matches[~input_mask] = False
+                cla = (cla_count * cla + torch.sum(matches).item() / torch.sum(input_mask).item()) / (cla_count+1)
+                cla_count += 1
+
             for k, v in batch_losses.items(): 
                 eval_losses[k] = v + eval_losses[k] if k in eval_losses else v 
-    
+
     # Normalize loss per batch
     for k in eval_losses.keys():
         eval_losses[k] /= len(data)
 
     # Logg evaluation
-    Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0)
+    Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
     
     return sum(eval_losses.values())
 
@@ -214,7 +239,7 @@ if __name__ == '__main__':
     #optimizer = Ranger(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each / len(train_data), gamma=hp.learning_rate_decay)
-    criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
+    criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain, hp.language_number)
 
     # load model weights and optimizer, scheduler states from checkpoint state dictionary
     initial_epoch = 0

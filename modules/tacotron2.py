@@ -3,17 +3,14 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedding
 
+from utils import lengths_to_mask
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, ConvolutionalEncoder #, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
+from modules.classifier import ReversalClassifier
 from modules.residual_encoder import ResidualEncoder
 from params.params import Params as hp
-
-
-def lengths_to_mask(lengths, max_length=None):
-    ml = torch.max(lengths) if max_length is None else max_length
-    return torch.arange(ml, device=lengths.device)[None, :] < lengths[:, None]
 
 
 class Prenet(torch.nn.Module):
@@ -249,6 +246,15 @@ class Tacotron(torch.nn.Module):
         # Encoder transforming graphmenes or phonemes into abstract input representation
         self._encoder = self._get_encoder(hp.encoder_type)
 
+        # Reversal language classifier to make encoder truly languagge independent
+        if hp.reversal_classifier:
+            self._reversal_classifier = ReversalClassifier(
+                hp.encoder_dimension, 
+                hp.reversal_classifier_dim, 
+                hp.language_number,
+                hp.reversal_gradient_clipping
+            )
+
         # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
                         hp.num_mels, 
@@ -364,6 +370,7 @@ class Tacotron(torch.nn.Module):
         embedded = self._embedding(text)
         encoded = self._encoder(embedded, text_length, languages)
 
+        lang_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         latent_mean, latent_var = None, None
         if hp.residual_encoder:
             latent, latent_mean, latent_var = self._residual_encoder(target, target_length)
@@ -382,7 +389,7 @@ class Tacotron(torch.nn.Module):
         pre_prediction = pre_prediction * target_mask
         post_prediction = post_prediction * target_mask
 
-        return post_prediction, pre_prediction, stop_token, alignment, latent_mean, latent_var
+        return post_prediction, pre_prediction, stop_token, alignment, lang_prediction, latent_mean, latent_var
 
     def inference(self, text, speaker=None, language=None):
         # Pretend having a batch of size 1
@@ -479,11 +486,12 @@ class TacotronLoss(torch.nn.Module):
         introduced by 'Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention'
     """
 
-    def __init__(self, guided_att_steps, guided_att_variance, guided_att_gamma):
+    def __init__(self, guided_att_steps, guided_att_variance, guided_att_gamma, num_languages=0):
         super(TacotronLoss, self).__init__()
         self._g = guided_att_variance
         self._gamma = guided_att_gamma
         self._g_steps = guided_att_steps
+        self._num_languages = num_languages
 
     def update_states(self, steps_since_last_update):
         self._g *= self._gamma
@@ -500,19 +508,20 @@ class TacotronLoss(torch.nn.Module):
         loss = torch.mean(loss / target_lengths.float())
         return loss
 
-    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, pre_mean, pre_var):
+    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, lang, lang_prediction, pre_mean, pre_var):
         pre_target.requires_grad = False
         post_target.requires_grad = False
         target_stop.requires_grad = False
         
-        # F.l1_loss
-        
-        stop_balance = torch.tensor([100], device=stop.device)
+        stop_balance = torch.tensor([100], device=stop.device, dtype=torch.float32)
         losses = {
             'mel_pre' : F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
             'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop, pos_weight=stop_balance) / (hp.num_mels + 2),
         }
+
+        if hp.reversal_classifier:
+            losses['lang_class'] = ReversalClassifier.loss(source_length, lang, lang_prediction) / (hp.num_mels + 2)
 
         if hp.guided_attention_loss: 
             losses['guided_att'] = self._guided_attention(alignment, source_length, target_length)

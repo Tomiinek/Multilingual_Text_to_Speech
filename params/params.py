@@ -43,6 +43,7 @@ class Params:
     weight_decay = 1e-6
     max_output_length = 5000
     gradient_clipping = 0.25
+    reversal_gradient_clipping = 0.25 # used if reversal_classifier is True
     guided_attention_loss = True
     guided_attention_steps = 20000
     guided_attention_toleration = 0.25
@@ -95,7 +96,7 @@ class Params:
     cbhg_rnn_dim = 128
     cbhg_dropout = 0.0
 
-    residual_encoder = True
+    residual_encoder = False
     residual_latent_dimension = 16
     residual_blocks = 2
     residual_kernel_size = 3
@@ -113,6 +114,8 @@ class Params:
     # language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
+    reversal_classifier = False
+    reversal_classifier_dim = 256
 
     stop_frames = 5  # number of frames at the end which are considered as "ending sequence"
 
