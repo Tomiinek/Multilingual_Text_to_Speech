@@ -109,10 +109,10 @@ class ConvolutionalEncoder(torch.nn.Module):
         super(ConvolutionalEncoder, self).__init__()
         layers = [ConvBlock(input_dim, output_dim, 1, dropout, activation='relu'),
                   ConvBlock(output_dim, output_dim, 1, dropout)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, 3**i) for i in range(4)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, 3**i) for i in range(4)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, 1) for _ in range(2)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 1, dropout, 1) for _ in range(2)]
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=3**i) for i in range(4)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=3**i) for i in range(4)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=1) for _ in range(2)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 1, dropout, dilation=1) for _ in range(2)]
         self._layers = Sequential(*layers)
 
     def forward(self, x, x_lenghts=None, x_langs=None):
