@@ -39,6 +39,7 @@ def cos_decay(global_step, decay_steps):
 def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
     model.train() 
     learning_rate = optimizer.param_groups[0]['lr']
+    cla = 0
     done, start_time = 0, time.time()
     for i, batch in enumerate(data):     
 

@@ -95,7 +95,7 @@ class Params:
     cbhg_rnn_dim = 128
     cbhg_dropout = 0.0
 
-    residual_encoder = True
+    residual_encoder = False
     residual_latent_dimension = 16
     residual_blocks = 2
     residual_kernel_size = 3
@@ -113,7 +113,7 @@ class Params:
     # language_decoder_dimension = 64
     speaker_number = 0
     language_number = 0
-    reversal_classifier = True
+    reversal_classifier = False
     reversal_classifier_dim = 256
 
     stop_frames = 5  # number of frames at the end which are considered as "ending sequence"
