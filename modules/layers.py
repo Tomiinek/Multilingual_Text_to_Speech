@@ -59,14 +59,14 @@ class ConvBlock(torch.nn.Module):
     generated -- enables meta-learning approach which generates parameters of the internal layers
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', generated=False):
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, dilation=1, activation='identity', generated=False):
         super(ConvBlock, self).__init__()
-        p = (kernel-1)//2 
+        p = (kernel-1) * dilation // 2 
         padding = p if kernel % 2 != 0 else (p, p+1)
         self._block = Sequential(
             ConstantPad1d(padding, 0.0),
-            Conv1dGenerated(input_channels, output_channels, kernel, padding=0, bias=False) if generated else \
-            Conv1d(input_channels, output_channels, kernel, padding=0, bias=False),
+            Conv1dGenerated(input_channels, output_channels, kernel, padding=0, dilation=dilatation, bias=False) if generated else \
+            Conv1d(input_channels, output_channels, kernel, padding=0, dilation=dilatation, bias=False),
             BatchNorm1dGenerated(output_channels) if generated else BatchNorm1d(output_channels),
             get_activation(activation),
             Dropout(dropout)
@@ -74,6 +74,20 @@ class ConvBlock(torch.nn.Module):
 
     def forward(self, x):
         return self._block(x)
+
+
+class HighwayConvBlock(ConvBlock):
+    """Gated 1D covolution aka highway layer."""
+
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, dilation=1, activation='identity', generated=False):
+        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, dilation, activation, generated)
+        self._gate = Sigmoid()
+
+    def forward(self, x):
+        h = super(HighwayConv1d, self).forward(x)
+        h1, h2 = torch.chunk(h, 2, 1)
+        p = self._gate(h1)
+        return h2 * p + x * (1.0 - p)
 
 
 class ConstantEmbedding(torch.nn.Module):

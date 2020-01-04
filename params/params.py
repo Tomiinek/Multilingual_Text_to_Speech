@@ -64,6 +64,7 @@ class Params:
                             #         separate (distinct encoders for each language)
                             #         shared (single encoder for all languages with embedding)
                             #         meta (TODO: an encoder parameter generator network)
+                            #         convolutional (single fully convolutional encoder encoder without embedding)
     encoder_dimension = 512
     encoder_blocks = 3
     encoder_kernel_size = 5

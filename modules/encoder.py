@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, ReLU, LSTM, Embedding
 
-from modules.layers import ConvBlock
+from modules.layers import ConvBlock, HighwayConvBlock
 from modules.generated import LSTMGenerated
 from params.params import Params as hp
 
@@ -101,3 +101,22 @@ class MultiEncoder(torch.nn.Module):
                 xs = torch.zeros_like(ex)
             xs[mask] = ex[mask]
         return xs
+
+
+class ConvolutionalEncoder(torch.nn.Module):
+
+    def __init__(self, input_dim, output_dim, dropout, generated=False):
+        super(ConvolutionalEncoder, self).__init__()
+        layers = [ConvBlock(input_dim, output_dim, 1, dropout, activation='relu'),
+                  ConvBlock(output_dim, output_dim, 1, dropout)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, 3**i) for i in range(4)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, 3**i) for i in range(4)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, 1) for _ in range(2)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 1, dropout, 1) for _ in range(2)]
+        self._layers = Sequential(*layers)
+
+    def forward(self, x, x_lenghts=None, x_langs=None):
+        x = x.transpose(1, 2)
+        x = self._layers(x)
+        x = x.transpose(1, 2)
+        return x

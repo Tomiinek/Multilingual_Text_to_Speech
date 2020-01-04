@@ -5,7 +5,7 @@ from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedd
 
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
-from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder #, GeneratedEncoder
+from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, ConvolutionalEncoder #, GeneratedEncoder
 from modules.cbhg import PostnetCBHG
 from modules.residual_encoder import ResidualEncoder
 from params.params import Params as hp
@@ -339,6 +339,8 @@ class Tacotron(torch.nn.Module):
             return MultiEncoder(hp.language_number, args)  
         elif name == "shared":
             return ConditionalEncoder(hp.language_number, hp.input_language_embedding, args)
+        elif name == "convolutional":
+            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, hp.dropout)
            
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
