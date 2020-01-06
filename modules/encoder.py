@@ -26,13 +26,10 @@ class Encoder(torch.nn.Module):
         super(Encoder, self).__init__()
         assert num_blocks > 0, ('There must be at least one convolutional block in the encoder.')
         assert output_dim % 2 == 0, ('Bidirectional LSTM output dimension must be divisible by 2.')
-        convs = [ConvBlock(input_dim, output_dim, kernel_size, dropout, 'relu', generated)] + \
-                [ConvBlock(output_dim, output_dim, kernel_size, dropout, 'relu', generated) for _ in range(num_blocks - 1)]
+        convs = [ConvBlock(input_dim, output_dim, kernel_size, dropout, 'relu')] + \
+                [ConvBlock(output_dim, output_dim, kernel_size, dropout, 'relu') for _ in range(num_blocks - 1)]
         self._convs = Sequential(*convs)
-        if generated:
-            self._lstm = LSTMGenerated(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
-        else:
-            self._lstm = LSTM(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
+        self._lstm = LSTM(output_dim, output_dim // 2, batch_first=True, bidirectional=True)
 
     def forward(self, x, x_lenghts, x_langs=None):  
         # x_langs argument is there just for convenience
@@ -104,8 +101,16 @@ class MultiEncoder(torch.nn.Module):
 
 
 class ConvolutionalEncoder(torch.nn.Module):
+    """
+    Convolutional encoder.
 
-    def __init__(self, input_dim, output_dim, dropout, generated=False):
+    Arguments:
+        input_dim -- size of the input (supposed character embedding)
+        output_dim -- number of channels of the convolutional blocks and output
+        dropout -- dropout rate to be aplied after each convolutional block
+    """
+
+    def __init__(self, input_dim, output_dim, dropout):
         super(ConvolutionalEncoder, self).__init__()
         layers = [ConvBlock(input_dim, output_dim, 1, dropout, activation='relu'),
                   ConvBlock(output_dim, output_dim, 1, dropout)] + \

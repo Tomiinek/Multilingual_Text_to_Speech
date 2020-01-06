@@ -346,7 +346,7 @@ class Tacotron(torch.nn.Module):
         elif name == "shared":
             return ConditionalEncoder(hp.language_number, hp.input_language_embedding, args)
         elif name == "convolutional":
-            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, hp.dropout)
+            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, 0.05)
            
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
@@ -515,7 +515,7 @@ class TacotronLoss(torch.nn.Module):
         
         stop_balance = torch.tensor([100], device=stop.device, dtype=torch.float32)
         losses = {
-            'mel_pre' : F.mse_loss(pre_prediction, pre_target),
+            'mel_pre' : 2 * F.mse_loss(pre_prediction, pre_target),
             'mel_pos' : F.mse_loss(post_prediction, post_target),
             'stop_token' : F.binary_cross_entropy_with_logits(stop, target_stop, pos_weight=stop_balance) / (hp.num_mels + 2),
         }
