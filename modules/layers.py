@@ -101,5 +101,5 @@ class ConstantEmbedding(torch.nn.Module):
         super(ConstantEmbedding, self).__init__()
         self.register_buffer('embedding_weights', weights)
 
-    def forward(self, batch_size):
-        return self.embedding_weights.unsqueeze(0).expand(batch_size, -1)
+    def forward(self, x):
+        return self.embedding_weights.unsqueeze(0).expand(x.shape[0], -1)
