@@ -81,6 +81,9 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         if epoch >= logging_start_epoch:
             Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
 
+        # Update criterion states (params and decay of the loss and so on ...)
+        criterion.update_states()
+
         start_time = time.time()
         done += 1 
     
@@ -275,8 +278,7 @@ if __name__ == '__main__':
     # training loop
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
-        train(args.logging_start, epoch, train_data, model, criterion, optimizer)
-        criterion.update_states(len(train_data))  
+        train(args.logging_start, epoch, train_data, model, criterion, optimizer)  
         if hp.learning_rate_decay_start - hp.learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()
         eval_loss = evaluate(epoch, eval_data, model, criterion)   

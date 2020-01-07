@@ -47,7 +47,7 @@ class Params:
     guided_attention_loss = True
     guided_attention_steps = 20000
     guided_attention_toleration = 0.25
-    guided_attention_gain = 1.0225
+    guided_attention_gain = 1.00008
     constant_teacher_forcing = True
     teacher_forcing = 1.0
     teacher_forcing_steps = 100000

@@ -493,9 +493,9 @@ class TacotronLoss(torch.nn.Module):
         self._g_steps = guided_att_steps
         self._num_languages = num_languages
 
-    def update_states(self, steps_since_last_update):
+    def update_states(self):
         self._g *= self._gamma
-        self._g_steps = max(0, self._g_steps - steps_since_last_update)
+        self._g_steps = max(0, self._g_steps - 1)
 
     def _guided_attention(self, alignments, input_lengths, target_lengths):
         if not hp.guided_attention_loss or self._g_steps == 0: return 0
