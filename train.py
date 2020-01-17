@@ -192,6 +192,7 @@ if __name__ == '__main__':
         checkpoint_state = torch.load(checkpoint)
         hp.load_state_dict(checkpoint_state['parameters'])      
         used_input_characters = hp.phonemes if hp.use_phonemes else hp.characters
+        used_languages = hp.languages
 
     # load hyperparameters
     hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
@@ -213,14 +214,22 @@ if __name__ == '__main__':
     eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, \
                            collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
 
+    # find out number of unique speakers and languages (because of embedding dimension)
+    hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
+    hp.language_number = 0 if not hp.multi_language else len(hp.languages)
+
     # acquire dataset-dependent constatnts, these should probably be the same while going from checkpoint
     if not args.checkpoint:
         # compute per-channel constants for spectrogram normalization
         hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
-        hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)
-        # find out number of unique speakers and languages (because of embedding dimension)
-        hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
-        hp.language_number = 0 if not hp.multi_language else len(hp.languages)
+        hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)   
+    elif not args.fine_tuning:
+        # we will continue training with different languages and speakers
+        language_mapping = None
+        if hp.multi_language and used_languages != hp.languages:
+            new_languages = hp.languages
+            hp.languages = used_languages # to enable model loading
+            language_mapping = np.array([used_languages.index(x) for x in new_languages])
 
     # set the input charset to match characters of the checkpoint (in order to load model) 
     if args.fine_tuning: 
@@ -247,11 +256,24 @@ if __name__ == '__main__':
     # load model weights and optimizer, scheduler states from checkpoint state dictionary
     initial_epoch = 0
     if args.checkpoint:
-        model.load_state_dict(checkpoint_state['model'])
+
+        # Load model state dict (can be imcomplete if pretraining part of the model)
+        model_dict = model.state_dict()
+        pretrained_dict = {k: v for k, v in checkpoint_state['model'].items() if k in model_dict}
+        model_dict.update(pretrained_dict) 
+        model.load_state_dict(model_dict)
+
         if not args.fine_tuning:
             initial_epoch = checkpoint_state['epoch'] + 1
             optimizer.load_state_dict(checkpoint_state['optimizer'])
             scheduler.load_state_dict(checkpoint_state['scheduler'])
+
+            # this is for case when pretraining multi-lingual decoder and training a subset of languages/speakers
+            if language_mapping is not None:
+                hp.languages = new_languages
+                with torch.no_grad():
+                    model._decoder._language_embedding.weight[:len(language_mapping),:] = model._decoder._language_embedding.weight[language_mapping]
+
         else:
             # make speaker and language embeddings constant
             hp.embedding_type = "constant"

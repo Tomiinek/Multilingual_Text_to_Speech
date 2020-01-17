@@ -61,6 +61,7 @@ class Params:
     # MODEL:
 
     embedding_dimension = 512
+    encoder_disabled = False 
     encoder_type = "simple" # one of: simple (single encoder for all languages without embedding), 
                             #         separate (distinct encoders for each language)
                             #         shared (single encoder for all languages with embedding)

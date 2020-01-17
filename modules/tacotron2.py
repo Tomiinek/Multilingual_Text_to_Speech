@@ -113,7 +113,7 @@ class Decoder(torch.nn.Module):
             self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
             # self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
         if hp.multi_language:
-            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, hp.language_number)
+            self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, len(hp.languages))
             # self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
 
     def _get_embedding(self, name, embedding_dimension, size=None):
@@ -234,17 +234,19 @@ class Tacotron(torch.nn.Module):
     def __init__(self):
         super(Tacotron, self).__init__()
 
-        # Encoder embedding 
-        other_symbols = 3 # PAD, EOS, UNK
-        self._embedding = Embedding(
-                            hp.symbols_count() + other_symbols, 
-                            hp.embedding_dimension, 
-                            padding_idx=0
-                        )
-        torch.nn.init.xavier_uniform_(self._embedding.weight)
+        if not hp.encoder_disabled:
 
-        # Encoder transforming graphmenes or phonemes into abstract input representation
-        self._encoder = self._get_encoder(hp.encoder_type)
+            # Encoder embedding 
+            other_symbols = 3 # PAD, EOS, UNK
+            self._embedding = Embedding(
+                                hp.symbols_count() + other_symbols, 
+                                hp.embedding_dimension, 
+                                padding_idx=0
+                            )
+            torch.nn.init.xavier_uniform_(self._embedding.weight)
+
+            # Encoder transforming graphmenes or phonemes into abstract input representation
+            self._encoder = self._get_encoder(hp.encoder_type)
 
         # Reversal language classifier to make encoder truly languagge independent
         if hp.reversal_classifier:
@@ -367,8 +369,11 @@ class Tacotron(torch.nn.Module):
 
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
-        embedded = self._embedding(text)
-        encoded = self._encoder(embedded, text_length, languages)
+        if not hp.encoder_disabled:
+            embedded = self._embedding(text)
+            encoded = self._encoder(embedded, text_length, languages)
+        else:
+            encoded = torch.zeros([text.shape[0], text.shape[1], hp.encoder_dimension], device=text.device)
 
         lang_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         latent_mean, latent_var = None, None
@@ -396,8 +401,11 @@ class Tacotron(torch.nn.Module):
         text.unsqueeze_(0)
         
         # Encode input
-        embedded = self._embedding(text)
-        encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
+        if not hp.encoder_disabled:
+            embedded = self._embedding(text)
+            encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
+        else:
+            encoded = torch.zeros([text.shape[0], text.shape[1], hp.encoder_dimension], device=text.device)
 
         # Add a latent vector (sampling or mean)
         if hp.residual_encoder:
