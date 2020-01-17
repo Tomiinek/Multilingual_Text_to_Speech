@@ -7,6 +7,12 @@ fi
 mkdir -p "$1" && cd "$1"
 
 languages=(
+    'ja'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-4-2019-12-10/ja.tar.gz'
+    'lv'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-4-2019-12-10/lv.tar.gz'
+    'pt'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-4-2019-12-10/pt.tar.gz'
+    'ta'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-4-2019-12-10/ta.tar.gz'
+    'ar'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-4-2019-12-10/ar.tar.gz'
+    'id'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-4-2019-12-10/id.tar.gz'
     'en'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-3/en.tar.gz'
     'de'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-3/de.tar.gz'
     'fr'    'https://voice-prod-bundler-ee1969a6ce8178826482b88e843c335139bd3fb4.s3.amazonaws.com/cv-corpus-3/fr.tar.gz'
@@ -43,6 +49,11 @@ for (( idx=0 ; idx<${#languages[@]} ; idx+=2 )) ; do
 
     LANG=${languages[idx]}
     FILE=${languages[idx+1]}
+
+    if [ -d "$LANG" ]; then
+        echo Skipping "$LANG" as it already exists
+        continue
+    fi
 
     echo Downloading "$FILE" to "$LANG"
     mkdir -p "$LANG" && cd "$LANG"
