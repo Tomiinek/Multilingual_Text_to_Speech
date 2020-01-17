@@ -52,35 +52,44 @@ class ConvBlock(torch.nn.Module):
     
     Arguments:
     input_channels -- number if input channels
-    output_channels -- number of output channels<F4>
+    output_channels -- number of output channels
     kernel -- convolution kernel size ('same' padding is used)
     dropout -- dropout rate to be aplied after the block
     activation (optional) -- name of the activation function applied after batchnorm (default 'identity')
-    generated -- enables meta-learning approach which generates parameters of the internal layers
+    dilation (optinal) -- dilation of the inner convolution (default 1)
+    batch_norm (optional) -- set False to disable batch norm (default True)
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, generated=False):
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, batch_norm=True):
         super(ConvBlock, self).__init__()
+        
         p = (kernel-1) * dilation // 2 
         padding = p if kernel % 2 != 0 else (p, p+1)
-        self._block = Sequential(
-            ConstantPad1d(padding, 0.0),
-            Conv1dGenerated(input_channels, output_channels, kernel, padding=0, dilation=dilation, bias=False) if generated else \
-            Conv1d(input_channels, output_channels, kernel, padding=0, dilation=dilation, bias=False),
-            BatchNorm1dGenerated(output_channels) if generated else BatchNorm1d(output_channels),
-            get_activation(activation),
-            Dropout(dropout)
-        )
+
+        layers = [ConstantPad1d(padding, 0.0),
+                  Conv1d(input_channels, output_channels, kernel, padding=0, dilation=dilation, bias=(not batch_norm))]
+        
+        if batch_norm:
+            layers += BatchNorm1d(output_channels),
+            
+        layers += get_activation(activation),
+        layers += Dropout(dropout)
+
+        self._block = Sequential(*layers)
 
     def forward(self, x):
         return self._block(x)
 
 
 class HighwayConvBlock(ConvBlock):
-    """Gated 1D covolution aka highway layer."""
+    """Gated 1D covolution aka highway layer.
+    
+    Arguments:
+    see ConvBlock
+    """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, generated=False):
-        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, dilation, generated)
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, batch_norm=False):
+        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, dilation, batch_norm)
         self._gate = Sigmoid()
 
     def forward(self, x):
