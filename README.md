@@ -1,60 +1,41 @@
-# Czech Text to Speech
-
-
-## Task list:
-
-### Short-term
-
-- [x] download available english datasets:
-  - [x] LJ Speech - single speaker 24h, 1-10s, LibriVox, 25kHz
-  - [x] Blizzard 2013 (aka Nancy Corpus) - single speaker 147h, 49 knih, emotive storytelling style, 44.1kHz, mp3
-  - [x] VCTK - multispeaker (108), 44h, has leading and trailing silence, poor quality, 48kHz
-  - [x] LibriTTS - 2456 speakers, 585h, ~50GB, 24kHz, maybe poor quality, see the papers folder for construction details
-  - [ ] M-AI-Labs
-  - [x] acquire Blizzard 2013
-  - [x] alignment od Blizzard (aligner output combined with silence intervals)
-  - [x] normalization of Blizzardu
-  - [x] write loaders for the datasets
-  - [x] make some stats like utterance lengths, phonemes, triples of phonemes ...
-- [x] ~~Montreal Forced Aligner~~
-  - [x] ~~install~~
-  - [ ] ~~try alignment of Blizzard, does not work for me :sob: :sob: maybe can try on Windows OS~~
-  - [ ] ~~try out Czech acustic model (we probably need a g2p dictionary :sob:)~~
-- [x] Aeneas
-  - [x] install
-  - [x] try alignment of Blizzardu
-  - [x] try on a short czech text (works out-of-box)
-- [x] segmentation of audio according to aligner output and silence intervals
-- [ ] read https://github.com/kastnerkyle/representation_mixing
-- [ ] ~~Czech audiobooks~~
-    - [ ] find them
-    - [ ] alignment, normalization 
-- [x] ~~crowdsourcing~~
-- [x] make familiar with Griffin-Lim
-- [x] Tacotron - explore some opensource implementations - Ito, r9y9 a NVIDIA
-- [x] write own implementation of Tacotron (2)
-    - [x] guided attention -- Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention
-    - [x] Forward Attention in Sequence-to-sequence Acoustic Modelling for Speech Synthesis
-- [x] radio
-- [ ] ~~implement GMVAE-Tacotron2 paper~~
-- [x] english vanilla
-- [ ] ~~czech vanilla~~
-- [ ] optimize Tacotron parameters
-- [ ] learn tacotron for each M-AILABs language
-
-### Long short-term
-
-- [ ] create multi-lingual baseline
-- [ ] define and automatize experiments
-- [ ] optimize experiments on baseline
-
-### Long-term
-
-- [ ] create more advanced multi-lingual models
-
-### Los problemos
-- [ ] normalization of spectrograms, problems with L1 & L2
-- [ ] in order to use GL, the preemphasis is really needed; WaveNet can make inversion of everything
-- [ ] attention cumulative weights
-- [ ] sharpening or windowing of the attention mechanism
-- [ ] power or energy spectrograms?
+- [ ] Common Voice (de, ru, es, fr, zh, nl)
+  1. [ ] remove invalid length/duration ratio
+  2. [ ] trim silence
+  3. [ ] apply noise filters
+  4. [ ] clear utterances
+  5. [ ] train deutsch multi-speaker
+  
+- [ ] Voice cloning
+  1. [ ] use CV data to train bilingual model
+  2. [ ] use CV data to train more languages
+  3. [ ] implement the orthogonal adversarial loss? (probably not)
+  
+- [ ] Multi-lingual
+  1. [x] replace BN with GN (does not converge even for LN or something up to 16 groups)
+  2. [x] reducing encoder size (224 works but converges slowly)
+  3. [ ] encoder bottleneck
+  4. [ ] encoder or context dropout
+  5. [ ] implement multi-lingual convolutional (grouped) encoder (requires another sampler)
+  6. [ ] implement encoder meta-generator (Conv1d and BN)
+  7. [ ] enable fine-tuning of pretrained decoder (to single language or any subset of languages/speakers)
+  8. [ ] pretrain decoder with CV data 
+  9. [ ] train for as many langs as possible (requires model parallel instead of data parallel):
+     - [ ] simple (currently fr-ge)
+     - [ ] shared (currently fr-ge)
+     - [ ] separate (currently fr-ge)
+     - [ ] generated 
+  
+- [ ] Fine-tuning
+  1. [ ] create balanced and nested LJ speech datasets
+  2. [ ] create some Czech data and process them as LJ speech
+  3. [ ] try transfer-learning to EN and CZ of:
+      - [ ] mono-lingual
+      - [ ] simple
+      - [ ] shared 
+      - [ ] separate
+      - [ ] generated 
+  4. measure something based on training set size:
+      - [ ] pronounciation error
+      - [ ] word skipping
+      - [ ] user preference
+      - [ ] eval MCD
