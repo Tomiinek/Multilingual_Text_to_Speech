@@ -1,7 +1,7 @@
 - [ ] Common Voice (de, ru, es, fr, zh, nl)
   1. [ ] remove invalid length/duration ratio
-  2. [ ] trim silence
-  3. [ ] apply noise filters
+  2. [x] trim silence
+  3. [x] apply noise filters
   4. [ ] clear utterances
   5. [ ] train deutsch multi-speaker
   
@@ -12,8 +12,8 @@
   
 - [ ] Multi-lingual
   1. [x] replace BN with GN (does not converge even for LN or something up to 16 groups)
-  2. [x] reducing encoder size (224 works but converges slowly)
-  3. [ ] encoder bottleneck
+  2. [x] reducing encoder size (224 works, 208 converges slowly)
+  3. [x] encoder bottleneck (reducing of the whole encoder works better)
   4. [ ] encoder or context dropout
   5. [ ] implement multi-lingual convolutional (grouped) encoder (requires another sampler)
   6. [ ] implement encoder meta-generator (Conv1d and BN)
