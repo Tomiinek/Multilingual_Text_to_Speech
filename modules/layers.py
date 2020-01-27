@@ -60,20 +60,20 @@ class ConvBlock(torch.nn.Module):
     batch_norm (optional) -- set False to disable batch norm (default True)
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, batch_norm=True):
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
         super(ConvBlock, self).__init__()
         
         p = (kernel-1) * dilation // 2 
         padding = p if kernel % 2 != 0 else (p, p+1)
 
         layers = [ConstantPad1d(padding, 0.0),
-                  Conv1d(input_channels, output_channels, kernel, padding=0, dilation=dilation, bias=(not batch_norm))]
+                  Conv1d(input_channels, output_channels, kernel, padding=0, dilation=dilation, groups=groups, bias=(not batch_norm))]
         
         if batch_norm:
-            layers += BatchNorm1d(output_channels),
+            layers += [BatchNorm1d(output_channels)]
             
-        layers += get_activation(activation),
-        layers += Dropout(dropout)
+        layers += [get_activation(activation)]
+        layers += [Dropout(dropout)]
 
         self._block = Sequential(*layers)
 
@@ -88,8 +88,8 @@ class HighwayConvBlock(ConvBlock):
     see ConvBlock
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, batch_norm=False):
-        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, dilation, batch_norm)
+    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=False):
+        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, dilation, groups, batch_norm)
         self._gate = Sigmoid()
 
     def forward(self, x):
