@@ -48,27 +48,28 @@ class DropoutLSTMCell(torch.nn.LSTMCell):
 
 
 class ConvBlock(torch.nn.Module):
-    """One dimensional convolution with batchnorm and dropout, expected channel-first input.
+    """
+    One dimensional convolution with batchnorm and dropout, expected channel-first input.
     
     Arguments:
-    input_channels -- number if input channels
-    output_channels -- number of output channels
-    kernel -- convolution kernel size ('same' padding is used)
-    dropout -- dropout rate to be aplied after the block
-    activation (optional) -- name of the activation function applied after batchnorm (default 'identity')
-    dilation (optinal) -- dilation of the inner convolution (default 1)
-    batch_norm (optional) -- set False to disable batch norm (default True)
+        input_channels -- number if input channels
+        output_channels -- number of output channels
+        kernel -- convolution kernel size ('same' padding is used)
+        dropout -- dropout rate to be aplied after the block
+        activation (optional) -- name of the activation function applied after batchnorm (default 'identity')
+        dilation (optinal) -- dilation of the inner convolution (default 1)
+        batch_norm (optional) -- set False to disable batch norm (default True)
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
+    def __init__(self, input_channels, output_channels, kernel, 
+                 dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
         super(ConvBlock, self).__init__()
         
         p = (kernel-1) * dilation // 2 
         padding = p if kernel % 2 != 0 else (p, p+1)
-
         layers = [ConstantPad1d(padding, 0.0),
                   Conv1d(input_channels, output_channels, kernel, padding=0, dilation=dilation, groups=groups, bias=(not batch_norm))]
-        
+
         if batch_norm:
             layers += [BatchNorm1d(output_channels)]
             
@@ -81,15 +82,45 @@ class ConvBlock(torch.nn.Module):
         return self._block(x)
 
 
+class ConvBlockGenerated(torch.nn.Module):
+    """One dimensional convolution with generated weights and with batchnorm and dropout, expected channel-first input."""
+
+    def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel,
+                 dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
+        super(ConvBlockGenerated, self).__init__()
+        
+        p = (kernel-1) * dilation // 2 
+        padding = p if kernel % 2 != 0 else (p, p+1)
+        
+        self._padding = ConstantPad1d(padding, 0.0)
+        self._cnv = Conv1dGenerated(embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
+                                     padding=0, dilation=dilation, groups=groups, bias=(not batch_norm))]
+        self._reg = BatchNorm1dGenerated(embedding_dim, bottleneck_dim, output_channels) if batch_norm else None
+        self._activation = Sequential(
+            get_activation(activation),
+            Dropout(dropout)
+        )
+
+    def forward(self, (e, x)):
+        x = self._padding(x)
+        x = self._cnv(e, x)
+        x = self._reg(e, x)
+        x = self._activation(x)
+        return e, x
+
+
 class HighwayConvBlock(ConvBlock):
-    """Gated 1D covolution aka highway layer.
+    """
+    Gated 1D covolution aka highway layer.
     
     Arguments:
-    see ConvBlock
+        see ConvBlock
     """
 
-    def __init__(self, input_channels, output_channels, kernel, dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=False):
-        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, dilation, groups, batch_norm)
+    def __init__(self, input_channels, output_channels, kernel, 
+                 dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=False):
+        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, 
+                                               dilation, groups, batch_norm)
         self._gate = Sigmoid()
 
     def forward(self, x):
@@ -99,11 +130,28 @@ class HighwayConvBlock(ConvBlock):
         return h2 * p + x * (1.0 - p)
 
 
+class HighwayConvBlockGenerated(ConvBlockGenerated):
+    """Gated 1D covolution aka highway layer with generated weights."""
+
+    def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
+                 dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=False):
+        super(HighwayConvBlockGenerated, self).__init__(embedding_dim, bottleneck_dim, input_channels, 2*output_channels, kernel, 
+                                                        dropout, activation, dilation, groups, batch_norm, generated)
+        self._gate = Sigmoid()
+
+    def forward(self, (e, x)):
+        h = super(HighwayConvBlockGenerated, self).forward(e, x)
+        h1, h2 = torch.chunk(h, 2, 1)
+        p = self._gate(h1)
+        return e, h2 * p + x * (1.0 - p)
+
+
 class ConstantEmbedding(torch.nn.Module):
-    """Simple layer returning frozen constant embedding (suitable for fine-tuning). 
+    """
+    Simple layer returning frozen constant embedding (suitable for fine-tuning). 
     
     Arguments:
-    weights -- The tensor to be returned for any input.
+        weights -- The tensor to be returned for any input.
     """
 
     def __init__(self, weights):

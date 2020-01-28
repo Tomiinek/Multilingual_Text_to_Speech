@@ -6,7 +6,7 @@ from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedd
 from utils import lengths_to_mask
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, ConstantEmbedding
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
-from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, ConvolutionalEncoder #, GeneratedEncoder
+from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, ConvolutionalEncoder, GeneratedConvolutionalEncoder
 from modules.cbhg import PostnetCBHG
 from modules.classifier import ReversalClassifier
 from modules.residual_encoder import ResidualEncoder
@@ -341,6 +341,7 @@ class Tacotron(torch.nn.Module):
                 hp.encoder_blocks,
                 hp.encoder_kernel_size,
                 hp.dropout)
+        ln = 1 if not hp.multi_language else hp.language_number
         if name == "simple":
             return Encoder(*args)
         elif name == "separate":
@@ -348,7 +349,10 @@ class Tacotron(torch.nn.Module):
         elif name == "shared":
             return ConditionalEncoder(hp.language_number, hp.input_language_embedding, args)
         elif name == "convolutional":
-            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, 0.05, 1 if not hp.multi_language else hp.language_number)
+            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, 0.05, ln)
+        elif name == "generated":
+            return GeneratedConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, 0.05, 
+                                                 hp.generator_dim, hp.generator_bottleneck_dim, groups=ln)
            
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,
