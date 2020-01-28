@@ -47,7 +47,7 @@ class Params:
     guided_attention_loss = True
     guided_attention_steps = 20000
     guided_attention_toleration = 0.25
-    guided_attention_gain = 1.00008
+    guided_attention_gain = 1.00025
     constant_teacher_forcing = True
     teacher_forcing = 1.0
     teacher_forcing_steps = 100000
@@ -65,8 +65,7 @@ class Params:
     encoder_type = "simple" # one of: simple (single encoder for all languages without embedding), 
                             #         separate (distinct encoders for each language)
                             #         shared (single encoder for all languages with embedding)
-                            #         meta (TODO: an encoder parameter generator network)
-                            #         convolutional (single fully convolutional encoder encoder without embedding)
+                            #         convolutional (single grouped fully convolutional encoder without embedding, each group correspond to language)
     encoder_dimension = 512
     encoder_blocks = 3
     encoder_kernel_size = 5
@@ -126,7 +125,10 @@ class Params:
     dataset = "ljspeech"        # one of: ljspeech, vctk, my_blizzard, mailabs
     cache_spectrograms = True
     languages = ['en-us']       # espeak format: phonemize --help
-    balanced_sampling = True    # enables balanced sampling per languages (multinomial distr. with replacement), multi_language must be True
+    balanced_sampling = False   # enables balanced sampling per languages (not speakers), multi_language must be True
+    perfect_sampling = False    # used hust if balanced_sampling is True
+                                # if True, each language has the same number of samples and these samples are grouped, batch_size must be divisible
+                                # if False, samples are taken from the multinomial distr. with replacement
 
     # TEXT:
 

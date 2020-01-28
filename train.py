@@ -13,7 +13,7 @@ from modules.tacotron2 import Tacotron, ModelParallelTacotron, TacotronLoss
 from modules.layers import ConstantEmbedding
 from utils.logging import Logger
 from utils.optimizers import Ranger
-from utils.samplers import RandomImbalancedSampler
+from utils.samplers import RandomImbalancedSampler, PerfectBatchSampler
 from utils import lengths_to_mask
 
 def to_distributed_gpu(batch):
@@ -208,11 +208,18 @@ if __name__ == '__main__':
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
-    sampler = RandomImbalancedSampler(dataset.train) if hp.multi_language and hp.balanced_sampling else None
-    train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=(not hp.multi_language or not hp.balanced_sampling), \
-                            sampler=sampler, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
-    eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, \
-                           collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+
+    if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling:
+        train_sampler = PerfectBatchSampler(dataset.train, hp.languages, hp.batch_size, shuffle=True)
+        train_data = DataLoader(dataset.train, batch_sampler=train_sampler, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+        eval_sampler = PerfectBatchSampler(dataset.dev, hp.languages, hp.batch_size, shuffle=False)
+        train_data = DataLoader(dataset.dev, batch_sampler=eval_sampler, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+    else:
+        sampler = RandomImbalancedSampler(dataset.train) if hp.multi_language and hp.balanced_sampling else None
+        train_data = DataLoader(dataset.train, batch_size=hp.batch_size, drop_last=True, shuffle=(not hp.multi_language or not hp.balanced_sampling), \
+                                sampler=sampler, collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
+        eval_data = DataLoader(dataset.dev, batch_size=hp.batch_size, drop_last=False, shuffle=False, \
+                               collate_fn=TextToSpeechCollate(), num_workers=args.loader_workers)
 
     # find out number of unique speakers and languages (because of embedding dimension)
     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()

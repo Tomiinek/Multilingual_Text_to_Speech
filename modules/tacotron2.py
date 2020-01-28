@@ -348,7 +348,7 @@ class Tacotron(torch.nn.Module):
         elif name == "shared":
             return ConditionalEncoder(hp.language_number, hp.input_language_embedding, args)
         elif name == "convolutional":
-            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, 0.05)
+            return ConvolutionalEncoder(hp.embedding_dimension, hp.encoder_dimension, 0.05, 1 if not hp.multi_language else hp.language_number)
            
     def _get_attention(self, name, memory_dimension):
         args = (hp.attention_dimension,

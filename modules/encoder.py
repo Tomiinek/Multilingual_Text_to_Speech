@@ -102,7 +102,11 @@ class MultiEncoder(torch.nn.Module):
 
 class ConvolutionalEncoder(torch.nn.Module):
     """
-    Convolutional encoder.
+    Convolutional encoder (possibly multi-lingual).
+
+    Expects input of shape [B * N, L, F], where B is divisible by N (number of languages) and
+    samples of each language with the first sample at the i-th position occupy every i+L-th 
+    position in the batch (so that it can be reshaped to [B, N * F, L] easily).
 
     Arguments:
         input_dim -- size of the input (supposed character embedding)
@@ -110,18 +114,38 @@ class ConvolutionalEncoder(torch.nn.Module):
         dropout -- dropout rate to be aplied after each convolutional block
     """
 
-    def __init__(self, input_dim, output_dim, dropout):
+    def __init__(self, input_dim, output_dim, dropout, groups=1):
         super(ConvolutionalEncoder, self).__init__()
-        layers = [ConvBlock(input_dim, output_dim, 1, dropout, activation='relu'),
-                  ConvBlock(output_dim, output_dim, 1, dropout)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=3**i) for i in range(4)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=3**i) for i in range(4)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=1) for _ in range(2)] + \
-                 [HighwayConvBlock(output_dim, output_dim, 1, dropout, dilation=1) for _ in range(2)]
+        self._groups = groups
+        self._input_dim = input_dim
+        self._output_dim = output_dim
+        input_dim *= groups
+        output_dim *= groups 
+        layers = [ConvBlock(input_dim, output_dim, 1, dropout, activation='relu', groups=groups),
+                  ConvBlock(output_dim, output_dim, 1, dropout, groups=groups)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=3**i, groups=groups) for i in range(4)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=3**i, groups=groups) for i in range(4)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 3, dropout, dilation=1, groups=groups) for _ in range(2)] + \
+                 [HighwayConvBlock(output_dim, output_dim, 1, dropout, dilation=1, groups=groups) for _ in range(2)]
         self._layers = Sequential(*layers)
 
     def forward(self, x, x_lenghts=None, x_langs=None):
+
+        # x_langs is specified during inference with batch size 1, so we need to 
+        # pad the single language with zeros to create complete groups
+        if x_langs is not None:
+            x_e = torch.zeros([self._groups, x.shape[1], x.shape[2]], device=x.device)
+            x_e[x_langs] = x
+            x = x_e
+
+        bs = x.shape[0]
         x = x.transpose(1, 2)
+        x = x.reshape(bs // self._groups, self._groups * self._input_dim, -1)
         x = self._layers(x)
+        x = x.reshape(bs * self._groups, self._output_dim, -1)
         x = x.transpose(1, 2)
+
+        if x_langs is not None:
+            x = x[x_langs]
+
         return x
