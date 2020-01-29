@@ -4,7 +4,7 @@
   3. [x] apply noise filters
   4. [x] clear utterances (pinyin)
   5. [x] train deutsch multi-speaker (quality of CV speakers is really low, so it cannot be used to produce clearly intelligible speech, however the model converges and has the notion of different speakers :slightly_smiling_face:, a tiny speaker embedding like 16-32 with same params as mono-speaker is ok, 64 does not converge)
-  6. [ ] train fr, ru, zh, nl multi-speaker models to verify the data
+  6. [ ] train ~~fr~~, ru, zh, nl multi-speaker models to verify the data (nl is very hard even with plain css10)
   
 - [ ] Voice cloning
   1. [ ] use CV data to train bilingual model
@@ -17,7 +17,7 @@
   3. [x] encoder bottleneck (reduction of the whole encoder works better)
   4. [x] encoder or context dropout (low rate diverges, higher rate does not converge)
   5. [x] multi-lingual convolutional (grouped) encoder (requires another sampler) implementation
-  6. [ ] debug multi-lingual convolutional encoder and train fr-ge
+  6. [x] debug multi-lingual convolutional encoder and train fr-ge
   7. [x] encoder meta-generator (Conv1d and BN) implementation
   8. [ ] debug meta-generator and train fr-ge
   9. [ ] enable fine-tuning of pretrained decoder (to single language or any subset of languages/speakers)
