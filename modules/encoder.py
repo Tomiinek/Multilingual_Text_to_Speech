@@ -2,8 +2,7 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, ReLU, LSTM, Embedding
 
-from modules.layers import ConvBlock, HighwayConvBlock
-from modules.generated import LSTMGenerated
+from modules.layers import ConvBlock, HighwayConvBlock, ConvBlockGenerated, HighwayConvBlockGenerated
 from params.params import Params as hp
 
 
@@ -146,7 +145,7 @@ class ConvolutionalEncoder(torch.nn.Module):
         x = x.transpose(1, 2)
         x = x.reshape(bs // self._groups, self._groups * self._input_dim, -1)
         x = self._layers(x)
-        x = x.reshape(bs * self._groups, self._output_dim, -1)
+        x = x.reshape(bs, self._output_dim, -1)
         x = x.transpose(1, 2)
 
         if x_langs is not None and x_langs.shape[0] == 1:
@@ -206,7 +205,7 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
         x = x.transpose(1, 2)
         x = x.reshape(bs // self._groups, self._groups * self._input_dim, -1)   
         _, x = self._layers((e, x))
-        x = x.reshape(bs * self._groups, self._output_dim, -1)
+        x = x.reshape(bs, self._output_dim, -1)
         x = x.transpose(1, 2)
 
         if x_langs is not None and x_langs.shape[0] == 1:

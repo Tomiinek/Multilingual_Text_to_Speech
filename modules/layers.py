@@ -94,14 +94,15 @@ class ConvBlockGenerated(torch.nn.Module):
         
         self._padding = ConstantPad1d(padding, 0.0)
         self._cnv = Conv1dGenerated(embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
-                                     padding=0, dilation=dilation, groups=groups, bias=(not batch_norm))]
+                                     padding=0, dilation=dilation, groups=groups, bias=(not batch_norm))
         self._reg = BatchNorm1dGenerated(embedding_dim, bottleneck_dim, output_channels) if batch_norm else None
         self._activation = Sequential(
             get_activation(activation),
             Dropout(dropout)
         )
 
-    def forward(self, (e, x)):
+    def forward(self, x):
+        e, x = x
         x = self._padding(x)
         x = self._cnv(e, x)
         x = self._reg(e, x)
@@ -139,7 +140,8 @@ class HighwayConvBlockGenerated(ConvBlockGenerated):
                                                         dropout, activation, dilation, groups, batch_norm, generated)
         self._gate = Sigmoid()
 
-    def forward(self, (e, x)):
+    def forward(self, x):
+        e, x = x
         h = super(HighwayConvBlockGenerated, self).forward(e, x)
         h1, h2 = torch.chunk(h, 2, 1)
         p = self._gate(h1)

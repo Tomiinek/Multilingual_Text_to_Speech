@@ -224,8 +224,13 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
 
 
 class TextToSpeechCollate():
-   
+  
+    def __init__(self, sort_by_text_length):
+        self.sort_by_text_length = sort_by_text_length
+
     def __call__(self, batch):
+
+        batch_size = len(batch)
 
         # get lengths
         utterance_lengths, spectrogram_lengths = [], []
@@ -241,14 +246,20 @@ class TextToSpeechCollate():
                 max_frames = spectrogram_lengths[-1] 
 
         utterance_lengths = torch.LongTensor(utterance_lengths)
-        sorted_utterance_lengths, sorted_idxs = torch.sort(utterance_lengths, descending=True)
-        spectrogram_lengths = torch.LongTensor(spectrogram_lengths)[sorted_idxs]
-        speakers = None if not hp.multi_speaker else torch.LongTensor(speakers)[sorted_idxs]
-        languages = None if not hp.multi_language else torch.LongTensor(languages)[sorted_idxs]
+        spectrogram_lengths = torch.LongTensor(spectrogram_lengths)
+        speakers = None if not hp.multi_speaker else torch.LongTensor(speakers)
+        languages = None if not hp.multi_language else torch.LongTensor(languages)
 
+        if self.sort_by_text_length:
+            utterance_lengths, sorted_idxs = torch.sort(utterance_lengths, descending=True)
+            spectrogram_lengths = spectrogram_lengths[sorted_idxs]
+            if speakers is not None: speakers = speakers[sorted_idxs]
+            if languages is not None: languages = languages[sorted_idxs]
+        else:
+            sorted_idxs = range(batch_size)
+        
         # zero-pad utterances, spectrograms
-        batch_size = len(batch)
-        utterances = torch.zeros(batch_size, sorted_utterance_lengths[0], dtype=torch.long)
+        utterances = torch.zeros(batch_size, max(utterance_lengths), dtype=torch.long)
         mel_spectrograms = torch.zeros(batch_size, hp.num_mels, max_frames, dtype=torch.float)
         lin_spectrograms = torch.zeros(batch_size, hp.num_fft // 2 + 1, max_frames, dtype=torch.float) if hp.predict_linear else None
         stop_tokens = torch.zeros(batch_size, max_frames, dtype=torch.float)
@@ -262,4 +273,4 @@ class TextToSpeechCollate():
                 lin_spectrograms[i, :, :b[0].size] = torch.FloatTensor(b) 
             stop_tokens[i, a[0].size - hp.stop_frames:] = 1
 
-        return utterances, sorted_utterance_lengths, mel_spectrograms, lin_spectrograms, spectrogram_lengths, stop_tokens, speakers, languages
+        return utterances, utterance_lengths, mel_spectrograms, lin_spectrograms, spectrogram_lengths, stop_tokens, speakers, languages

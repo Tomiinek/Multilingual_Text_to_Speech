@@ -37,7 +37,7 @@ class SubsetSampler(Sampler):
         self.indices = indices
 
     def __iter__(self):
-        return (self.indices[i] for i in len(self.indices))
+        return (self.indices[i] for i in range(len(self.indices)))
 
     def __len__(self):
         return len(self.indices)
@@ -65,11 +65,11 @@ class PerfectBatchSampler(Sampler):
 
         assert batch_size % len(languages) == 0, ('Batch size must be divisible by number of languages.')
 
-        lebel_indices = {}
+        label_indices = {}
         for idx in range(len(data_source)):
             label = data_source.items[idx]['language']
-            if label not in lebel_indices: lebel_indices[label] = []
-            lebel_indices[label].append(idx)
+            if label not in label_indices: label_indices[label] = []
+            label_indices[label].append(idx)
 
         if shuffle:
             self._samplers = [SubsetRandomSampler(label_indices[i]) for i, _ in enumerate(languages)]
@@ -79,15 +79,28 @@ class PerfectBatchSampler(Sampler):
         self._batch_size = batch_size
 
     def __iter__(self):
+        
         batch = []
-        for s in self._samplers:
-            for idx in s:
-                batch.append(idx)
-                if len(batch) == self._batch_size:
-                    yield batch
-                    batch = []
-
+        iters = [iter(s) for s in self._samplers]
+        done = False
+        
+        while True:
+            b = []
+            for it in iters:
+                idx = next(it, None)
+                if idx is None:
+                    done = True
+                    break
+                b.append(idx)
+            if done: break
+            batch += b
+            if len(batch) == self._batch_size:
+                yield batch
+                batch = []
+        
+        if len(batch) > 0:
+            yield batch
+        
     def __len__(self):
         language_batch_size = self._batch_size // len(self._samplers)
-        return min(len(s) // language_batch_size) for s in self._samplers)
-        
+        return min(((len(s) + language_batch_size - 1) // language_batch_size) for s in self._samplers) 
