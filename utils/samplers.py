@@ -57,13 +57,17 @@ class PerfectBatchSampler(Sampler):
         data_source -- dataset to sample from
         languages -- list of languages of data_source to sample from
         batch_size -- total number of samples to be sampled in a mini-batch
+        data_parallel_devices -- number of parallel devices used in the data parallel mode which splits batch as we need
+                                sto ensure that B (or smaller batch if drop_last is False) is divisible by (L * this_argument) 
         shuffle -- if True, samples randomly, otherwise samples sequentially 
-
+        drop_last -- if True, drops last imcomplete batch
+        
     """
 
-    def __init__(self, data_source, languages, batch_size, shuffle=True):
+    def __init__(self, data_source, languages, batch_size, data_parallel_devices=1, shuffle=True, drop_last=False):
 
-        assert batch_size % len(languages) == 0, ('Batch size must be divisible by number of languages.')
+        assert batch_size % (len(languages) * data_parallel_devices) == 0, (
+            'Batch size must be divisible by number of languages times the number of data parallel devices (if enabled).')
 
         label_indices = {}
         for idx in range(len(data_source)):
@@ -77,6 +81,8 @@ class PerfectBatchSampler(Sampler):
             self._samplers = [SubsetSampler(label_indices[i]) for i, _ in enumerate(languages)]
 
         self._batch_size = batch_size
+        self._drop_last = drop_last
+        self._dp_devices = data_parallel_devices
 
     def __iter__(self):
         
@@ -98,8 +104,15 @@ class PerfectBatchSampler(Sampler):
                 yield batch
                 batch = []
         
-        if len(batch) > 0:
-            yield batch
+        if not self._drop_last:
+            if len(batch) > 0:
+                groups = len(batch) // len(self._samplers)
+                if groups % self._dp_devices == 0:
+                    yield batch
+                else:
+                    batch = batch[:(groups // self._dp_devices) * len(self._samplers)]
+                    if len(batch) > 0:
+                        yield batch 
         
     def __len__(self):
         language_batch_size = self._batch_size // len(self._samplers)

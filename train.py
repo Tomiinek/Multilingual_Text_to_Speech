@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--base_directory", type=str, default=".", help="Base directory of the project.")
-    parser.add_argument('--fine_tuning', action='store_true')
+    parser.add_argument('--fine_tuning', action='store_true', help="Fine tune checkpoint to possibly unseen language.")
     parser.add_argument("--checkpoint", type=str, default=None, help="Name of the initial checkpoint.")
     parser.add_argument("--checkpoint_root", type=str, default="checkpoints", help="Base directory of checkpoints.")
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
@@ -193,6 +193,7 @@ if __name__ == '__main__':
         hp.load_state_dict(checkpoint_state['parameters'])      
         used_input_characters = hp.phonemes if hp.use_phonemes else hp.characters
         used_languages = hp.languages
+        used_speakers = hp.unique_speakers
 
     # load hyperparameters
     hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
@@ -210,9 +211,10 @@ if __name__ == '__main__':
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
 
     if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling:
-        train_sampler = PerfectBatchSampler(dataset.train, hp.languages, hp.batch_size, shuffle=True)
+        dp_devices = args.max_gpus if hp.parallelization == "data" else 1 
+        train_sampler = PerfectBatchSampler(dataset.train, hp.languages, hp.batch_size, data_parallel_devices=dp_devices, shuffle=True, drop_last=True)
         train_data = DataLoader(dataset.train, batch_sampler=train_sampler, collate_fn=TextToSpeechCollate(False), num_workers=args.loader_workers)
-        eval_sampler = PerfectBatchSampler(dataset.dev, hp.languages, hp.batch_size, shuffle=False)
+        eval_sampler = PerfectBatchSampler(dataset.dev, hp.languages, hp.batch_size, data_parallel_devices=dp_devices, shuffle=False)
         eval_data = DataLoader(dataset.dev, batch_sampler=eval_sampler, collate_fn=TextToSpeechCollate(False), num_workers=args.loader_workers)
     else:
         sampler = RandomImbalancedSampler(dataset.train) if hp.multi_language and hp.balanced_sampling else None
@@ -231,12 +233,18 @@ if __name__ == '__main__':
         hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
         hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)   
     elif not args.fine_tuning:
-        # we will continue training with different languages and speakers
+        # we may want to continue training with a subset of languages
         language_mapping = None
         if hp.multi_language and used_languages != hp.languages:
             new_languages = hp.languages
             hp.languages = used_languages # to enable model loading
             language_mapping = np.array([used_languages.index(x) for x in new_languages])
+        speaker_mapping = None
+        # we may want to continue training with a subset of speakers
+        if hp.multi_speaker and used_speakers != hp.unique_speakers:
+            new_speakers = hp.unique_speakers
+            hp.unique_speakers = used_speakers # to enable model loading
+            speaker_mapping = np.array([used_speakers.index(x) for x in new_speakers])
 
     # set the input charset to match characters of the checkpoint (in order to load model) 
     if args.fine_tuning: 
@@ -275,11 +283,15 @@ if __name__ == '__main__':
             optimizer.load_state_dict(checkpoint_state['optimizer'])
             scheduler.load_state_dict(checkpoint_state['scheduler'])
 
-            # this is for case when pretraining multi-lingual decoder and training a subset of languages/speakers
+            # this is for case when pretraining multi-lingual/speaker decoder and training a subset of languages/speakers
             if language_mapping is not None:
                 hp.languages = new_languages
                 with torch.no_grad():
                     model._decoder._language_embedding.weight[:len(language_mapping),:] = model._decoder._language_embedding.weight[language_mapping]
+            if speaker_mapping is not None:
+                hp.unique_speakers = new_speakers
+                with torch.no_grad():
+                    model._decoder._speaker_embedding.weight[:len(speaker_mapping),:] = model._decoder._speaker_embedding.weight[speaker_mapping]
 
         else:
             # make speaker and language embeddings constant
@@ -290,6 +302,7 @@ if __name__ == '__main__':
             if hp.multi_language:
                 embedding = model._decoder._language_embedding.weight.mean(dim=0)
                 model._decoder._language_embedding = ConstantEmbedding(embedding)
+
             # enlarge the input embedding to fit all new characters
             if hp.use_phonemes: hp.phonemes = ordered_new_input_characters
             else: hp.characters = ordered_new_input_characters
