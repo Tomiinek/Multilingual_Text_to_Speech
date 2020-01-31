@@ -1,5 +1,6 @@
 import torch
-from torch.nn import Sequential, Linear, Softmax
+from torch.nn import functional as F
+from torch.nn import Dropout, Sequential, Linear, Softmax
 from utils import lengths_to_mask
 
 
@@ -38,11 +39,9 @@ class ReversalClassifier(torch.nn.Module):
     @staticmethod
     def loss(input_lengths, languages, prediction):
         ignore_index = -100
-        input_mask = lengths_to_mask(input_lengths)
-        target = torch.zeros_like(input_mask, dtype=torch.int64)     
-        for l in range(self._output_dim):
-            language_mask = (languages == l)
-            target[language_mask] = l
+        ml = torch.max(input_lengths)
+        input_mask = torch.arange(ml, device=input_lengths.device)[None, :] < input_lengths[:, None]
+        target = languages.repeat(ml, 1).transpose(0,1)
         target[~input_mask] = ignore_index
         return F.cross_entropy(prediction.transpose(1,2), target, ignore_index=ignore_index)
 
