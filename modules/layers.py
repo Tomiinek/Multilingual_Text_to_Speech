@@ -105,7 +105,8 @@ class ConvBlockGenerated(torch.nn.Module):
         e, x = x
         x = self._padding(x)
         x = self._cnv(e, x)
-        x = self._reg(e, x)
+        if self._reg is not None:
+            x = self._reg(e, x)
         x = self._activation(x)
         return e, x
 
@@ -137,12 +138,12 @@ class HighwayConvBlockGenerated(ConvBlockGenerated):
     def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
                  dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=False):
         super(HighwayConvBlockGenerated, self).__init__(embedding_dim, bottleneck_dim, input_channels, 2*output_channels, kernel, 
-                                                        dropout, activation, dilation, groups, batch_norm, generated)
+                                                        dropout, activation, dilation, groups, batch_norm)
         self._gate = Sigmoid()
 
     def forward(self, x):
         e, x = x
-        h = super(HighwayConvBlockGenerated, self).forward(e, x)
+        _, h = super(HighwayConvBlockGenerated, self).forward((e, x))
         h1, h2 = torch.chunk(h, 2, 1)
         p = self._gate(h1)
         return e, h2 * p + x * (1.0 - p)

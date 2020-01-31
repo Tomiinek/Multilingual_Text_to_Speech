@@ -75,10 +75,10 @@ class BatchNorm1dGenerated(torch.nn.Module):
 
         assert generator_embedding.shape[0] == self._groups, ('Number of groups of a batchnorm layer must match the number of generators.')
 
-        if self.momentum is None:
+        if self._momentum is None:
             exponential_average_factor = 0.0
         else:
-            exponential_average_factor = self.momentum
+            exponential_average_factor = self._momentum
 
         e = self._bottleneck(generator_embedding)
         affine = self._affine(e)
@@ -88,11 +88,11 @@ class BatchNorm1dGenerated(torch.nn.Module):
         if self.training:
             if self.num_batches_tracked is not None:
                 self.num_batches_tracked += 1
-                if self.momentum is None:
+                if self._momentum is None:
                     exponential_average_factor = 1.0 / float(self.num_batches_tracked)
                 else: 
-                    exponential_average_factor = self.momentum
+                    exponential_average_factor = self._momentum
 
         return F.batch_norm(
             x, self.running_mean, self.running_var, scale, bias, 
-            self.training, exponential_average_factor, self.eps)
+            self.training, exponential_average_factor, self._eps)

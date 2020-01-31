@@ -173,17 +173,17 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
         input_dim *= groups
         output_dim *= groups
         
-        layers = [ConvBlockGenerated(embedding_dim, bottleneck_diminput_dim, output_dim, 1,
+        layers = [ConvBlockGenerated(embedding_dim, bottleneck_dim, input_dim, output_dim, 1,
                                      dropout=dropout, activation='relu', groups=groups),
                   ConvBlockGenerated(embedding_dim, bottleneck_dimoutput_dim, output_dim, 1,
                                      dropout=dropout, groups=groups)] + \
-                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dimoutput_dim, output_dim, 3, 
+                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dim, output_dim, output_dim, 3, 
                                             dropout=dropout, dilation=3**i, groups=groups) for i in range(4)] + \
-                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dimoutput_dim, output_dim, 3,
+                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dim, output_dim, output_dim, 3,
                                             dropout=dropout, dilation=3**i, groups=groups) for i in range(4)] + \
-                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dimoutput_dim, output_dim, 3,
+                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dim, output_dim, output_dim, 3,
                                             dropout=dropout, dilation=1, groups=groups) for _ in range(2)] + \
-                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dimoutput_dim, output_dim, 1,
+                 [HighwayConvBlockGenerated(embedding_dim, bottleneck_dim, output_dim, output_dim, 1,
                                             dropout=dropout, dilation=1, groups=groups) for _ in range(2)]
         
         self._layers = Sequential(*layers)
@@ -199,7 +199,7 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
             x = x_e
 
         # create generator embeddings for all groups
-        e = self._embedding(torch.LongTensor(range(self._groups)))
+        e = self._embedding(torch.arange(self._groups, device=x.device))
 
         bs = x.shape[0]
         x = x.transpose(1, 2)
