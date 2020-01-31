@@ -144,7 +144,9 @@ class HighwayConvBlockGenerated(ConvBlockGenerated):
     def forward(self, x):
         e, x = x
         _, h = super(HighwayConvBlockGenerated, self).forward((e, x))
-        h1, h2 = torch.chunk(h, 2, 1)
+        chunks = torch.chunk(h, 2 * self._groups, 1)
+        h1 = torch.cat(chunks[0::2])
+        h2 = torch.cat(chunks[1::2])
         p = self._gate(h1)
         return e, h2 * p + x * (1.0 - p)
 
