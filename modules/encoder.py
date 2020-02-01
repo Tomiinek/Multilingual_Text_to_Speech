@@ -175,7 +175,7 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
         
         layers = [ConvBlockGenerated(embedding_dim, bottleneck_dim, input_dim, output_dim, 1,
                                      dropout=dropout, activation='relu', groups=groups),
-                  ConvBlockGenerated(embedding_dim, bottleneck_dimoutput_dim, output_dim, 1,
+                  ConvBlockGenerated(embedding_dim, bottleneck_dim, output_dim, output_dim, 1,
                                      dropout=dropout, groups=groups)] + \
                  [HighwayConvBlockGenerated(embedding_dim, bottleneck_dim, output_dim, output_dim, 3, 
                                             dropout=dropout, dilation=3**i, groups=groups) for i in range(4)] + \
