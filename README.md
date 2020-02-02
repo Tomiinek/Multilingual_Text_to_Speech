@@ -4,7 +4,7 @@
   3. [x] apply noise filters
   4. [x] clear utterances (pinyin)
   5. [x] train deutsch multi-speaker (quality of CV speakers is really low, so it cannot be used to produce clearly intelligible speech, however the model converges and has the notion of different speakers :slightly_smiling_face:, a tiny speaker embedding like 16-32 with same params as mono-speaker is ok, 64 does not converge)
-  6. [ ] train ~~fr~~, ru, zh, nl multi-speaker models to verify the data (nl is very hard even with plain css10)
+  6. [ ] train ~~fr~~, ~~ru~~, ~~zh~~, nl multi-speaker models to verify the data (nl is very hard even with plain css10; russian has very poor generated spectrograms (even though original waveforms are ok) and the resulting sound is awful, however it can learn attention even for CV data; chinese converges slowly but works)
   
 - [ ] Voice cloning
   1. [ ] use CV data to train bilingual model
@@ -19,14 +19,14 @@
   5. [x] multi-lingual convolutional (grouped) encoder (requires another sampler) implementation
   6. [x] debug multi-lingual convolutional encoder and train fr-ge
   7. [x] encoder meta-generator (Conv1d and BN) implementation
-  8. [ ] debug meta-generator and train fr-ge
+  8. [x] debug meta-generator and train fr-ge
   9. [ ] enable fine-tuning of pretrained decoder (to single language or any subset of languages/speakers)
-  10. [ ] pretrain decoder with CV data 
+  10. [x] pretrain decoder with CV data (but this will be probably useless) 
   11. [ ] train for as many langs as possible (requires model parallel instead of data parallel):
-     - [ ] simple (currently fr-ge)
-     - [ ] shared (currently fr-ge)
-     - [ ] separate (currently fr-ge)
-     - [ ] generated 
+      - [ ] simple (currently fr-ge)
+      - [ ] shared (currently fr-ge)
+      - [ ] separate (currently fr-ge)
+      - [ ] generated 
   
 - [ ] Fine-tuning
   1. [ ] create balanced and nested LJ speech datasets
