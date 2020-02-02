@@ -65,6 +65,8 @@ class ConvBlock(torch.nn.Module):
                  dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
         super(ConvBlock, self).__init__()
 
+        self._groups = groups
+        
         p = (kernel-1) * dilation // 2 
         padding = p if kernel % 2 != 0 else (p, p+1)
         layers = [ConstantPad1d(padding, 0.0),
@@ -82,23 +84,6 @@ class ConvBlock(torch.nn.Module):
         return self._block(x)
 
 
-class HighwayConvBlock(torch.nn.Module):
-   """Gated 1D covolution aka highway layer."""
-
-   def __init__(self, input_channels, output_channels, kernel, 
-                dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
-        super(HighwayConvBlock, self).__init__()
-        self._residual = ConvBlock(input_channels, output_channels, kernel, dropout=0.0, activation='sigmoid', 
-                               dilation=dilation, groups=groups, batch_norm=False)   
-        self._block = ConvBlock(input_channels, output_channels, kernel, dropout=dropout, activation=activation, 
-                               dilation=dilation, groups=groups, batch_norm=batch_norm)
-
-   def forward(self, x):
-       p = self._residual(x)
-       h = self._block(x)
-       return h * p + x * (1.0 - p)
-
-
 class ConvBlockGenerated(torch.nn.Module):
     """One dimensional convolution with generated weights and with batchnorm and dropout, expected channel-first input."""
 
@@ -106,6 +91,8 @@ class ConvBlockGenerated(torch.nn.Module):
                  dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
         super(ConvBlockGenerated, self).__init__()
 
+        self._groups = groups
+        
         p = (kernel-1) * dilation // 2 
         padding = p if kernel % 2 != 0 else (p, p+1)
         
@@ -128,22 +115,46 @@ class ConvBlockGenerated(torch.nn.Module):
         return e, x
 
 
-class HighwayConvBlockGenerated(torch.nn.Module):
-   """Gated 1D covolution aka highway layer."""
+class HighwayConvBlock(ConvBlock):
+    """
+    Gated 1D covolution aka highway layer.
+    
+    Arguments:
+        see ConvBlock
+    """
 
-   def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
-                dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
-        super(HighwayConvBlockGenerated, self).__init__()
-        self._residual = ConvBlockGenerated(embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
-                                            dropout=0.0, activation='sigmoid', dilation=dilation, groups=groups, batch_norm=False)   
-        self._block = ConvBlockGenerated(embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
-                                         dropout=dropout, activation=activation, dilation=dilation, groups=groups, batch_norm=batch_norm)
+    def __init__(self, input_channels, output_channels, kernel, 
+                 dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
+        super(HighwayConvBlock, self).__init__(input_channels, 2*output_channels, kernel, dropout, activation, 
+                                               dilation, groups, batch_norm)
+        self._gate = Sigmoid()
 
-   def forward(self, x):
-       e, x = x
-       _, p = self._residual((e, x))
-       _, h = self._block((e, x))
-       return e, h * p + x * (1.0 - p)
+    def forward(self, x):
+        h = super(HighwayConvBlock, self).forward(x)
+        chunks = torch.chunk(h, 2 * self._groups, 1)
+        h1 = torch.cat(chunks[0::2], 1)
+        h2 = torch.cat(chunks[1::2], 1)
+        p = self._gate(h1)
+        return h2 * p + x * (1.0 - p)
+
+
+class HighwayConvBlockGenerated(ConvBlockGenerated):
+    """Gated 1D covolution aka highway layer with generated weights."""
+
+    def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
+                 dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
+        super(HighwayConvBlockGenerated, self).__init__(embedding_dim, bottleneck_dim, input_channels, 2*output_channels, kernel, 
+                                                        dropout, activation, dilation, groups, batch_norm)
+        self._gate = Sigmoid()
+
+    def forward(self, x):
+        e, x = x
+        _, h = super(HighwayConvBlockGenerated, self).forward((e, x))
+        chunks = torch.chunk(h, 2 * self._groups, 1)
+        h1 = torch.cat(chunks[0::2], 1)
+        h2 = torch.cat(chunks[1::2], 1)
+        p = self._gate(h1)
+        return e, h2 * p + x * (1.0 - p)
 
 
 class ConstantEmbedding(torch.nn.Module):
