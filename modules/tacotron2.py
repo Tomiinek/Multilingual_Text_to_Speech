@@ -449,6 +449,13 @@ class ModelParallelTacotron(Tacotron):
         encoded_length = splits[1].to(self._gpu2)
         speaker = None if splits[4] is None else splits[4].to(self._gpu2)
         language = None if splits[5] is None else splits[5].to(self._gpu2)
+
+        lang_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
+        latent_mean, latent_var = None, None
+        if hp.residual_encoder:
+            latent, latent_mean, latent_var = self._residual_encoder(splits[2], splits[3])
+            expanded_latent = latent.unsqueeze(1).expand((-1, encoded.shape[1], -1))
+            encoded = torch.cat((encoded, expanded_latent), dim=-1) 
         
         decoded = self._decoder(encoded, encoded_length, splits[2], teacher_forcing_ratio, speaker, language)
         prediction, stop_token, alignment = decoded
@@ -465,6 +472,9 @@ class ModelParallelTacotron(Tacotron):
         ret[1].append(pre_prediction)
         ret[2].append(stop_token)
         ret[3].append(alignment)
+        ret[4].append(lang_prediction)
+        ret[5].append(latent_mean)
+        ret[6].append(latent_var)
 
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0):
        
@@ -472,7 +482,7 @@ class ModelParallelTacotron(Tacotron):
         ns = math.ceil(text.size(0) / self._split_size)
         batch_splits = [iter([None]*ns) if x is None else iter(x.split(self._split_size, dim=0)) for x in batch]
         
-        ret = [[],[],[],[]]
+        ret = [[],[],[],[],[],[],[]]
 
         next_splits = next(zip(*batch_splits))
         encoded = self._encoder_forward(next_splits)
@@ -485,7 +495,7 @@ class ModelParallelTacotron(Tacotron):
 
         self._decoder_forward(encoded, prev_splits, ret, teacher_forcing_ratio)
 
-        return tuple([torch.cat(x) for x in ret])
+        return tuple([torch.cat(x, dim=0) for x in ret])
 
 
 class TacotronLoss(torch.nn.Module):
