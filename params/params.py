@@ -56,7 +56,7 @@ class Params:
     parallelization = "data"        # 'data' for Data Parallel (parallel batch), supports any number of GPUs
                                     # 'model' for Model Parallel (batch pipelining), supports exactly two GPUs
                                     #         encoder is moved to cuda:0 and the decoder is moved to cuda:1 device.  
-    modelparallel_split_size = 13   # used if parallelization == 'model', the size of batch split for pipelining
+    modelparallel_split_size = 8    # used if parallelization == 'model', the size of batch split for pipelining
 
     # MODEL:
 
@@ -120,6 +120,7 @@ class Params:
     language_number = 0
     reversal_classifier = False
     reversal_classifier_dim = 256
+    reversal_classifier_w = 1.0
 
     stop_frames = 5  # number of frames at the end which are considered as "ending sequence"
 

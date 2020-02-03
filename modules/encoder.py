@@ -67,8 +67,7 @@ class ConditionalEncoder(torch.nn.Module):
 
     def forward(self, x, x_lenghts, x_langs):  
         l = self._language_embedding(x_langs)
-        expanded_l = l.unsqueeze(1).expand((-1, x.shape[1], -1))
-        x = torch.cat((x, expanded_l), dim=-1) 
+        x = torch.cat((x, l), dim=-1) 
         x = self._encoder(x, x_lenghts)
         return x
 
@@ -135,11 +134,9 @@ class ConvolutionalEncoder(torch.nn.Module):
     def forward(self, x, x_lenghts=None, x_langs=None):
 
         # x_langs is specified during inference with batch size 1, so we need to 
-        # pad the single language with zeros to create complete groups
+        # expand the single language to create complete groups (all langs. in parallel)
         if x_langs is not None and x_langs.shape[0] == 1:
-            x_e = torch.zeros([self._groups, x.shape[1], x.shape[2]], device=x.device)
-            x_e[x_langs] = x
-            x = x_e
+            x = x.expand((self._groups, -1, -1))
 
         bs = x.shape[0]
         x = x.transpose(1, 2)
@@ -192,11 +189,9 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
     def forward(self, x, x_lenghts=None, x_langs=None):
 
         # x_langs is specified during inference with batch size 1, so we need to 
-        # pad the single language with zeros to create complete groups
+        # expand the single language to create complete groups (all langs. in parallel)
         if x_langs is not None and x_langs.shape[0] == 1:
-            x_e = torch.zeros([self._groups, x.shape[1], x.shape[2]], device=x.device)
-            x_e[x_langs] = x
-            x = x_e
+            x = x.expand((self._groups, -1, -1))
 
         # create generator embeddings for all groups
         e = self._embedding(torch.arange(self._groups, device=x.device))

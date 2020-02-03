@@ -144,8 +144,7 @@ class Decoder(torch.nn.Module):
     def _add_conditional_embedding(self, encoded, layer, condition):
         """Compute speaker (lang.) embedding and concat it to the encoder output."""
         embedded = layer(encoded if condition is None else condition)
-        expanded = embedded.unsqueeze(1).expand((-1, encoded.shape[1], -1))
-        return torch.cat((encoded, expanded), dim=-1) 
+        return torch.cat((encoded, embedded), dim=-1) 
 
     def _decode(self, encoded_input, mask, target, teacher_forcing_ratio, speaker, language):
         """Perform decoding of the encoded input sequence."""
@@ -373,12 +372,20 @@ class Tacotron(torch.nn.Module):
 
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
+        # enlarge speakers and languages if needed
+        if speakers.ndim() == 1:
+            speakers = speakers.unsqueeze(1).expand((-1, text.size(1), -1))
+        if languages.ndim() == 1:
+            languages = languages.unsqueeze(1).expand((-1, text.size(1), -1))
+
+        # Encode input
         if not hp.encoder_disabled:
             embedded = self._embedding(text)
             encoded = self._encoder(embedded, text_length, languages)
         else:
             encoded = torch.zeros([text.shape[0], text.shape[1], hp.encoder_dimension], device=text.device)
 
+        # Predict language as an adversarial task if needed
         lang_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         latent_mean, latent_var = None, None
         if hp.residual_encoder:
@@ -386,12 +393,13 @@ class Tacotron(torch.nn.Module):
             expanded_latent = latent.unsqueeze(1).expand((-1, encoded.shape[1], -1))
             encoded = torch.cat((encoded, expanded_latent), dim=-1) 
           
+        # Decode 
         decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
         post_prediction = self._postnet(pre_prediction, target_length)
 
-        # mask output paddings
+        # Mask output paddings
         target_mask = lengths_to_mask(target_length, target.size(2))
         stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
@@ -403,6 +411,11 @@ class Tacotron(torch.nn.Module):
     def inference(self, text, speaker=None, language=None):
         # Pretend having a batch of size 1
         text.unsqueeze_(0)
+
+        if speaker.ndim() == 1:
+            speaker = speaker.unsqueeze(1).expand((-1, text..size(1), -1))
+        if language.ndim() == 1:
+            language = language.unsqueeze(1).expand((-1, text..size(1), -1))
         
         # Encode input
         if not hp.encoder_disabled:
@@ -495,7 +508,7 @@ class ModelParallelTacotron(Tacotron):
 
         self._decoder_forward(encoded, prev_splits, ret, teacher_forcing_ratio)
 
-        return tuple([torch.cat(x, dim=0) for x in ret])
+        return tuple([torch.cat(x, dim=0) if x[0] is not None else None for x in ret])
 
 
 class TacotronLoss(torch.nn.Module):
@@ -543,7 +556,7 @@ class TacotronLoss(torch.nn.Module):
         }
 
         if hp.reversal_classifier:
-            losses['lang_class'] = ReversalClassifier.loss(source_length, lang, lang_prediction) / (hp.num_mels + 2)
+            losses['lang_class'] = ReversalClassifier.loss(source_length, lang, lang_prediction) / (hp.num_mels + 2) * hp.reversal_classifier_w
 
         if hp.guided_attention_loss: 
             losses['guided_att'] = self._guided_attention(alignment, source_length, target_length)

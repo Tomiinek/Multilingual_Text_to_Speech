@@ -99,7 +99,7 @@ class ConvBlockGenerated(torch.nn.Module):
         self._padding = ConstantPad1d(padding, 0.0)
         self._convolution = Conv1dGenerated(embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
                                      padding=0, dilation=dilation, groups=groups, bias=(not batch_norm))
-        self._regularizer = BatchNorm1dGenerated(embedding_dim, bottleneck_dim, output_channels) if batch_norm else None
+        self._regularizer = BatchNorm1dGenerated(embedding_dim, bottleneck_dim, output_channels, groups=groups) if batch_norm else None
         self._activation = Sequential(
             get_activation(activation),
             Dropout(dropout)
