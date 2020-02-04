@@ -373,10 +373,10 @@ class Tacotron(torch.nn.Module):
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
         # enlarge speakers and languages if needed
-        if speakers.ndim() == 1:
-            speakers = speakers.unsqueeze(1).expand((-1, text.size(1), -1))
-        if languages.ndim() == 1:
-            languages = languages.unsqueeze(1).expand((-1, text.size(1), -1))
+        if speakers is not None and speakers.dim() == 1:
+            speakers = speakers.unsqueeze(1).expand((-1, text.size(1)))
+        if languages is not None and languages.dim() == 1:
+            languages = languages.unsqueeze(1).expand((-1, text.size(1)))
 
         # Encode input
         if not hp.encoder_disabled:
@@ -412,10 +412,10 @@ class Tacotron(torch.nn.Module):
         # Pretend having a batch of size 1
         text.unsqueeze_(0)
 
-        if speaker.ndim() == 1:
-            speaker = speaker.unsqueeze(1).expand((-1, text..size(1), -1))
-        if language.ndim() == 1:
-            language = language.unsqueeze(1).expand((-1, text..size(1), -1))
+        if speakers is not None and speakers.dim() == 1:
+            speakers = speakers.unsqueeze(1).expand((-1, text.size(1)))
+        if languages is not None and languages.dim() == 1:
+            languages = languages.unsqueeze(1).expand((-1, text.size(1)))
         
         # Encode input
         if not hp.encoder_disabled:

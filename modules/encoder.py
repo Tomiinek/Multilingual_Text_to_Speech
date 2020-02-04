@@ -146,7 +146,11 @@ class ConvolutionalEncoder(torch.nn.Module):
         x = x.transpose(1, 2)
 
         if x_langs is not None and x_langs.shape[0] == 1:
-            x = x[x_langs]
+            xr = torch.zeros(1, x.shape[1], x.shape[2])
+            for l in range(self._groups):
+                mask = (x_langs[0] == l)
+                xr[0,mask] = x[l][mask]
+            x = xr
 
         return x
 
@@ -204,6 +208,10 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
         x = x.transpose(1, 2)
 
         if x_langs is not None and x_langs.shape[0] == 1:
-            x = x[x_langs]
+            xr = torch.zeros(1, x.shape[1], x.shape[2])
+            for l in range(self._groups):
+                mask = (x_langs[0] == l)
+                xr[0,mask] = x[l][mask]
+            x = xr
 
         return x
