@@ -37,14 +37,21 @@ class TextToSpeechDatasetCollection():
         val_full_path = os.path.join(dataset_root_dir, validation_file)
         if not os.path.exists(val_full_path):
             raise IOError(f'The validation set meta-file not found, given: {val_full_path}')
-        self.dev = TextToSpeechDataset(val_full_path, dataset_root_dir)       
+        self.dev = TextToSpeechDataset(val_full_path, dataset_root_dir, self.train.unique_speakers)  
+        assert len(self.dev.unique_speakers) == len(self.train.unique_speakers), (
+                f'Validation set contains speakers not present in train set!')     
         
         # create test set
         if test_file:
             test_full_path = os.path.join(dataset_root_dir, test_file)
             if not os.path.exists(test_full_path):
                 raise IOError(f'The test set meta-file not found, given: {test_full_path}')
-            self.test = TextToSpeechDataset(test_full_path, dataset_root_dir)
+            self.test = TextToSpeechDataset(test_full_path, dataset_root_dir, self.train.unique_speakers)
+            assert len(self.test.unique_speakers) == len(self.train.unique_speakers), (
+                f'Test set contains speakers not present in test set!')
+
+        # save all found speakers to hyper parameters
+        hp.unique_speakers = self.train.unique_speakers
 
 
 class TextToSpeechDataset(torch.utils.data.Dataset):
@@ -65,12 +72,13 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         dataset_root_dir (string): Root Directory of the dataset.
     """
 
-    def __init__(self, meta_file, dataset_root_dir):
+    def __init__(self, meta_file, dataset_root_dir, known_unique_speakers=[]):
         random.seed(1234)
         self.root_dir = dataset_root_dir
 
         # read meta-file: id|speaker|language|audio_file_path|mel_spectrogram_path|linear_spectrogram_path|text|phonemized_text
-        unique_speakers = set()
+        self.unique_speakers = known_unique_speakers.copy()
+        unique_speakers_set = set(self.unique_speakers)
         self.items = []
         with open(meta_file, 'r', encoding='utf-8') as f:
             for line in f:
@@ -86,10 +94,10 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                     'phonemes': line_tokens[7]
                 }
                 if item['language'] in hp.languages:
-                    unique_speakers.add(line_tokens[1])
+                    if line_tokens[1] not in unique_speakers_set:
+                        unique_speakers_set.add(line_tokens[1])
+                        self.unique_speakers.append(line_tokens[1])
                     self.items.append(item)
-        unique_speakers = list(unique_speakers)
-        hp.unique_speakers = unique_speakers
 
         # clean text with basic stuff -- multiple spaces, case sensitivity and punctuation
         for idx in range(len(self.items)):
@@ -110,7 +118,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         for idx in range(len(self.items)):
             self.items[idx]['phonemes'] = text.to_sequence(self.items[idx]['phonemes'], use_phonemes=True)
             self.items[idx]['text'] = text.to_sequence(self.items[idx]['text'], use_phonemes=False)
-            self.items[idx]['speaker'] = hp.unique_speakers.index(self.items[idx]['speaker'])
+            self.items[idx]['speaker'] = self.unique_speakers.index(self.items[idx]['speaker'])
             self.items[idx]['language'] = hp.languages.index(self.items[idx]['language'])
 
     def __len__(self):
