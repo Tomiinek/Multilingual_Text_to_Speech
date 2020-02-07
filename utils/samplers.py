@@ -58,7 +58,7 @@ class PerfectBatchSampler(Sampler):
         languages -- list of languages of data_source to sample from
         batch_size -- total number of samples to be sampled in a mini-batch
         data_parallel_devices -- number of parallel devices used in the data parallel mode which splits batch as we need
-                                sto ensure that B (or smaller batch if drop_last is False) is divisible by (L * this_argument) 
+                                 to ensure that B (or smaller batch if drop_last is False) is divisible by (L * this_argument) 
         shuffle -- if True, samples randomly, otherwise samples sequentially 
         drop_last -- if True, drops last imcomplete batch
         
@@ -110,7 +110,7 @@ class PerfectBatchSampler(Sampler):
                 if groups % self._dp_devices == 0:
                     yield batch
                 else:
-                    batch = batch[:(groups // self._dp_devices) * len(self._samplers)]
+                    batch = batch[:(groups // self._dp_devices) * self._dp_devices * len(self._samplers)]
                     if len(batch) > 0:
                         yield batch 
         
