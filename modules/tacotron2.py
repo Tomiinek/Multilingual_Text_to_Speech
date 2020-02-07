@@ -252,7 +252,7 @@ class Tacotron(torch.nn.Module):
             self._reversal_classifier = ReversalClassifier(
                 hp.encoder_dimension, 
                 hp.reversal_classifier_dim, 
-                hp.language_number,
+                hp.speaker_number,
                 hp.reversal_gradient_clipping
             )
 
@@ -386,7 +386,7 @@ class Tacotron(torch.nn.Module):
             encoded = torch.zeros([text.shape[0], text.shape[1], hp.encoder_dimension], device=text.device)
 
         # Predict language as an adversarial task if needed
-        lang_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
+        speaker_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         latent_mean, latent_var = None, None
         if hp.residual_encoder:
             latent, latent_mean, latent_var = self._residual_encoder(target, target_length)
@@ -406,16 +406,16 @@ class Tacotron(torch.nn.Module):
         pre_prediction = pre_prediction * target_mask
         post_prediction = post_prediction * target_mask
 
-        return post_prediction, pre_prediction, stop_token, alignment, lang_prediction, latent_mean, latent_var
+        return post_prediction, pre_prediction, stop_token, alignment, speaker_prediction, latent_mean, latent_var
 
     def inference(self, text, speaker=None, language=None):
         # Pretend having a batch of size 1
         text.unsqueeze_(0)
 
-        if speakers is not None and speakers.dim() == 1:
-            speakers = speakers.unsqueeze(1).expand((-1, text.size(1)))
-        if languages is not None and languages.dim() == 1:
-            languages = languages.unsqueeze(1).expand((-1, text.size(1)))
+        if speaker is not None and speaker.dim() == 1:
+            speakers = speaker.unsqueeze(1).expand((-1, text.size(1)))
+        if language is not None and language.dim() == 1:
+            language = language.unsqueeze(1).expand((-1, text.size(1)))
         
         # Encode input
         if not hp.encoder_disabled:
@@ -463,7 +463,7 @@ class ModelParallelTacotron(Tacotron):
         speaker = None if splits[4] is None else splits[4].to(self._gpu2)
         language = None if splits[5] is None else splits[5].to(self._gpu2)
 
-        lang_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
+        speaker_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         latent_mean, latent_var = None, None
         if hp.residual_encoder:
             latent, latent_mean, latent_var = self._residual_encoder(splits[2], splits[3])
@@ -485,7 +485,7 @@ class ModelParallelTacotron(Tacotron):
         ret[1].append(pre_prediction)
         ret[2].append(stop_token)
         ret[3].append(alignment)
-        ret[4].append(lang_prediction)
+        ret[4].append(speaker_prediction)
         ret[5].append(latent_mean)
         ret[6].append(latent_var)
 
@@ -543,7 +543,7 @@ class TacotronLoss(torch.nn.Module):
         loss = torch.mean(loss / target_lengths.float())
         return loss
 
-    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, lang, lang_prediction, pre_mean, pre_var):
+    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, speaker, speaker_prediction, pre_mean, pre_var):
         pre_target.requires_grad = False
         post_target.requires_grad = False
         target_stop.requires_grad = False
@@ -556,7 +556,7 @@ class TacotronLoss(torch.nn.Module):
         }
 
         if hp.reversal_classifier:
-            losses['lang_class'] = ReversalClassifier.loss(source_length, lang, lang_prediction) / (hp.num_mels + 2) * hp.reversal_classifier_w
+            losses['lang_class'] = ReversalClassifier.loss(source_length, speaker, speaker_prediction) / (hp.num_mels + 2) * hp.reversal_classifier_w
 
         if hp.guided_attention_loss: 
             losses['guided_att'] = self._guided_attention(alignment, source_length, target_length)

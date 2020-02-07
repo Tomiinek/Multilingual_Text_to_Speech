@@ -37,16 +37,18 @@ class ReversalClassifier(torch.nn.Module):
         return x
 
     @staticmethod
-    def loss(input_lengths, languages, prediction):
+    def loss(input_lengths, speakers, prediction):
         ignore_index = -100
         ml = torch.max(input_lengths)
         input_mask = torch.arange(ml, device=input_lengths.device)[None, :] < input_lengths[:, None]
-        target = languages.repeat(ml, 1).transpose(0,1)
+        target = speakers.repeat(ml, 1).transpose(0,1)
         target[~input_mask] = ignore_index
         return F.cross_entropy(prediction.transpose(1,2), target, ignore_index=ignore_index)
 
 
 #class CosineSimilarityClassifier(torch.nn.Module):
+#
+#    Cosine similarity-based adversarial process
 #
 #    def __init__(self, input_dim, hidden_dim, output_dim, gradient_clipping_bounds):
 #        super(CosineSimilarityClassifier, self).__init__()
@@ -57,26 +59,15 @@ class ReversalClassifier(torch.nn.Module):
 #        return self._classifier(x)
 #
 #    @staticmethod
-#    def loss(self, input_lengths, languages, prediction):
+#    def loss(self, input_lengths, languages, prediction, eps = 1e-8):
 #        l = ReversalClassifier.loss(input_lengths, languages, prediction)
 #
 #        l += cosine_loss
 #        return l
 #
-#        self._classifier.weight
+#        w = self._classifier.weight
 #
-#        """
-#        added eps for numerical stability
-#        """
-#        eps = 1e-8
-#        a_n, b_n = a.norm(dim=-1)[:, None], b.norm(dim=-1)[:, None]
-#        a_norm = a / torch.max(a_n, eps * torch.ones_like(a_n))
-#        b_norm = b / torch.max(b_n, eps * torch.ones_like(b_n))
-#        sim_mt = torch.mm(a_norm, b_norm)
-#        return sim_mt
-#
-#
-#        dot = E @ E.t()
+#        dot = w @ w.t()
 #        norm = torch.norm(E, 2, 1)
 #        x = torch.div(dot, norm)
 #        x = torch.div(x, torch.unsqueeze(norm, 0))
