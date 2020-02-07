@@ -5,10 +5,13 @@ from datetime import datetime
 
 import numpy as np
 import torch
+from torch.utils.data import DataLoader
+
 from params.params import Params as hp
 from utils import audio, text
 from modules.tacotron2 import Tacotron
 from dataset.dataset import TextToSpeechDataset, TextToSpeechDatasetCollection, TextToSpeechCollate
+from utils.samplers import PerfectBatchSampler
 
 
 def to_gpu(x):
@@ -43,9 +46,13 @@ if __name__ == '__main__':
     parser.add_argument("--checkpoint", type=str, required=True, help="Model checkpoint.")
     parser.add_argument("--output", type=str, default="gta_output", help="Path to output directory.", required=True)
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
-    parser.add_argument("--speakers", type=list, nargs='+', default=[], help="List of desired speakers.", required=True)
+    parser.add_argument("--speakers", nargs='+', type=str, help="List of desired speakers.", required=True)
     parser.add_argument("--batch_size", type=int, default=32, help="Mini-batch size.", required=False)
+    parser.add_argument("--loader_workers", type=int, default=1, help="Number of CPUs used by data loaders.", required=False)
     args = parser.parse_args()
+
+    if not os.path.exists(args.output):
+        os.mkdir(args.output)
 
     # Load the model from checkpoint
     model = build_model(args.checkpoint)
@@ -55,9 +62,9 @@ if __name__ == '__main__':
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
 
     # Remove speakers we actualy do not want in the dataset
-    items = dataset.train.items
     speakers = [hp.unique_speakers.index(i) for i in args.speakers]
     filtered = [x for x in dataset.train.items if x["speaker"] in speakers]
+    dataset.train.items = filtered
 
     # Prepare dataloaders
     if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling:
@@ -68,7 +75,8 @@ if __name__ == '__main__':
         data = DataLoader(dataset.train, batch_size=args.batch_size, drop_last=False, shuffle=False,
                          collate_fn=TextToSpeechCollate(True), num_workers=args.loader_workers)
 
-    with torch.no_grad():         
+    with torch.no_grad():   
+        serial_number = 0      
         for i, batch in enumerate(data):
 
             batch = list(map(to_gpu, batch))             
@@ -78,8 +86,10 @@ if __name__ == '__main__':
             prediction, _, _, _, _, _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
             prediction = prediction.data.cpu().numpy()
         
-            for idx in range(len(prediction.size(0))):
+            for idx in range(len(prediction)):
+                speaker = spkrs[idx] if spkrs is not None else 0
                 mel = prediction[idx, :, :trg_len[idx]]
                 if hp.normalize_spectrogram:
                     mel = audio.denormalize_spectrogram(mel, not hp.predict_linear)           
-                np.save(args.save_path/f'{i}-{idx}.npy', mel, allow_pickle=False)
+                np.save(os.path.join(args.output, f'{serial_number:05}-{speaker}.npy'), mel, allow_pickle=False)
+                serial_number += 1
