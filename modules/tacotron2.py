@@ -413,7 +413,7 @@ class Tacotron(torch.nn.Module):
         text.unsqueeze_(0)
 
         if speaker is not None and speaker.dim() == 1:
-            speakers = speaker.unsqueeze(1).expand((-1, text.size(1)))
+            speaker = speaker.unsqueeze(1).expand((-1, text.size(1)))
         if language is not None and language.dim() == 1:
             language = language.unsqueeze(1).expand((-1, text.size(1)))
         

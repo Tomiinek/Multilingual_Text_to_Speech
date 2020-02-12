@@ -37,7 +37,7 @@ class ReversalClassifier(torch.nn.Module):
         return x
 
     @staticmethod
-    def loss(input_lengths, speakers, prediction):
+    def loss(input_lengths, speakers, prediction, embeddings=None):
         ignore_index = -100
         ml = torch.max(input_lengths)
         input_mask = torch.arange(ml, device=input_lengths.device)[None, :] < input_lengths[:, None]
@@ -46,41 +46,30 @@ class ReversalClassifier(torch.nn.Module):
         return F.cross_entropy(prediction.transpose(1,2), target, ignore_index=ignore_index)
 
 
-#class CosineSimilarityClassifier(torch.nn.Module):
-#
-#    Cosine similarity-based adversarial process
-#
-#    def __init__(self, input_dim, hidden_dim, output_dim, gradient_clipping_bounds):
-#        super(CosineSimilarityClassifier, self).__init__()
-#        # self._clipping = gradient_clipping_bounds
-#        self._classifier = Linear(input_dim, output_dim)
-#
-#    def forward(self, x):
-#        return self._classifier(x)
-#
-#    @staticmethod
-#    def loss(self, input_lengths, languages, prediction, eps = 1e-8):
-#        l = ReversalClassifier.loss(input_lengths, languages, prediction)
-#
-#        l += cosine_loss
-#        return l
-#
-#        w = self._classifier.weight
-#
-#        dot = w @ w.t()
-#        norm = torch.norm(E, 2, 1)
-#        x = torch.div(dot, norm)
-#        x = torch.div(x, torch.unsqueeze(norm, 0))
-#        return x
-#
-#        E = torch.randn(20000, 100)
-#        embeddings_to_cosine_similarity_matrix(E)
-#
-#        ignore_index = -100
-#        input_mask = lengths_to_mask(input_lengths)
-#        target = torch.zeros_like(input_mask, dtype=torch.int64)     
-#        for l in range(self._output_dim):
-#            language_mask = (languages == l)
-#            target[language_mask] = l
-#        target[~input_mask] = ignore_index
-#        return F.cross_entropy(prediction.transpose(1,2), target, ignore_index=ignore_index)
+class CosineSimilarityClassifier(torch.nn.Module):
+
+    # Cosine similarity-based adversarial process
+
+    def __init__(self, input_dim, hidden_dim, output_dim, gradient_clipping_bounds):
+        super(CosineSimilarityClassifier, self).__init__()
+        self._classifier = Linear(input_dim, output_dim)
+
+    def forward(self, x):
+        return self._classifier(x)
+
+    @staticmethod
+    def loss(input_lengths, speakers, prediction, embeddings):
+        l = ReversalClassifier.loss(input_lengths, languages, prediction)
+
+        w = self._classifier.weight # output x input
+
+        dot = embeddings @ w
+        norm_e = torch.norm(embeddings, 2, 2)
+        cosine_loss = torch.div(dot, norm_e)
+        norm_w = torch.norm(w, 2, 2)
+        cosine_loss = torch.div(cosine_loss, norm_w)
+
+        cosine_loss = torch.sum(cosine_loss, dim=2)
+        l += torch.mean(cosine_loss)
+        
+        return l

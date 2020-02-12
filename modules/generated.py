@@ -69,7 +69,7 @@ class BatchNorm1dGenerated(torch.nn.Module):
         self._groups = groups
         
         self._bottleneck = Linear(embedding_dim, bottleneck_dim)
-        self._affine = Linear(bottleneck_dim, num_features + num_features)
+        self._affine = Linear(bottleneck_dim, self._num_features + self._num_features)
    
     def forward(self, generator_embedding, x):
 
