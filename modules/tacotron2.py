@@ -528,6 +528,15 @@ class TacotronLoss(torch.nn.Module):
         self._g_steps = guided_att_steps
         self._num_languages = num_languages
 
+    def load_state_dict(self, d):
+        for k, v in d.items(): setattr(self, k, v)
+
+    def state_dict(self):
+        return { 
+            "_g": self._g,
+            "_g_steps": self._g_steps
+        }
+
     def update_states(self):
         self._g *= self._gamma
         self._g_steps = max(0, self._g_steps - 1)

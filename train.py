@@ -227,7 +227,7 @@ if __name__ == '__main__':
     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
 
-    # acquire dataset-dependent constatnts, these should probably be the same while going from checkpoint
+    # acquire dataset-dependent constants, these should probably be the same while going from checkpoint
     if not args.checkpoint:
         # compute per-channel constants for spectrogram normalization
         hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
@@ -282,6 +282,7 @@ if __name__ == '__main__':
             initial_epoch = checkpoint_state['epoch'] + 1
             optimizer.load_state_dict(checkpoint_state['optimizer'])
             scheduler.load_state_dict(checkpoint_state['scheduler'])
+            criterion.load_state_dict(checkpoint_state['criterion'])
 
             # this is for case when pretraining multi-lingual/speaker decoder and training a subset of languages/speakers
             if language_mapping is not None:
@@ -332,6 +333,7 @@ if __name__ == '__main__':
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'scheduler': scheduler.state_dict(),
-                'parameters': hp.state_dict()
+                'parameters': hp.state_dict(),
+                'criterion': criterion.state_dict()
             }
             torch.save(state_dict, checkpoint_file)
