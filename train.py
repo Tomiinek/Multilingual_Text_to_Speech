@@ -189,7 +189,7 @@ if __name__ == '__main__':
     # load checkpoint (dict) with saved hyper-parameters (let some of them be overwritten because of fine-tuning)
     if args.checkpoint:
         checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
-        checkpoint_state = torch.load(checkpoint)
+        checkpoint_state = torch.load(checkpoint, map_location='cpu')
         hp.load_state_dict(checkpoint_state['parameters'])      
         used_input_characters = hp.phonemes if hp.use_phonemes else hp.characters
         used_languages = hp.languages
