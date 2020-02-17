@@ -231,7 +231,8 @@ if __name__ == '__main__':
     if not args.checkpoint:
         # compute per-channel constants for spectrogram normalization
         hp.mel_normalize_mean, hp.mel_normalize_variance = dataset.train.get_normalization_constants(True)
-        hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)   
+        if hp.predict_linear:
+            hp.lin_normalize_mean, hp.lin_normalize_variance = dataset.train.get_normalization_constants(False)   
     elif not args.fine_tuning:
         # we may want to continue training with a subset of languages
         language_mapping = None
