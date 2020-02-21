@@ -46,20 +46,35 @@ class ReversalClassifier(torch.nn.Module):
         return F.cross_entropy(prediction.transpose(1,2), target, ignore_index=ignore_index)
 
 
+class GradientClippingFunction(torch.autograd.Function):
+    """Clip gradient."""
+
+    @staticmethod
+    def forward(ctx, x, c):
+        ctx.c = c
+        return x.view_as(x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        grad_output = grad_output.clamp(-ctx.c, ctx.c)
+        return grad_output, None
+
+
 class CosineSimilarityClassifier(torch.nn.Module):
+    """Cosine similarity-based adversarial process."""
 
-    # Cosine similarity-based adversarial process
-
-    def __init__(self, input_dim, hidden_dim, output_dim, gradient_clipping_bounds):
+    def __init__(self, input_dim, output_dim, gradient_clipping_bounds):
         super(CosineSimilarityClassifier, self).__init__()
         self._classifier = Linear(input_dim, output_dim)
+        self._clipping = gradient_clipping_bounds
 
     def forward(self, x):
+        x = GradientClippingFunction.apply(x, self._clipping)
         return self._classifier(x)
 
     @staticmethod
     def loss(input_lengths, speakers, prediction, embeddings):
-        l = ReversalClassifier.loss(input_lengths, languages, prediction)
+        l = ReversalClassifier.loss(input_lengths, speakers, prediction)
 
         w = self._classifier.weight # output x input
 

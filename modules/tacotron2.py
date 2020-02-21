@@ -8,7 +8,7 @@ from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock, Constant
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, ConvolutionalEncoder, GeneratedConvolutionalEncoder
 from modules.cbhg import PostnetCBHG
-from modules.classifier import ReversalClassifier
+from modules.classifier import ReversalClassifier, CosineSimilarityClassifier
 from modules.residual_encoder import ResidualEncoder
 from params.params import Params as hp
 
@@ -249,12 +249,19 @@ class Tacotron(torch.nn.Module):
 
         # Reversal language classifier to make encoder truly languagge independent
         if hp.reversal_classifier:
-            self._reversal_classifier = ReversalClassifier(
-                hp.encoder_dimension, 
-                hp.reversal_classifier_dim, 
-                hp.speaker_number,
-                hp.reversal_gradient_clipping
-            )
+            if hp.reversal_classifier_type == "reversal":
+                self._reversal_classifier = ReversalClassifier(
+                    hp.encoder_dimension, 
+                    hp.reversal_classifier_dim, 
+                    hp.speaker_number,
+                    hp.reversal_gradient_clipping
+                )
+            elif hp.reversal_classifier_type == "cosine":
+                self._reversal_classifier = CosineSimilarityClassifier(
+                    hp.encoder_dimension, 
+                    hp.speaker_number,
+                    hp.reversal_gradient_clipping
+                )
 
         # Prenet for transformation of previous predicted frame
         self._prenet = Prenet(
@@ -385,6 +392,8 @@ class Tacotron(torch.nn.Module):
         else:
             encoded = torch.zeros([text.shape[0], text.shape[1], hp.encoder_dimension], device=text.device)
 
+        encoder_output = encoder
+
         # Predict language as an adversarial task if needed
         speaker_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         latent_mean, latent_var = None, None
@@ -406,7 +415,7 @@ class Tacotron(torch.nn.Module):
         pre_prediction = pre_prediction * target_mask
         post_prediction = post_prediction * target_mask
 
-        return post_prediction, pre_prediction, stop_token, alignment, speaker_prediction, latent_mean, latent_var
+        return post_prediction, pre_prediction, stop_token, alignment, speaker_prediction, latent_mean, latent_var, encoder_output
 
     def inference(self, text, speaker=None, language=None):
         # Pretend having a batch of size 1
@@ -458,6 +467,7 @@ class ModelParallelTacotron(Tacotron):
         return self._encoder(embedded, splits[1], splits[5])
 
     def _decoder_forward(self, encoded, splits, ret, teacher_forcing_ratio):
+        encoded_output = encoded
         encoded = encoded.to(self._gpu2)
         encoded_length = splits[1].to(self._gpu2)
         speaker = None if splits[4] is None else splits[4].to(self._gpu2)
@@ -488,6 +498,7 @@ class ModelParallelTacotron(Tacotron):
         ret[4].append(speaker_prediction)
         ret[5].append(latent_mean)
         ret[6].append(latent_var)
+        ret[7].append(encoded_output)
 
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0):
        
@@ -495,7 +506,7 @@ class ModelParallelTacotron(Tacotron):
         ns = math.ceil(text.size(0) / self._split_size)
         batch_splits = [iter([None]*ns) if x is None else iter(x.split(self._split_size, dim=0)) for x in batch]
         
-        ret = [[],[],[],[],[],[],[]]
+        ret = [[],[],[],[],[],[],[],[]]
 
         next_splits = next(zip(*batch_splits))
         encoded = self._encoder_forward(next_splits)
@@ -552,7 +563,8 @@ class TacotronLoss(torch.nn.Module):
         loss = torch.mean(loss / target_lengths.float())
         return loss
 
-    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, speaker, speaker_prediction, pre_mean, pre_var):
+    def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, 
+                speaker, speaker_prediction, pre_mean, pre_var, encoder_outputs):
         pre_target.requires_grad = False
         post_target.requires_grad = False
         target_stop.requires_grad = False
@@ -565,7 +577,11 @@ class TacotronLoss(torch.nn.Module):
         }
 
         if hp.reversal_classifier:
-            losses['lang_class'] = ReversalClassifier.loss(source_length, speaker, speaker_prediction) / (hp.num_mels + 2) * hp.reversal_classifier_w
+            if hp.reversal_classifier_type == "reversal":
+                losses['lang_class'] = ReversalClassifier.loss(source_length, speaker, speaker_prediction) 
+            elif hp.reversal_classifier_type == "cosine":
+                losses['lang_class'] = CosineSimilarityClassifier.loss(source_length, speaker, speaker_prediction, encoder_outputs) 
+            losses['lang_class'] *= hp.reversal_classifier_w / (hp.num_mels + 2)
 
         if hp.guided_attention_loss: 
             losses['guided_att'] = self._guided_attention(alignment, source_length, target_length)

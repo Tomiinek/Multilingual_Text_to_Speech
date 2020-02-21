@@ -119,6 +119,8 @@ class Params:
     speaker_number = 0
     language_number = 0
     reversal_classifier = False
+    reversal_classifier_type = "reversal"       # reversal for a standard adversarial process with reverted gradients 
+                                                # cosine for a cosine similarity-based adversarial process
     reversal_classifier_dim = 256
     reversal_classifier_w = 1.0
 

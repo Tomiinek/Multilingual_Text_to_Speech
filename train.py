@@ -56,11 +56,12 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         else: tf = cos_decay(max(global_step - hp.teacher_forcing_start_steps, 0), hp.teacher_forcing_steps)
 
         # Run the model
-        post_pred, pre_pred, stop_pred, alignment, spkrs_pred, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
+        post_pred, pre_pred, stop_pred, alignment, spkrs_pred, pre_mean, pre_var, enc_output = model(src, src_len, trg_mel, trg_len, spkrs, langs, tf)
         
         # Evaluate loss function
         post_trg = trg_lin if hp.predict_linear else trg_mel
-        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, spkrs, spkrs_pred, pre_mean, pre_var)
+        loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, 
+                                       spkrs, spkrs_pred, pre_mean, pre_var, enc_output)
 
         if hp.reversal_classifier:
             input_mask = lengths_to_mask(src_len)
@@ -102,13 +103,14 @@ def evaluate(epoch, data, model, criterion):
             src, src_len, trg_mel, trg_lin, trg_len, stop_trg, spkrs, langs = batch
 
             # Run the model (twice, with and without teacher forcing)
-            post_pred, pre_pred, stop_pred, alignment, spkrs_pred, pre_mean, pre_var = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
-            post_pred_0, _, stop_pred_0, alignment_0, _,  _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
+            post_pred, pre_pred, stop_pred, alignment, spkrs_pred, pre_mean, pre_var, enc_output = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
+            post_pred_0, _, stop_pred_0, alignment_0, _,  _, _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 0.0)
             stop_pred_probs = torch.sigmoid(stop_pred_0)
 
             # Evaluate loss function
             post_trg = trg_lin if hp.predict_linear else trg_mel
-            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, spkrs, spkrs_pred, pre_mean, pre_var)
+            loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, 
+                                           spkrs, spkrs_pred, pre_mean, pre_var, enc_output)
             
             # Compute mel cepstral distorsion
             for j, (gen, ref, stop) in enumerate(zip(post_pred_0, trg_mel, stop_pred_probs)):
@@ -266,7 +268,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     #optimizer = Ranger(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
     #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, hp.learning_rate_decay)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each / len(train_data), gamma=hp.learning_rate_decay)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each // len(train_data), gamma=hp.learning_rate_decay)
     criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain, hp.language_number)
 
     # load model weights and optimizer, scheduler states from checkpoint state dictionary
