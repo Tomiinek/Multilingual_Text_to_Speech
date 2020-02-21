@@ -392,7 +392,7 @@ class Tacotron(torch.nn.Module):
         else:
             encoded = torch.zeros([text.shape[0], text.shape[1], hp.encoder_dimension], device=text.device)
 
-        encoder_output = encoder
+        encoder_output = encoded
 
         # Predict language as an adversarial task if needed
         speaker_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
@@ -564,7 +564,7 @@ class TacotronLoss(torch.nn.Module):
         return loss
 
     def forward(self, source_length, target_length, pre_prediction, pre_target, post_prediction, post_target, stop, target_stop, alignment, 
-                speaker, speaker_prediction, pre_mean, pre_var, encoder_outputs):
+                speaker, speaker_prediction, pre_mean, pre_var, encoder_outputs, classifier):
         pre_target.requires_grad = False
         post_target.requires_grad = False
         target_stop.requires_grad = False
@@ -580,7 +580,7 @@ class TacotronLoss(torch.nn.Module):
             if hp.reversal_classifier_type == "reversal":
                 losses['lang_class'] = ReversalClassifier.loss(source_length, speaker, speaker_prediction) 
             elif hp.reversal_classifier_type == "cosine":
-                losses['lang_class'] = CosineSimilarityClassifier.loss(source_length, speaker, speaker_prediction, encoder_outputs) 
+                losses['lang_class'] = CosineSimilarityClassifier.loss(source_length, speaker, speaker_prediction, encoder_outputs, classifier) 
             losses['lang_class'] *= hp.reversal_classifier_w / (hp.num_mels + 2)
 
         if hp.guided_attention_loss: 

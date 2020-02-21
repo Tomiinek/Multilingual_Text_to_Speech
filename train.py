@@ -60,8 +60,9 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         
         # Evaluate loss function
         post_trg = trg_lin if hp.predict_linear else trg_mel
+        classifier = model._reversal_classifier if hp.reversal_classifier else None
         loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, 
-                                       spkrs, spkrs_pred, pre_mean, pre_var, enc_output)
+                                       spkrs, spkrs_pred, pre_mean, pre_var, enc_output, classifier)
 
         if hp.reversal_classifier:
             input_mask = lengths_to_mask(src_len)
@@ -109,8 +110,9 @@ def evaluate(epoch, data, model, criterion):
 
             # Evaluate loss function
             post_trg = trg_lin if hp.predict_linear else trg_mel
+            classifier = model._reversal_classifier if hp.reversal_classifier else None
             loss, batch_losses = criterion(src_len, trg_len, pre_pred, trg_mel, post_pred, post_trg, stop_pred, stop_trg, alignment, 
-                                           spkrs, spkrs_pred, pre_mean, pre_var, enc_output)
+                                           spkrs, spkrs_pred, pre_mean, pre_var, enc_output, classifier)
             
             # Compute mel cepstral distorsion
             for j, (gen, ref, stop) in enumerate(zip(post_pred_0, trg_mel, stop_pred_probs)):

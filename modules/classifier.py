@@ -73,15 +73,15 @@ class CosineSimilarityClassifier(torch.nn.Module):
         return self._classifier(x)
 
     @staticmethod
-    def loss(input_lengths, speakers, prediction, embeddings):
+    def loss(input_lengths, speakers, prediction, embeddings, instance):
         l = ReversalClassifier.loss(input_lengths, speakers, prediction)
 
-        w = self._classifier.weight # output x input
+        w = instance._classifier.weight.T # output x input
 
         dot = embeddings @ w
-        norm_e = torch.norm(embeddings, 2, 2)
+        norm_e = torch.norm(embeddings, 2, 2).unsqueeze(-1)
         cosine_loss = torch.div(dot, norm_e)
-        norm_w = torch.norm(w, 2, 2)
+        norm_w = torch.norm(w, 2, 0).view(1, 1, -1)
         cosine_loss = torch.div(cosine_loss, norm_w)
 
         cosine_loss = torch.sum(cosine_loss, dim=2)
