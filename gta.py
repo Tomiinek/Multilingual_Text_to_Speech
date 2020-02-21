@@ -43,6 +43,7 @@ if __name__ == '__main__':
     import re
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--base_directory", type=str, default=".", help="Base directory of the project.")
     parser.add_argument("--checkpoint", type=str, required=True, help="Model checkpoint.")
     parser.add_argument("--output", type=str, default="gta_output", help="Path to output directory.", required=True)
     parser.add_argument("--data_root", type=str, default="data", help="Base directory of datasets.")
@@ -51,11 +52,13 @@ if __name__ == '__main__':
     parser.add_argument("--loader_workers", type=int, default=1, help="Number of CPUs used by data loaders.", required=False)
     args = parser.parse_args()
 
-    if not os.path.exists(args.output):
-        os.mkdir(args.output)
+    output_dir = os.path.join(args.base_directory, args.output)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
 
     # Load the model from checkpoint
-    model = build_model(args.checkpoint)
+    checkpoint_dir = os.path.join(args.base_directory, args.checkpoint)
+    model = build_model(checkpoint_dir)
     model.eval()
 
     # Load dataset metafile   
@@ -91,5 +94,5 @@ if __name__ == '__main__':
                 mel = prediction[idx, :, :trg_len[idx]]
                 if hp.normalize_spectrogram:
                     mel = audio.denormalize_spectrogram(mel, not hp.predict_linear)           
-                np.save(os.path.join(args.output, f'{serial_number:05}-{speaker}.npy'), mel, allow_pickle=False)
+                np.save(os.path.join(output_dir, f'{serial_number:05}-{speaker}.npy'), mel, allow_pickle=False)
                 serial_number += 1
