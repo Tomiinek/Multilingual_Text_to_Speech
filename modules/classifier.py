@@ -83,6 +83,7 @@ class CosineSimilarityClassifier(torch.nn.Module):
         cosine_loss = torch.div(dot, norm_e)
         norm_w = torch.norm(w, 2, 0).view(1, 1, -1)
         cosine_loss = torch.div(cosine_loss, norm_w)
+        cosine_loss = torch.abs(cosine_loss)
 
         cosine_loss = torch.sum(cosine_loss, dim=2)
         l += torch.mean(cosine_loss)
