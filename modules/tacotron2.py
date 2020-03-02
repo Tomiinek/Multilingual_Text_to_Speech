@@ -109,10 +109,13 @@ class Decoder(torch.nn.Module):
         self._generator_lstm = generator_rnn
         self._frame_prediction = Linear(context_dim + decoder_dim, output_dim)
         self._stop_prediction = Linear(context_dim + decoder_dim, 1)
-        if hp.multi_speaker:
+        
+        self._speaker_embedding, self._language_embedding = None, None
+
+        if hp.multi_speaker and hp.speaker_embedding_dimension > 0:
             self._speaker_embedding = self._get_embedding(hp.embedding_type, hp.speaker_embedding_dimension, hp.speaker_number)
             # self._speaker_decoder = Linear(hp.speaker_embedding_dimension, hp.speaker_decoder_dimension)
-        if hp.multi_language:
+        if hp.multi_language and hp.language_embedding_dimension > 0:
             self._language_embedding = self._get_embedding(hp.embedding_type, hp.language_embedding_dimension, len(hp.languages))
             # self._language_decoder = Linear(hp.language_embedding_dimension, hp.language_decoder_dimension)
 
@@ -156,9 +159,9 @@ class Decoder(torch.nn.Module):
         input_device = encoded_input.device
 
         # obtain speaker and language embeddings (or a dummy tensor)
-        if hp.multi_speaker:
+        if hp.multi_speaker and self._speaker_embedding is not None:
             encoded_input = self._add_conditional_embedding(encoded_input, self._speaker_embedding, speaker)
-        if hp.multi_language:
+        if hp.multi_language and self._language_embedding is not None:
             encoded_input = self._add_conditional_embedding(encoded_input, self._language_embedding, language)
         
         # attention and decoder states initialization  
