@@ -8,7 +8,7 @@ import torch
 from params.params import Params as hp
 from utils import audio, text
 from modules.tacotron2 import Tacotron
-
+import sys
 
 def remove_dataparallel_prefix(state_dict): 
     new_state_dict = OrderedDict()
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", type=str, required=True, help="Model checkpoint.")
     parser.add_argument("--output", type=str, default=".", help="Path to output directory.")
-    parser.add_argument("--cpu", action='store_true', help="Force to run o CPU.")
+    parser.add_argument("--cpu", action='store_true', help="Force to run on CPU.")
     parser.add_argument("--save_spec", action='store_true', help="Saves also spectrograms if set.")
     parser.add_argument("--ignore_wav", action='store_true', help="Does not save waveforms if set.")
     args = parser.parse_args()
@@ -45,6 +45,9 @@ if __name__ == '__main__':
 
     model = build_model(args.checkpoint, args.cpu)
     model.eval()
+
+    #total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    #print(f"Builded model with {total_params} parameters")
 
     # Expected inputs is in case of
     # - mono-lingual and single-speaker model:  id|single input utterance per line
@@ -74,7 +77,7 @@ if __name__ == '__main__':
 
         if hp.multi_language:     
             l_tokens = item[3].split(',')
-            t_length = len(item[1]) + 1
+            t_length = len(clean_text) + 1
             l = []
             for token in l_tokens:
                 l_d = token.split('-')
@@ -95,6 +98,9 @@ if __name__ == '__main__':
 
         s = model.inference(t, speaker=s, language=l).cpu().detach().numpy()
         s = audio.denormalize_spectrogram(s, not hp.predict_linear)
+
+        if not os.path.exists(args.output):
+            os.mkdir(args.output) 
 
         if args.save_spec:
             np.save(os.path.join(args.output, f'{item[0]}.npy'), s)
