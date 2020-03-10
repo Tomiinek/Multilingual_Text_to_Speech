@@ -1,0 +1,50 @@
+000001|shougai dokushin wo tooshi ta ga、 ren'ai ni en ga nakaxtsu ta wake de ha naku、 dairokkan ni zokusuru mono to kangae te i ta。|生涯独身を通したが、恋愛に縁がなかったわけではなく、第六感に属するものと考えていた。
+000002|fukusuu no houshiki ga sonzai suru ga、 nakademo jouin moju-ru no sentan ni toritsuke rareru dasshutsu roketto to yoba reru keishiki ga、|複数の方式が存在するが、中でも乗員モジュールの先端に取り付けられる脱出ロケットと呼ばれる形式が、
+000003|tatoeba、 aomori no hito to kagoshima no hito ga sorezore no hougen de kaiwa shiyo u to suru to sougo rikai ga kon'nan de aru ga、|例えば、青森の人と鹿児島の人がそれぞれの方言で会話しようとすると相互理解が困難であるが、
+000004|shu-ru de burakkuyu-moa mansai no sakuhin。 otogibanashi no parodi kara nichijou made omunibasu de egaku。|シュールでブラックユーモア満載の作品。おとぎ話のパロディから日常までオムニバスで描く。
+000005|omo ni fuantei roudou no shii rareru、 kikan koyou shain no kumiai in no kanyuu ga ookaxtsu ta。|主に不安定労働の強いられる、期間雇用社員の組合員の加入が多かった。
+000006|shikashi kono seitou ha tanjun ni ribatarianizumu to iu yori ha、 mushiro tekunokura-to teki na shikisai wo mochi、|しかしこの政党は単純にリバタリアニズムというよりは、むしろテクノクラート的な色彩を持ち、
+000007|onaji jiki ni ippuu kawaxtsu ta settei no i sekai sakuhin wo fukusuu toukou suru you ni nari、 sono toukou sakuhin no ikutsu ka ga shoseki ka sa reru koto ni naru。|同じ時期に一風変わった設定の異世界作品を複数投稿するようになり、その投稿作品の幾つかが書籍化されることになる。
+000008|rei niyotte、 kare ha daizai no kenkyuu wo nesshin ni okonai、 toriwake koperunikusu no hakken no tetsugaku teki ganchiku ni toritsuka re ta。|例によって、彼は題材の研究を熱心に行い、とりわけコペルニクスの発見の哲学的含蓄にとりつかれた。
+000009|harako izumi houshiki no seshiumu genshi tokei no koto wo seshiumu genshi izumi tokei mataha seshiumufaunten to yobu koto mo aru。|原子泉方式のセシウム原子時計のことをセシウム原子泉時計またはセシウムファウンテンと呼ぶこともある。 
+000010|touji no chuugoku ha manshuu zoku no shin'nyuu ni te wo yai te i ta ga、 temujin ha gun wo matome te shutsujin shi、 manshuu zoku ni mikata shi te i ta jamuka wo horyo ni suru。|当時の中国は満州族の侵入に手を焼いていたが、テムジンは軍をまとめて出陣し、満州族に味方していたジャムカを捕虜にする。
+000011|taitoru gamen ha kuroji de、 chuuou ni ha nobora n ka to pinkuiro no edo kanteiryuu no moji。|タイトル画面は黒地で、中央にはのぼらんかとピンク色の江戸勘亭流の文字。
+000012|nao sen'i hikou ji ni jetto haiki ha ro-ta- tan to koubu haiki guchi no souhou kara funshutsu sa reru。|なお遷移飛行時にジェット排気はローター端と後部排気口の双方から噴出される。
+000013|tokuni、 shinden ni kizama re ta tatemono no kisai ha 「 shinden no kensetsu no shousai na kijutsu wo teikyou suru to doujini、|特に、神殿に刻まれた建物の記載は「神殿の建設の詳細な記述を提供すると同時に、
+000014|suke-to amerika、 suke-to kanada、 chuugoku hai、 erikku|スケートアメリカ、スケートカナダ、中国杯、エリック
+000015|kanojo ha gakushuu shougai koso are、 yasei ji ni ari gachi na jiheishou wo moxtsu te iru yousu ha nai。|彼女は学習障害こそあれ、野生児にありがちな自閉症を持っている様子は無い。
+000016|kamotsu eki toshite eigyou kaishi shi ta tou eki ha、 toyotajidousha no jidousha yusou no tame ni tasuu no sokusen to koudai na mo-ta-pu-ru wo motsu eki daxtsu ta。|貨物駅として営業開始した当駅は、トヨタ自動車の自動車輸送のために多数の側線と広大なモータープールを持つ駅だった。
+000017|chinamini sakomizu ha arima nobori yoshio to onaji kagoshima ken shusshin de、 nochi ni shuugiin giin、 sangiin giin to naxtsu te iru。|ちなみに迫水は有馬登良夫と同じ鹿児島県出身で、のちに衆議院議員、参議院議員となっている。
+000018|hon gata ha roshia kakumei igo ni kenzou sa re ta hatsu no kuchiku kan de ari、 dai ichi ji go kanen keikaku no ikkan de aru kaigun kantei seibi keikaku ni motoduki keikaku sa re ta。|本型はロシア革命以後に建造された初の駆逐艦であり、第一次五ヶ年計画の一環である海軍艦艇整備計画に基づき計画された。 
+000019|kyakusha ya kasha no ken'in wo mokuteki to suru tame、 romen densha no you ni joukyaku wo noseru setsubi wo mota nai。|客車や貨車の牽引を目的とするため、路面電車のように乗客を乗せる設備を持たない。
+000020|ooku no kojin purojekuto to douyou ni raisensu ha mada meiki sa re te i nakaxtsu ta ga、|多くの個人プロジェクトと同様にライセンスはまだ明記されていなかったが、
+000021|sarani、 tokutei no te-ma no moto ni toukan shozou hin ya sekai kakkoku no bijutsukan kara no kashi shuppin wo tenji suru kikaku ten、|さらに、特定のテーマのもとに当館所蔵品や世界各国の美術館からの貸出品を展示する企画展、
+000022|itsuwa de ha、 tata-ru jin tachi ga machi wo kanraku sa se ryakudatsu shiyo u to shi ta shunkan、|逸話では、タタール人たちが町を陥落させ略奪しようとした瞬間、
+000023|zen bangumi no yurushi xyachigayurui te-ma ni charenji suru no nitaishite kuro shachi ha kitsui koto ni charenji suru ga konseputo de aru。|前番組のゆるしゃちがゆるいテーマにチャレンジするのに対して黒鯱はきついことにチャレンジするがコンセプトである。
+000024|sonogo kenka ha kyou rakuen kyuujou zentai wo makikomu rantou ni hatten shi、 rantou no saichuu ni maru me ha batto de atama wo uchi ki wo ushinau。|その後喧嘩は狂楽園球場全体を巻き込む乱闘に発展し、乱闘の最中に丸目はバットで頭を打ち気を失う。 
+000025|undoukai de ha aka gumi、 ao gumi、 ki gumi ni wakare te shumoku ni nozomu。|運動会では赤組、青組、黄組に分かれて種目に望む。
+000026|nao、 jouki 3 mura chuu、 kawahigashi mura nomi、 chouson sei de tanjou shi ta mura de ha naku、 chouson sei go ni saranaru gappei de deki ta mura de ari、|なお、上記3村中、川東村のみ、町村制で誕生した村ではなく、町村制後にさらなる合併でできた村であり、
+000027|musashi koku iruma gun no engi shiki nai izumo iha hi jinja no ron sha de、 kyuu shakaku ha sonsha。|武蔵国入間郡の延喜式内「出雲伊波比神社」の論社で、旧社格は村社。 
+000028|youshou no koro kara chenbaro、 seigaku、 vaiorin no ongaku kyouiku wo uke、 rui mare na sainou wo arawa wa shi ta。|幼少のころからチェンバロ、声楽、ヴァイオリンの音楽教育を受け、類稀な才能を顕わした。
+000029|kassei sanso niyoru saibou shougai wo kasoku shi、 kinou wo henka sa seru to iu。|活性酸素による細胞障害を加速し、機能を変化させるという。 
+000030|senkei ga furyou de hodou ga naku、 hokou sha no anzen kakuho ga hitsuyou de aru tame、 kousaten no kairyou to douro kakufuku、|線形が不良で歩道が無く、歩行者の安全確保が必要であるため、交差点の改良と道路拡幅、
+000031|maruta kakumei de ha、 kuroachia no serubia jin ra ha ki wo kiridashi、 sono maruta de douro wo fuusa shi ta。|丸太革命では、クロアチアのセルビア人らは木を切り出し、その丸太で道路を封鎖した。
+000032|sono nishi tonari no ibigawa machi tsurumi ni ha、 fujihashi shiro to nishi mino tenmondai ga aru。|その西隣の揖斐川町鶴見には、藤橋城と西美濃天文台がある。 
+000033|naganen dezaina- ga akiraka ni sa re te i nakaxtsu ta ga、 sono riyuu toshite fujiwara ha boku ga yaxtsu teru to iu to、|長年デザイナーが明らかにされていなかったが、その理由として藤原は僕がやってると言うと、
+000034|doicchu ni yore ba anzen hoshou kyoudou tai ha aru kokka no guru-pu ga shuugou teki aidentiti wo yuusuru baai ni seiritsu shi、|ドイッチュによれば安全保障共同体はある国家のグループが集合的アイデンティティを有する場合に成立し、
+000035|sha den ni yore ba、 touji no hiranuma ittai ha enden de ari、 enden sagyou chuu no murabito ga irie ni nagare tsui ta hokora wo mitsuke、|社伝によれば、当時の平沼一帯は塩田であり、塩田作業中の村人が入江に流れついた祠を見つけ、
+000036|sono naka no seijin no michi ha、 tenka no jou no subete wo jitsugen sa se、 sono yoku wo toge saseyo u to suru mono de axtsu te、|その中の聖人の道は、天下の情のすべてを実現させ、その欲を遂げさせようとするものであって、
+000037|kouzou ga tanjun na tame denki enerugi- to hassei suru oto no enerugi- to no kankei wo riron teki ni keisan suru koto ga kanou de、|構造が単純なため電気エネルギーと発生する音のエネルギーとの関係を理論的に計算することが可能で、
+000038|sonota、 saikin de ha kontakutorenzu riyou sha no me no toraburu ga kyuuzou shi te ori、|その他、最近ではコンタクトレンズ利用者の目のトラブルが急増しており、
+000039|gakusei jidai ha kyouto gakusei saiten no jikkou iin nado ni torikumu ippou de、 oosaka no terebikyoku de onsei no arubaito wo shi te i ta。|学生時代は京都学生祭典の実行委員などに取り組む一方で、大阪のテレビ局で音声のアルバイトをしていた。
+000040|hattatsu ga susun da mono ha、 shatai zentai ga kyakusha no you ni koshiita to yane de oowa re ta keijou to naxtsu te ori、|発達が進んだものは、車体全体が客車のように腰板と屋根で覆われた形状となっており、
+000041|yokuasa、 saheiji ha riyuu wo tsuke te jibun ha mou ippaku suru mune wo nakama ni tsuge、 mina wo kaeshi te shimau。|翌朝、佐平次は理由をつけて自分はもう一泊する旨を仲間に告げ、皆を帰してしまう。
+000042|koizumi souri no kaikaku ha dondon mae ni susume te iku beki da to omoi masu。 sono ippou de、 wagakuni ni ha sekai ni hokoru beki dentou ya bunka、|小泉総理の改革はどんどん前に進めていくべきだと思います。その一方で、わが国には世界に誇るべき伝統や文化、
+000043|baransu soukou to keisha soukou ni ha koutsuu torishimari gyoumu ni shiyou suru tsuujou no shirobai ga shiyou sa re、|バランス走行と傾斜走行には交通取締業務に使用する通常の白バイが使用され、
+000044|kyaku ga hiku to saheiji ha futatabi futon heya he to modori、 mata yoru ni naru to kyakuashirai wo hajime、 suu nichi go ni ha kyaku no hou kara、|客が引くと佐平次は再び布団部屋へと戻り、また夜になると客あしらいを始め、数日後には客の方から、
+000045|nippon kokugai de mo anime ga housou sa re、 komikkusu ga hatsubai sa re te iru。|日本国外でもアニメが放送され、コミックスが発売されている。
+000046|roshia no ongaku gakusha no naka de ha mottomo shourai ga shokubou sa re te i ta。|ロシアの音楽学者の中では最も将来が嘱望されていた。
+000047|sono tame asetoanirido ha、 asetoaminofen nado dokusei no yori hikui iyakuhin ni sono chii wo yuzuru koto to naxtsu ta。|そのためアセトアニリドは、アセトアミノフェンなど毒性のより低い医薬品にその地位をゆずることとなった。
+000048|imanaka tadayuki ra ha、 kono sekiyu bunkai kin ga metanhaidore-to ni kankei shi te iru to shiteki shi ta。|今中忠行らは、この石油分解菌がメタンハイドレートに関係していると指摘した。
+000049|ko-rasu ni ha tsuma no rinda to choujo no heza- ga sanka shi te iru。|コーラスには妻のリンダと長女のヘザーが参加している。
+000050|sonogo、 naikaku kaizou ni to mo nai naikaku fu fuku daijin wo tainin shi ta。|その後、内閣改造にともない内閣府副大臣を退任した。

@@ -1,0 +1,50 @@
+000001|zài zhèzhǒng dùi chēngxìng xià， fǎn píngxíng sìbiān xíng jiē jùyǒu liǎngdùibiān děng cháng hé liǎng zǔjiǎo děng jiǎo de tèxìng。|在這種對稱性下，反平行四邊形皆具有兩對邊等長和兩組角等角的特性。
+000002|yīncǐ jiè yú wūshānxiàn qǐdiǎn de bǎojī sìchē zhàn yǔ yǔdū gōngchē zhàn zhījiān de gāngběn， yě liándài chéngwèi wūshānxiàn lièchē de tíngchē zhàn zhīyī。|因此介於烏山線起點的寶積寺車站與宇都宮車站之間的岡本，也連帶成為烏山線列車的停車站之一。 
+000003|zūnyuánfǎ qīnwáng xiàng shìzūn sì xíngfáng xuéxí hégē， hòu lái xíngfáng bāngzhù nánzhāo， zài jīnzézhàn sǐ， yú shì tā zhuǎnwèi xiàng xíngfáng de dìdì xíngyǐn xuéxí。|尊圓法親王向世尊寺行房學習和歌，後來行房幫助南朝，在金澤戰死，於是他轉為向行房的弟弟行尹學習。
+000004|héyóng zhī zài sòngmíngdì zhīshì， guānzhì tōngzhí chángshì。 shǐshū chēng hǎiyán gōngzhǔ yě shì sòngwéndì líuyìlóng de dìsì nv̌， huò yǔ línhǎi hùi gōngzhǔ wèi yīrén。|何颙之在宋明帝之世，官至通直常侍。史书称海盐公主也是宋文帝刘义隆的第四女，或与临海惠公主为一人。
+000005|zhèngzhì zhéxué suǒ guānzhù de shì quánlì de běnzhì hé xíngshì; gèngjù tǐdì， zhèngzhì zhéxué suǒ qiānshè de shì zhèngfǔ tǒngzhì de shìdāng yuánzé。|政治哲學所關注的是權力的本質和形式；更具體地，政治哲學所牽涉的是政府統治的適當原則。 
+000006|wèixīng shùnlì rùgǔi bìng àn yùdìng jìhuá wánchéng le wèixīng zài gǔi jiāzhù héxīnjìzhú shìyàn hé yànzhèng，|卫星顺利入轨并按预定计划完成了卫星在轨加注核心技术试验和验证，
+000007|fùqīn lín bǎoshān shì yānjī hé yānzhū gōngrén， mǔqīn zhāng jǐunián shì jiātíngzhǔfù。 tā yǒu liǎnggè gēgē jí yīgè jiějiě， zài jiāzhōng páixíng zùixiǎo。|父亲林宝山是阉鸡和阉猪工人，母亲张九年是家庭主妇。他有两个哥哥及一个姐姐，在家中排行最小。
+000008|yóuyú shānxī rénkǒu shǎo， yǒu de yáochǎng zhǔjiāng yáochǎng shēngchǎn chéngbāo gěi wàidì de bāogōngtóu， bāogōngtóu zài gù wàidìrén cóngshì shēngchǎn， yáochǎng zhǔkě huòdé gāoé de lìrùn。|由于山西人口少，有的窑厂主将窑厂生产承包给外地的包工头，包工头再雇外地人从事生产，窑厂主可获得高额的利润。
+000009|pǔlā jīcháng kāishè yǒu qiánwǎng sīluòwéiníyà yǐjí yìdàlì dōngbù chéngshì de hángxiàn。|普拉機場開設有前往斯洛維尼亞以及意大利東部城市的航線。
+000010|chū yú bǎomì， héàobìng wèijiāng xíngdòng mùbiāo gàozhī qítā yīngjūnjūnguān， shǐdào gèrén zhǐnéng cāicè héào de dòngjī。|出於保密，何奧並未將行動目標告知其他英軍軍官，使到各人只能猜測何奧的動機。
+000011|zhīhòu， jīnsè quánzhàng bèi táijìn le jǔxíngyànhùi de dàzhàngpéng zhōng。 jìu zài yóubā dàgōng liángqí shí， tǎ hútí ā tūrán cóng zuòwèi shàng zhàn qǐlái|之后，金色权杖被抬进了举行宴会的大帐篷中。就在尤巴大公惊奇时，塔胡提阿突然从座位上站起来
+000012|qīxī zài héchuān dǐzhōngcéng shǔiyù， hùi jìnxíng jìjiéxìng húiyóu， yǐyǒujī sùixiè děng wèi shí， shēnghuó xíxìng bùmíng。|棲息在河川底中層水域，會進行季節性洄游，以有機碎屑等為食，生活習性不明。
+000013|nàlǐ biàndì cháng mǎn qínghuā， bùguò zùi hòu bèi yángguò， chéngyīng， lùwúshuāng jìnshù xiāomiè。|那裡遍地長滿情花，不過最後被楊過，程英，陸無雙盡數消滅。
+000014|jìsuànjī dàxué zhǔyào xuékē shì kēxué hé jìzhúbù， xuéshēng kěyǐ huòqǔ jìsuànjīkēxué hé jìzhú de běnkē xuéwèi。|计算机大学主要学科是科学和技术部，学生可以获取计算机科学和技术的本科学位。
+000015|chúcǐyǐwài， yì yào zhàogù wángdéhūi jiāzú de gèrén， bāokuò tā de fùmǔ， dìmèi， yǐjí dìmèi zǐnv̌ de jiàoyù， yì yào bāngzhùhuámào jítuán de yuángōng hé zǐnv̌。|除此以外，亦要照顧王德輝家族的各人，包括他的父母，弟妹，以及弟妹子女的教育，亦要幫助華懋集團的員工和子女。
+000016|líuhuā zuòyǔ yānzhī lěng， zhúyǐng liányún fěicùi fú。 huà dào wúshēng zhūlèi jìn， zhǐnán xiāoqiǎn shàopíngchóu。|榴花作雨胭脂冷，竹影連雲翡翠浮。話到無生諸累盡，只難消遣邵平愁。
+000017|xiāoyuǎnshān zhìlìyú sòngliáo mùlín xīuhǎo， měiměi quànzǔ liáodào zōng yòngbīng dòngwǔ， shēndé sòng liáo liǎngguó shìmín de àidài。|萧远山致力于宋辽睦邻修好，每每劝阻辽道宗用兵动武，深得宋辽两国士民的爱戴。
+000018|jǐnguǎn gānyù quán hé fèizhǐ quán pǒ yǒu xiāngsì， dàn réng yǒu yīxiē chàyì。 fèizhǐ quánshì yīzhōu dāndú de xíngdòng， ér gānyù quán bèi rènwèi gèzhōu cǎiqǔ de liánhéxíngdòng。|尽管干预权和废止权颇有相似，但仍有一些差异。废止权是一州单独的行动，而干预权被认为各州采取的联合行动。
+000019|gāi zázhì yǐquán cǎiyìn zhì jiè shào yè yú hé zhuān yè tiānwén shèyǐngzhě hǎo de tiānwén shèyǐngjǐngdiǎn yǐjí lièbiǎo jǔchū jíjiāng fāshēng de tiānxiàng。|該雜誌以全彩印製介紹業餘和專業天文攝影者好的天文攝影景點以及列表舉出即將發生的天象。 
+000020|jiātíng de yǐngxiǎng hé tā xuéxí de zhòngxīn gěi tā de zhìxìng zhī lù líuxià shēnshēn yìnjì。|家庭的影响和他学习的重心给他的智性之路留下深深印记。
+000021|yóu zhōuwéi gǎnrǎn de línbā jiéchǎnshēng de kùiyáng chángbiǎoxiàn wèi wútòng， huǎnmàn kuòdà yǐjí kànqǐ lái xiàng shǔixǐ guòde pígé de tèxìng。|由周圍感染的淋巴結產生的潰瘍常表現為無痛，緩慢擴大以及看起來像水洗過的皮革的特性。
+000022|xīumómiàn dùi de shì chéngwèi jiātíng jiàoshī huòshì chéngwèi shāngrén de zhíyuán zhèliǎnggè xuǎnxiàng， tā zùihòuxuǎnzé lehòuzhě。|休謨面對的是成為家庭教師或是成為商人的職員這兩個選項，他最後選擇了後者。
+000023|zhànguó shíshǔ hánguó dìnglíng yì， hànzhì jìnwèi dìnglíng xiàn， nánběizhāo wèi dìnglíng jùn， běiwǔxiàn， súitáng yǐhòu shǔ wǔyángxiàn。|战国时属韩国定陵邑，汉至晋为定陵县，南北朝为定陵郡，北舞县，隋唐以后属舞阳县。
+000024|yīn tàizǐ zǎoshì， xiàn ānwáng shòugùmìng érlì。 zàiwèi wǔnián， shì xiànān。|因太子早逝，憲安王受顧命而立。在位五年，諡憲安。 
+000025|hùiběn de zhǔjiǎo zǒnghùi xúnzhǎo zhù shénme， hùiběn de jiéwěi tōngcháng shì yǐ bùdài wénzì de huàdāngzuò gùshì de jiéjú， ràng dúzhě fāxiǎng。|繪本的主角總會尋找著甚麼，繪本的結尾通常是以不帶文字的畫當作故事的結局，讓讀者發想。
+000026|jīnrì zùiguǎngfàn de yīngyòng shì nèi ránjī de huǒxīngsāi， dàn yě yòng zài bìléiqì jíqí tā fángzhǐ shùnjiān gāoyā diànlíu de bǎohù zhuāngzhì shàng。|今日最廣泛的應用是內燃機的火星塞，但也用在避雷器及其他防止瞬間高壓電流的保護裝置上。 
+000027|wèi jūn xiānxíng kùisàn， ránér zhī hòu tuòbá rén yòu zhòngzhěng jūndùi， yǔ cóng hǔ láo dìqū lái de yuánjūnhùihé， zài fǎnhúi jībài sòng jūn， zhǎn líutài zhī， fúlǔchéng tiānzuò。|魏軍先行潰散，然而之後拓跋仁又重整軍隊，與從虎牢地區來的援軍會合，再返回擊敗宋軍，斬劉泰之，俘虜程天祚。
+000028|bàotūquán wèiyú jìnán jìuchéng de xīnánjiǎo， nán hùchénghé de zùi xībiān。 bàotūquán gōngyuán wèiyú xiànzài de quánchéng guǎngcháng zhèngxī，|趵突泉位于济南旧城的西南角，南护城河的最西边。趵突泉公园位于现在的泉城广场正西，
+000029|kuòzhāng yìwèizháo jiānghùi jǔxíng gèng duō de bǐsài， yějìushìshuō， dāngdài qíuyuán yǒngyǒu gèng duō de défēn jīhùi， yīncǐ yǐxià lièbiǎo de bǐzhòng gèng yǒulìyú dāngdài qíuyuán。|扩张意味着将会举行更多的比赛，也就是说，当代球员拥有更多的得分机会，因此以下列表的比重更有利于当代球员。
+000030|gōngyuán nèi yǒu dàliàng de shùmù yǔ huánrào gōngyuán de shíbǎn bù dào， huányǒulián huāchí， xiǎoxíng xùhóng chí， liángtíng， értóng yóulè shèshī yǔ huódòng zhōngxīn。|公園內有大量的樹木與環繞公園的石板步道，還有蓮花池，小型蓄洪池，涼亭，兒童遊樂設施與活動中心。 
+000031|ér hòuzhě fǎnyìng de shì jítǐ yìzhì， gèrén xūyào shíyāo xūyào duōshǎo bùnéngzìjǐ shuōlesuàn， érshì yóu "jítǐ" huòzhě "lǐngdǎo" lái tì nǐ juédìng nǐ xūyào shíyāo hé xūyào duōshǎo。|而后者反映的是集体意志，个人需要什么需要多少不能自己说了算，而是由“集体”或者“领导”来替你决定你需要什么和需要多少。
+000032|shūjìcháng rènqī zhòngdàshìjiàn: xiāofèiquàn， tèbié yùsuàn， dàfǎguān tóngyì quán， jiāncháwěiyuán tóngyì quán děngděng。|書記長任期重大事件：消費券，特別預算，大法官同意權，監察委員同意權等等。 
+000033|qíshí wǒ xiànzài yě zài zuò fúzhuāng fāngmiàn de shèjì， zhǐbùguò súizháo niánlíng de zēngcháng， wǒhùi yǒu yīzhǒng cèzhòngdiǎn de qīngxié。|其实我现在也在做服装方面的设计，只不过随着年龄的增长，我会有一种侧重点的倾斜。
+000034|gēnjù guānfāng jìlù， dípān délā shì yīnwèi bù mǎnmǔ qīnfǎn dùi tā yǔ qiánzhāo lānà jiāzú yíyì jiéhūn ér xiěxǐ gōngtíng。|根據官方記錄，狄潘德拉是因為不滿母親反對他與前朝拉納家族遺裔結婚而血洗宮廷。
+000035|jìndài shìjiègèdì jiē yǒu fǎngzhào gǔluómǎkǎi xuánmén jiànzào de jiànzhúwù。|近代世界各地皆有仿照古羅馬凱旋門建造的建築物。
+000036|yán zào cì luò， xiānruǎn xiā zhǔ dòufǔ děng shípǐn de pēngdiào jìyì wèi rén suǒ chēngdào， dà cì， bóké mǐ， gāoxiè， zhūtóu zòngděng tǔtèchǎn míngwénxiáěr。|盐灶蚝烙，鲜软虾煮豆腐等食品的烹调技艺为人所称道，大蚝，薄壳米，膏蟹，猪头粽等土特产名闻遐迩。
+000037|yīncǐ měidào niánguān， rénmen jìu hùi ānpái jǐngchá， shèxiàngtóu， shìbīng， zhìyuànzhě huányǒu gǒu děng bǎowèi shānyáng， sūirán shìzhèng guānfāng bìng bù gǔlì zhèzhǒng dùi shānyáng de pòhuài，|因此每到年关，人们就会安排警察，摄像头，士兵，志愿者还有狗等保卫山羊，虽然市政官方并不鼓励这种对山羊的破坏，
+000038|chéngdū dàxióngmāo fányù yánjīu jīdì xià shèyǒu dàxióngmāo fányù yǔ bǎohù zhòngdiǎn shíyànshì。|成都大熊猫繁育研究基地下设有大熊猫繁育与保护重点实验室。
+000039|póluózhōu xiě mǎng de shēntǐ yánsè yǐ shēnzōngsè wèizhǔ， bùguò bùtóng de shé zhījiān zài yánsè fāngmiàn yě cúnzài zhù hěndà de biànhuà。|婆羅洲血蟒的身體顏色以深棕色為主，不過不同的蛇之間在顏色方面也存在著很大的變化。
+000040|hòu shìdùi tiányuān yīnshuò de píngjià shì， zìxíng xuéqí yīncǐ yǒu xǔduō bù ànchánggūi de xiàfǎ， dàn què xià de hěn mǐnjié， bùguò sǔnqí huánshì xià de guòduō。|後世對田淵因碩的評價是，自行學棋因此有許多不按常規的下法，但卻下的很敏捷，不過損棋還是下的過多。
+000041|zhōu nèi zhǔyào de shǔixì wèi ālèhé yǔ qí zhīlíu， líujīng de dìfāng dìshì dàzhì píngtǎn， dànzhōujìng yě bāohán le yībù fèn rǔlāshān mài de shānjiǎo。|州內主要的水系為阿勒河與其支流，流經的地方地勢大致平坦，但州境也包含了一部份汝拉山脈的山腳。
+000042|shēnwèi zhēnchá wèi zǒngjiǎo zhījiāo de wàng wèi yǎnjiàn yú cǐ， juédìng dàitì zhēnchá wèi lv̌xíng xiānqián yǔ rìběn gè dìwěi tuō zhě de chéngnuò， qí mótuōchē huányóu rìběn;|身为真茶未總角之交的望未眼見於此，决定代替真茶未履行先前與日本各地委託者的承諾，骑摩托车环游日本;
+000043|zài xíngdòng qián， tāmen zhēngqíu jǐngbèisīlìng táozhìyuè de yìjiàn。 jīngguò táozhìyuè quànshuō， mǎ chéngxiáng， luōshù rén， yèchéng dǎxiāo le kòuyā líumèngchún děng rén de xiǎngfǎ。|在行动前，他们征求警备司令陶峙岳的意见。经过陶峙岳劝说，马呈祥，罗恕人，叶成打消了扣押刘孟纯等人的想法。
+000044|diǎnxíng dìwù tèzhēng jiǎncè shìbié děng fāngmiàn qǔdé duōxiàng chéngguǒ。 xìtǒng yánjīu bìng fāzhǎn chū tiānjī hǎiyáng tàncè dìngwèi yǐjí hǎishàng yídòng mùbiāo zìdòngjiǎncè fāngfǎ，|典型地物特征检测识别等方面取得多项成果。系统研究并发展出天基海洋探测定位以及海上移动目标自动检测方法，
+000045|ér jiékèsīluòfákè zhèngfǔ zìrán yě bùyuàn rènrénzǎigē， yě kāishǐ júbù dòngyuán， jiāqiáng le biānjiè de zuòzhàn bīnglì。|而捷克斯洛伐克政府自然也不願任人宰割，也開始局部動員，加強了邊界的作戰兵力。 
+000046|wēixiào táiwān huódòng biāozhì wèi yīxiào liǎn， cānyǔ huódòng shāngdiàn ménkǒu jiē tiē yǒu cǐ lv̀sè yuántú   dàn zài hǎibào|微笑台灣活動標誌為一笑臉，參與活動商店門口皆貼有此綠色圓圖 但在海報
+000047|yóu yú dàgūimó de zhàdàn xíjī， diànhuà wǎngluò bèi tānhuàn， fángài le xiāofáng de zhǐhūi hé kòngzhì， bìngshǐ qínán yǐ shǒuxiān fāsòng xiāofáng yuándào zùi wēixiǎn de zāiqūzuò jìuyuán。|由於大規模的炸彈襲擊，電話網絡被癱瘓，妨礙了消防的指揮和控制，並使其難以首先發送消防員到最危險的災區作救援。
+000048|zùichū， títú bāfǒu rèncān yǔ wūshù， dàn zài sāi móuěr pàlǐsī wèi le shǐ tā rènzùi ér dùi qí jìnxíng de ōu dǎ hòu，|最初，提圖芭否認參與巫術，但在塞繆爾·帕里斯為了使她認罪而對其進行的毆打後，
+000049|zhèyáng， "tǐsù" zhègè zhúyǔ jǐnjǐn yònglái biǎoshì zùi línjìn de chāzhí， ér bù yònglái biǎoshì rú sāncì xiànxìng|这样，“体素”这个术语仅仅用来表示最邻近的插值，而不用来表示如三次线性
+000050|běnlèzhāng zhī kāishǒu jíwèi kèzhì， jǐnjiē ér lái de shì chūqíbùyì zhī zhuǎndiào， yīnér biǎodáchū gèzhōng de chuàngyì;|本樂章之開首極為克制，緊接而來的是出其不意之轉調，因而表達出箇中的創意; 
