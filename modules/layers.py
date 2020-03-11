@@ -55,10 +55,12 @@ class ConvBlock(torch.nn.Module):
         input_channels -- number if input channels
         output_channels -- number of output channels
         kernel -- convolution kernel size ('same' padding is used)
-        dropout -- dropout rate to be aplied after the block
-        activation (optional) -- name of the activation function applied after batchnorm (default 'identity')
-        dilation (optinal) -- dilation of the inner convolution (default 1)
-        batch_norm (optional) -- set False to disable batch norm (default True)
+    Keyword arguments:
+        dropout (default: 0.0) -- dropout rate to be aplied after the block
+        activation (default 'identity') -- name of the activation function applied after batchnorm
+        dilation (default: 1) -- dilation of the inner convolution
+        groups (default: 1) -- number of groups of the inner convolution
+        batch_norm (default: True) -- set False to disable batch normalization
     """
 
     def __init__(self, input_channels, output_channels, kernel, 
@@ -85,7 +87,21 @@ class ConvBlock(torch.nn.Module):
 
 
 class ConvBlockGenerated(torch.nn.Module):
-    """One dimensional convolution with generated weights and with batchnorm and dropout, expected channel-first input."""
+    """One dimensional convolution with generated weights and with batchnorm and dropout, expected channel-first input.
+    
+    Arguments:
+        embedding_dim -- size of the meta embedding
+        bottleneck_dim -- size of the generating layer
+        input_channels -- number if input channels
+        output_channels -- number of output channels
+        kernel -- convolution kernel size ('same' padding is used)
+    Keyword arguments:
+        dropout (default: 0.0) -- dropout rate to be aplied after the block
+        activation (default 'identity') -- name of the activation function applied after batchnorm
+        dilation (default: 1) -- dilation of the inner convolution
+        groups (default: 1) -- number of groups of the inner convolution
+        batch_norm (default: True) -- set False to disable batch normalization
+    """
 
     def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel,
                  dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
@@ -116,8 +132,7 @@ class ConvBlockGenerated(torch.nn.Module):
 
 
 class HighwayConvBlock(ConvBlock):
-    """
-    Gated 1D covolution aka highway layer.
+    """Gated 1D covolution.
     
     Arguments:
         see ConvBlock
@@ -139,7 +154,13 @@ class HighwayConvBlock(ConvBlock):
 
 
 class HighwayConvBlockGenerated(ConvBlockGenerated):
-    """Gated 1D covolution aka highway layer with generated weights."""
+    """Gated 1D covolution with generated weights.
+    
+    Arguments:
+        embedding_dim -- size of the meta embedding
+        bottleneck_dim -- size of the generating layer
+        see ConvBlockGenerated
+    """
 
     def __init__(self, embedding_dim, bottleneck_dim, input_channels, output_channels, kernel, 
                  dropout=0.0, activation='identity', dilation=1, groups=1, batch_norm=True):
@@ -155,19 +176,3 @@ class HighwayConvBlockGenerated(ConvBlockGenerated):
         h2 = torch.cat(chunks[1::2], 1)
         p = self._gate(h1)
         return e, h2 * p + x * (1.0 - p)
-
-
-class ConstantEmbedding(torch.nn.Module):
-    """
-    Simple layer returning frozen constant embedding (suitable for fine-tuning). 
-    
-    Arguments:
-        weights -- The tensor to be returned for any input.
-    """
-
-    def __init__(self, weights):
-        super(ConstantEmbedding, self).__init__()
-        self.register_buffer('embedding_weights', weights)
-
-    def forward(self, x):
-        return self.embedding_weights.unsqueeze(0).expand(x.shape[0], -1)

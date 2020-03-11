@@ -1,7 +1,6 @@
 import numpy as np
 import scipy
 from fastdtw import fastdtw
-
 import librosa
 import librosa.feature
 import librosa.effects
@@ -53,13 +52,7 @@ def db_to_amplitude(x):
 
 
 def preemphasis(y):
-    """Preemphasize the signal.
-
-      Should be used together with Griffin-Lim and not used together with WaveNet.
-
-    See: https://github.com/Rayhane-mamah/Tacotron-2/issues/157
-         https://github.com/Rayhane-mamah/Tacotron-2/issues/160
-    """
+    """Preemphasize the signal."""
     # y[n] = x[n] - perc * x[n-1]
     return scipy.signal.lfilter([1, -hp.preemphasis], [1], y)
 
@@ -132,14 +125,10 @@ def get_mfcc(y):
 
 
 def mel_cepstral_distorision(S1, S2, mode):
-    """
-    Compute Mel Cepstral Distorsion between two mel spectrograms.
+    """Compute Mel Cepstral Distorsion between two mel spectrograms.
 
-        See Towards End-to-End Prosody Transfer for Expressive Speech 
-        Synthesis with Tacotron for further details.
-    
     Arguments:
-        x and y -- mel spectrograms
+        S1 and S2 -- mel spectrograms
         mode -- 'cut' to cut off frames of longer seq.
                 'stretch' to stretch linearly the shorter seq.
                 'dtw' to compute DTW with minimal possible MCD

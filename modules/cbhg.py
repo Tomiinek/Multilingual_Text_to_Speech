@@ -70,7 +70,7 @@ class PostnetCBHG(torch.nn.Module):
 
 
 class HighwayLayer(torch.nn.Module):
-    """Gated layer aka highway."""
+    """Gated layer."""
 
     def __init__(self, dimension):
         super(HighwayLayer, self).__init__()

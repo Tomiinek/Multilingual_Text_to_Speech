@@ -6,7 +6,7 @@ from torch.nn import Linear, Parameter, Conv1d
 class AttentionBase(torch.nn.Module):
     """Abstract attention class.
     
-    Keyword arguments:
+    Arguments:
         representation_dim -- size of the hidden representation
         query_dim -- size of the attention query input (probably decoder hidden state)
         memory_dim -- size of the attention memory input (probably encoder outputs)
@@ -52,14 +52,10 @@ class LocationSensitiveAttention(AttentionBase):
         Extends additive attention (here https://arxiv.org/abs/1409.0473)  
         to use cumulative attention weights from previous decoder time steps.
         
-    Keyword arguments:
+    Arguments:
         kernel_size -- kernel size of the convolution calculating location features 
         channels -- number of channels of the convolution calculating location features
-        smoothing -- to normalize weights using softmax, use False (default) and True to use sigmoids 
-
-    Notes on weights: 
-          FIXME: however I do not fully undersand the paper and do not know how should the window look like 
-          FIXME: I skip any windowing or sharpening as described in the paper, but should be tried!!!
+        smoothing -- to normalize weights using softmax, use False (default) and True to use sigmoids
     """
 
     def __init__(self, kernel_size, channels, smoothing, representation_dim, query_dim, memory_dim):
@@ -97,8 +93,6 @@ class ForwardAttention(AttentionBase):
         without the transition agent: https://arxiv.org/abs/1807.06736.
         However, the attention with convolutional features should have a negative effect 
         on the naturalness of synthetic speech.
-        FIXME: make sure it has really the negative effect on naturalness (convergence should
-               be faster on the other hand)
     """
 
     def __init__(self, *args, **kwargs):
@@ -136,8 +130,8 @@ class ForwardAttentionWithTransition(ForwardAttention):
         Forward Attention in Sequence-to-sequence Acoustic Modelling for Speech Synthesis
         with the transition agent: https://arxiv.org/abs/1807.06736.
     
-    Keyword arguments:
-        kernel_size -- kernel size of the convolution calculating location features 
+    Arguments:
+        decoder_output_dim -- size of the decoder output (from previous step)
     """
 
     def __init__(self, decoder_output_dim, representation_dim, query_dim, memory_dim):

@@ -3,18 +3,24 @@ import json
 import ast
 import numpy as np
 import scipy.stats
-
-
-"""
-Usage: python cer_computer.py --language german --model ground-truth  
+from utils import text
 
 """
 
+**************************************** INSTRUCTIONS ***************************************
+*                                                                                           *
+*   Usage: python cer_computer.py --language german --model ground-truth                    *
+*                                                                                           *
+*   For each utterance in a meta-file, find the output of ASR and compute CER between       *
+*   these two texts, saves into a file with basic statistics.                               *
+*                                                                                           *
+*********************************************************************************************
+
+"""
 
 def levenshtein(u, v):
     prev = None
     curr = [0] + list(range(1, len(v) + 1))
-    # Operations: (SUB, DEL, INS)
     prev_ops = None
     curr_ops = [(0, 0, i) for i in range(len(v) + 1)]
     for x in range(1, len(u) + 1):
@@ -132,6 +138,3 @@ if __name__ == '__main__':
         
         for i, c in cers:
             print(f'{i}|{c}', file=of)
-
-
-      

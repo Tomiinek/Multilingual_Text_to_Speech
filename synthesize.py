@@ -1,32 +1,39 @@
 import sys
 import os
-from collections import OrderedDict
 from datetime import datetime
 
 import numpy as np
 import torch
-from params.params import Params as hp
+
 from utils import audio, text
+from utils import build_model
+from params.params import Params as hp
 from modules.tacotron2 import Tacotron
-import sys
 
-def remove_dataparallel_prefix(state_dict): 
-    new_state_dict = OrderedDict()
-    for k, v in state_dict.items():
-        name = k[7:] if k[:7] == "module." else k
-        new_state_dict[name] = v
-    return new_state_dict
+"""
 
+******************************************************** INSTRUCTIONS ********************************************************
+*                                                                                                                            *
+*   The script expects input utterances on stdin, every example on a separate line.                                          *
+*                                                                                                                            *
+*   Different models expect different lines, some have to specify speaker, language, etc.:                                   *
+*   ID is used as name of the output file.                                                                                   *
+*   Speaker and language IDs have to be the same as in parameters (see hp.languages and hp.speakers).                        *
+*                                                                                                                            *
+*   MONO-lingual and SINGLE-speaker:    id|single input utterance per line                                                   *
+*   OTHERWISE                           id|single input utterance|speaker|language                                           *
+*   OTHERWISE with PER-CHARACTER lang:  id|single input utterance|speaker|l1-(length of l1),l2-(length of l2),l1             *
+*                                           where the last language takes all remaining character                            *
+*                                           exmaple: "01|guten tag jean-paul.|speaker|de-10,fr-9,de"                         *
+*   OTHERWISE with accent control:      id|single input utterance|speaker|l1-(len1),l2*0.75:l3*0.25-(len2),l1                *
+*                                           accent can be controlled by weighting per-language characters                    *
+*                                           language codes must be separated by : and weights are assigned using '*number'   *
+*                                           example: "01|guten tag jean-paul.|speaker|de-10,fr*0.75:de*0.25-9,de"            *
+*                                           the numbers do not have to sum up to one because they are normalized later       *
+*                                                                                                                            *
+******************************************************************************************************************************
 
-def build_model(checkpoint, force_cpu=False):   
-    device = torch.device("cuda" if torch.cuda.is_available() and not force_cpu else "cpu")
-    state = torch.load(checkpoint, map_location=device)
-    hp.load_state_dict(state['parameters'])
-    model = Tacotron()
-    model.load_state_dict(remove_dataparallel_prefix(state['model']))   
-    model.to(device)
-    return model
-
+"""
 
 if __name__ == '__main__':
     import argparse
@@ -47,18 +54,6 @@ if __name__ == '__main__':
 
     #total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     #print(f"Builded model with {total_params} parameters")
-
-    # Expected inputs is in case of
-    # - mono-lingual and single-speaker model:  id|single input utterance per line
-    # - otherwise:                              id|single input utterance|speaker|language
-    # - with per-character language:            id|single input utterance|speaker|l1-(length of l1),l2-(length of l2),l1
-    #                                           where the last language takes all remaining character
-    #                                           exmaple: "guten tag jean-paul.|speaker|de-10,fr-9,de"
-    #                                           accent can be controlled by weighting per-language characters
-    #                                           language codes must be separated by : and weights are assigned using '*number'
-    #                                           example: "guten tag jean-paul.|speaker|de-10,fr*0.75:de*0.25-9,de"
-    #                                           the number does not have to sum up to one because they are normalized later 
-    # id is used as output file name!
 
     inputs = [l.rstrip().split('|') for l in sys.stdin.readlines() if l]
 

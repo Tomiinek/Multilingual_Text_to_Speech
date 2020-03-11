@@ -6,9 +6,19 @@ import scipy.stats
 from fastdtw import fastdtw
 
 """
-Usage: python mcd_computer.py --language german --model ground-truth  
+
+**************************************** INSTRUCTIONS ***************************************
+*                                                                                           *
+*   Usage: python mcd_computer.py --language german --model simple                          *
+*                                                                                           *
+*   For each utterance in a meta-file, find the ground-truth spectrogram and a synthesized  *
+*   spectrogram and compute Mel Cepstral Distorsion of them, saves into a file with basic   *
+*   statistics.                                                                             * 
+*                                                                                           *
+*********************************************************************************************
 
 """
+
 
 def get_spectrogram_mfcc(S, num_mfcc):
     return librosa.feature.mfcc(n_mfcc=num_mfcc, S=(S/10))
@@ -88,6 +98,3 @@ if __name__ == '__main__':
         print(f'Total mean MCD: {mcd_mean}', file=of)
         print(f'Std. dev. of MCD: {mcd_std}', file=of)
         print(f'Conf. interval: ({mcd_lower}, {mcd_upper})', file=of)
-
-
-      

@@ -6,12 +6,17 @@ import os
 import json
 
 """
-Usage: python asr_request.py --language german --model ground-truth
 
-For each audio file in model's folder request Google Cloud ASR for transcription and
-save it into a file in the model/asr directory.  
+**************************************** INSTRUCTIONS ***************************************
+*                                                                                           *
+*   Usage: python asr_request.py --language german --model ground-truth                     *
+*                                                                                           *
+*   For each audio file in model's folder request Google Cloud ASR for transcription and    *
+*   save it into a file in the model/asr directory.                                         *
+*                                                                                           *
+*********************************************************************************************
+
 """
-
 
 def sample_recognize(path, language_code, sample_rate_hertz):
     
@@ -82,10 +87,3 @@ if __name__ == '__main__':
             output_file = os.path.join(output_path, f'{idx}.json')
             with open(output_file, 'w+', encoding='utf-8') as of:
                 print(asr_result, file=of)
-
-
-
-
-
-
-      

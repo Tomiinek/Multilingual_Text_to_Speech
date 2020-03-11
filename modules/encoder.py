@@ -7,8 +7,9 @@ from params.params import Params as hp
 
 
 class Encoder(torch.nn.Module):
-    """
-    Encoder:
+    """Vanilla Tacotron 2 encoder.
+    
+    Details:
         stack of 3 conv. layers 5 × 1 with BN and ReLU, dropout
         output is passed into a Bi-LSTM layer
 
@@ -18,7 +19,8 @@ class Encoder(torch.nn.Module):
         num_blocks -- number of the convolutional blocks (at least one)
         kernel_size -- kernel size of the encoder's convolutional blocks
         dropout -- dropout rate to be aplied after each convolutional block
-        generated -- enables meta-learning approach which generates parameters of the internal layers
+    Keyword arguments:
+        generated -- just for convenience
     """
     
     def __init__(self, input_dim, output_dim, num_blocks, kernel_size, dropout, generated=False):
@@ -44,16 +46,12 @@ class Encoder(torch.nn.Module):
 
 
 class ConditionalEncoder(torch.nn.Module):
-    """
-    Encoder which has a language embeddings concatenated to each input character embedding.
+    """Encoder with language embeddings concatenated to each input character embedding.
 
     Arguments:
         input_dim -- total number of languages in the dataset
         langs_embedding_dim -- output size of the language embedding
-        encoder_args -- tuple or list of arguments for encoder (input dimension without the embedding dimension)
-
-    TODO: conditioning after convolutional layers?
-    TODO: larger dimension of the other conv. layers or of the LSTM? 
+        encoder_args -- tuple or list of arguments for encoder (input dimension without the embedding dimension), see Encoder class
     """
     
     def __init__(self, num_langs, langs_embedding_dim, encoder_args):
@@ -74,12 +72,11 @@ class ConditionalEncoder(torch.nn.Module):
 
 
 class MultiEncoder(torch.nn.Module):
-    """
-    Bunch of language-dependent encoders with output masking.
+    """Bunch of language-dependent vanilla encoders with output masking.
 
     Arguments:
         num_langs -- number of languages (and encoders to be instiantiated)
-        encoder_args -- tuple or list of arguments for encoder
+        encoder_args -- tuple or list of arguments for encoder, see Encoder class
     """
 
     def __init__(self, num_langs, encoder_args):
@@ -101,8 +98,7 @@ class MultiEncoder(torch.nn.Module):
 
 
 class ConvolutionalEncoder(torch.nn.Module):
-    """
-    Convolutional encoder (possibly multi-lingual).
+    """Convolutional encoder (possibly multi-lingual).
 
     Expects input of shape [B * N, L, F], where B is divisible by N (number of languages) and
     samples of each language with the first sample at the i-th position occupy every i+L-th 
@@ -112,6 +108,8 @@ class ConvolutionalEncoder(torch.nn.Module):
         input_dim -- size of the input (supposed character embedding)
         output_dim -- number of channels of the convolutional blocks and output
         dropout -- dropout rate to be aplied after each convolutional block
+    Keyword arguments:
+        groups (default: 1) -- number of separate encoders (which are implemented using grouped convolutions)
     """
 
     def __init__(self, input_dim, output_dim, dropout, groups=1):
@@ -164,7 +162,9 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
     Arguments:
         see ConvolutionalEncoder
         embedding_dim -- size of the generator embedding (should be language embedding)
-        bottleneck_dim -- size of the layer between generated weights and generator embedding
+        bottleneck_dim -- size of the generating layer
+    Keyword arguments:
+        see ConvolutionalEncoder
     """
 
     def __init__(self, input_dim, output_dim, dropout, embedding_dim, bottleneck_dim, groups=1):

@@ -18,7 +18,7 @@ def _other_symbols():
 
 
 def build_phoneme_dicts(text_lang_pairs):
-    '''Create dictionaries (possibly more languages) of words (from a list of texts) with IPA equivalents.'''
+    """Create dictionaries (possibly more languages) of words (from a list of texts) with IPA equivalents."""
     dictionaries = {}
     Logger.progress(0 / len(text_lang_pairs), prefix='Building phoneme dictionary:')
     for i, (t, l) in enumerate(text_lang_pairs):
@@ -33,16 +33,17 @@ def build_phoneme_dicts(text_lang_pairs):
     
 
 def to_phoneme(text, ignore_punctuation, language, phoneme_dictionary=None):
-    '''Convert graphemes of the utterance without new line to phonemes.
+    """Convert graphemes of the utterance without new line to phonemes.
     
-    Keyword arguments:
+    Arguments:
         text (string): The text to be translated into IPA.
         ignore_punctuation (bool): Set to False if the punctuation should be preserved.
         language (default hp.language): language code (e.g. en-us)
+    Keyword argumnets:
         phoneme_dictionary (default None): A language specific dictionary of words with IPA equivalents, 
             used to speed up the translation which preserves punctuation (because the used phonemizer
             cannot handle punctuation properly, so we need to do it word by word).
-    '''
+    """
     
     clear_text = remove_punctuation(text)
     if ignore_punctuation: 
@@ -54,11 +55,13 @@ def to_phoneme(text, ignore_punctuation, language, phoneme_dictionary=None):
     phonemes = []
     for w in clear_words:
         phonemes.append(phoneme_dictionary[w] if w in phoneme_dictionary else _phonemize(w, language)[:-1])
+
     # add punctuation to match the punctuation in the input 
     in_word = False
     punctuation_seen = False
     text_phonemes = ""
     clear_offset = word_idx = 0
+    
     for idx, char in enumerate(text):
         # encountered non-punctuation char
         if idx - clear_offset < len(clear_text) and char == clear_text[idx - clear_offset]:
@@ -94,23 +97,23 @@ def _phonemize(text, language):
 
 
 def to_lower(text):
-    '''Convert uppercase text into lowercase.'''
+    """Convert uppercase text into lowercase."""
     return text.lower()
 
 
 def remove_odd_whitespaces(text):
-    '''Remove multiple and trailing/leading whitespaces.'''
+    """Remove multiple and trailing/leading whitespaces."""
     return ' '.join(text.split())
 
 
 def remove_punctuation(text):
-    '''Remove punctuation from text.'''
+    """Remove punctuation from text."""
     punct_re = '[' + hp.punctuations_out + hp.punctuations_in + ']'
     return re.sub(punct_re.replace('-', '\-'), '', text)
 
 
 def to_sequence(text, use_phonemes=False):
-    '''Converts a string of text to a sequence of IDs corresponding to the symbols in the text.'''
+    """Converts a string of text to a sequence of IDs corresponding to the symbols in the text."""
     transform_dict = {s: i for i, s in enumerate(_other_symbols() + list(hp.phonemes if use_phonemes else hp.characters))}
     sequence = [transform_dict[_unk] if c not in transform_dict else transform_dict[c] for c in text]
     sequence.append(transform_dict[_eos])
@@ -118,7 +121,7 @@ def to_sequence(text, use_phonemes=False):
 
 
 def to_text(sequence, use_phonemes=False):
-    '''Converts a sequence of IDs back to a string'''
+    """Converts a sequence of IDs back to a string"""
     transform_dict = {i: s for i, s in enumerate(_other_symbols() + list(hp.phonemes if use_phonemes else hp.characters))}
     result = ''
     for symbol_id in sequence:

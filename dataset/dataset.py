@@ -19,8 +19,9 @@ class TextToSpeechDatasetCollection():
         created by running the static TextToSpeechDataset.create_meta_file method!
         See the method for details about the format of the meta-file.
         
-    Keyword arguments:
+    Arguments:
         dataset_root_dir (string): Root Directory of the dataset.
+    Keyword arguments:
         training_file (string, default 'train.txt'): Relative path to the meta-file of the training set.
         validation_file (string, default 'val.txt'): Relative path to the meta-file of the validation set.
         test_file (string, default None): Relative path to the meta-file of the test set. Set None to ignore the test set.
@@ -39,7 +40,7 @@ class TextToSpeechDatasetCollection():
             raise IOError(f'The validation set meta-file not found, given: {val_full_path}')
         self.dev = TextToSpeechDataset(val_full_path, dataset_root_dir, self.train.unique_speakers)  
         assert len(self.dev.unique_speakers) == len(self.train.unique_speakers), (
-                f'Validation set contains speakers not present in train set!')     
+                f'Validation set contains speakers which are not present in train set!')     
         
         # create test set
         if test_file:
@@ -48,10 +49,7 @@ class TextToSpeechDatasetCollection():
                 raise IOError(f'The test set meta-file not found, given: {test_full_path}')
             self.test = TextToSpeechDataset(test_full_path, dataset_root_dir, self.train.unique_speakers)
             assert len(self.test.unique_speakers) == len(self.train.unique_speakers), (
-                f'Test set contains speakers not present in test set!')
-
-        # save all found speakers to hyper parameters
-        hp.unique_speakers = self.train.unique_speakers
+                f'Test set contains speakers which are not present in test set!')
 
 
 class TextToSpeechDataset(torch.utils.data.Dataset):
@@ -59,7 +57,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
     
         1) Load dataset metadata/data.
         2) Perform cleaning operations on the loaded utterances (phonemized).
-        3) Compute mel-spectrograms and linear spectrograms (cached).
+        3) Compute mel-spectrograms or linear spectrograms (cached).
         4) Convert text into sequences of indices.
 
     Metadata format:
@@ -67,9 +65,11 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         created by running the static TextToSpeechDataset.create_meta_file method!
         See the method for details about the format of the meta-file.
         
-    Keyword arguments:
+    Arguments:
         meta_file (string): Meta-file of the dataset.
         dataset_root_dir (string): Root Directory of the dataset.
+    Keyword arguments:
+        known_unique_speakers (list of string, default []): List of speaker UIDs (for initialization).
     """
 
     def __init__(self, meta_file, dataset_root_dir, known_unique_speakers=[]):
@@ -77,6 +77,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         self.root_dir = dataset_root_dir
 
         # read meta-file: id|speaker|language|audio_file_path|mel_spectrogram_path|linear_spectrogram_path|text|phonemized_text
+
         self.unique_speakers = known_unique_speakers.copy()
         unique_speakers_set = set(self.unique_speakers)
         self.items = []
@@ -114,7 +115,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             self.items[idx]['text'] = item_text
             self.items[idx]['phonemes'] = item_phon
 
-        # convert text into squence of character ids, convert language and speaker names to ids
+        # convert text into a sequence of character IDs, convert language and speaker names to IDs
         for idx in range(len(self.items)):
             self.items[idx]['phonemes'] = text.to_sequence(self.items[idx]['phonemes'], use_phonemes=True)
             self.items[idx]['text'] = text.to_sequence(self.items[idx]['text'], use_phonemes=False)
@@ -132,6 +133,16 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
         return (item['speaker'], item['language'], item['phonemes'] if hp.use_phonemes else item['text'], mel_spec, lin_spec)
 
     def load_spectrogram(self, audio_path, spectrogram_path, normalize, is_mel):
+        """Load a mel or linear spectrogram from file or compute from scratch if needed.
+        
+        Arguments:
+            audio_path (string): Path to the audio from which will (possibly) be the spectrogram computed.
+            spectrogram_path (string): Path to the spectrogram file which will be loaded (possibly).
+            normalize (boolean): If True, the spectrogram is normalized (per channel, extract mean and divide by std).
+            is_mel (boolean): If True, the mel spectrogram is loaded or computed, otherwise returns a linear spectrogram.
+        """
+
+        # load or compute spectrogram
         if hp.cache_spectrograms:
             full_spec_path = os.path.join(self.root_dir, spectrogram_path)
             spectrogram = np.load(full_spec_path)
@@ -139,15 +150,20 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
             full_audio_path = os.path.join(self.root_dir, audio_path)
             audio_data = audio.load(full_audio_path)
             spectrogram = audio.spectrogram(audio_data, is_mel)
+
+        # check spectrogram dimensions
         expected_dimension = hp.num_mels if is_mel else hp.num_fft // 2 + 1
         assert np.shape(spectrogram)[0] == expected_dimension, (
                 f'Spectrogram dimensions mismatch: given {np.shape(spectrogram)[0]}, expected {expected_dimension}')
+        
+        # normalize if desired
         if normalize:
             spectrogram = audio.normalize_spectrogram(spectrogram, is_mel)
+
         return spectrogram
 
     def get_normalization_constants(self, is_mel):
-        """Compute mean and variance of the data."""
+        """Compute per-channel mean and variance of the data contained in this collection."""
         mean = 0.0
         std = 0.0
         for item in self.items:
@@ -175,7 +191,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
 
     @staticmethod
     def create_meta_file(dataset_name, dataset_root_dir, output_metafile_name, audio_sample_rate, num_fft_freqs, spectrograms=True, phonemes=True):
-        """Create metafile and spectrograms or phonemized utterances.
+        """Create the meta-file and spectrograms (mel and linear, optionally) or phonemized utterances (optionally).
         
         Format details:
             Every line of the metadata file contains info about one dataset item.
@@ -183,15 +199,26 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                 'id|speaker|language|audio_file_path|mel_spectrogram_path|linear_spectrogram_path|text|phonemized_text'
             And the following must hold
                 'audio_file_path' can be empty if loading just spectrograms
-                'text' should be carefully normalized and should contain interpunciton
+                'text' should be carefully normalized and should contain interpunction
                 'phonemized_text' can be empty if loading just raw text  
+        
+        Arguments:
+            dataset_name (string): Name of the dataset, loaders.py should contain a function for loading with a corresponding name.
+            dataset_root_dir (string): Root directory from which is the dataset build and to which are spectrograms and the meta-file saved..
+            output_metafile_name (string): Name of the output meta-file.
+            audio_sample_rate (int): Sample rate of audios, used if spectrograms is set True.
+            num_fft_freqs (int): Number of frequency bands used during spectrogram computation, used if spectrograms is set True.
+        Keyword arguments:
+            spectrograms (boolean, default True): If true, spetrograms (both mel and linear) are computed and saved.
+            phonemes (boolean, default True): If true, phonemized variants of utterances are computed and saved.
         """
 
         # save current sample rate and fft freqs hyperparameters, as we may process dataset with different sample rate
-        old_sample_rate = hp.sample_rate
-        hp.sample_rate = audio_sample_rate
-        old_fft_freqs = hp.num_fft
-        hp.num_fft = num_fft_freqs
+        if spectrograms:
+            old_sample_rate = hp.sample_rate
+            hp.sample_rate = audio_sample_rate
+            old_fft_freqs = hp.num_fft
+            hp.num_fft = num_fft_freqs
 
         # load metafiles, an item is a list like: [text, audiopath, speaker_id, language_code]
         items = loaders.get_loader_by_name(dataset_name)(dataset_root_dir)
@@ -217,7 +244,7 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                 if language == "": language = hp.languages[0]
                 phonemized_text = text.to_phoneme(raw_text, False, language, phoneme_dicts[language]) if phonemes else ""     
                 spectrogram_paths = "|"
-                if spectrograms:    
+                if spectrograms:
                     spec_name = f'{str(i).zfill(6)}.npy'                 
                     audio_data = audio.load(os.path.join(dataset_root_dir, audio_path))
                     np.save(os.path.join(spectrogram_dirs[0], spec_name), audio.spectrogram(audio_data, True))
@@ -227,20 +254,25 @@ class TextToSpeechDataset(torch.utils.data.Dataset):
                 Logger.progress((i + 1) / len(items), prefix='Building metafile:')
         
         # restore the original sample rate and fft freq values
-        hp.sample_rate = old_sample_rate
-        hp.num_fft = old_fft_freqs
+        if spectrograms:
+            hp.sample_rate = old_sample_rate
+            hp.num_fft = old_fft_freqs
 
 
 class TextToSpeechCollate():
-  
+    """Collate function for TextToSpeechDataset.
+    
+    Arguments:
+        sort_by_text_length (boolean): If True, returns batch ordered by utterance lengths (suitable for RNNs).
+    """
+
     def __init__(self, sort_by_text_length):
         self.sort_by_text_length = sort_by_text_length
 
     def __call__(self, batch):
-
         batch_size = len(batch)
 
-        # get lengths
+        # iterate batch, get lengths of spectrograms and uttrances
         utterance_lengths, spectrogram_lengths = [], []
         speakers = []
         languages = []
@@ -253,6 +285,7 @@ class TextToSpeechCollate():
             if spectrogram_lengths[-1] > max_frames:
                 max_frames = spectrogram_lengths[-1] 
 
+        # convert collected lists to tensors
         utterance_lengths = torch.LongTensor(utterance_lengths)
         spectrogram_lengths = torch.LongTensor(spectrogram_lengths)
         speakers = None if not hp.multi_speaker else torch.LongTensor(speakers)
@@ -260,11 +293,12 @@ class TextToSpeechCollate():
 
         if self.sort_by_text_length:
             utterance_lengths, sorted_idxs = torch.sort(utterance_lengths, descending=True)
+            # permute other tensors according to sorted_idx
             spectrogram_lengths = spectrogram_lengths[sorted_idxs]
             if speakers is not None: speakers = speakers[sorted_idxs]
             if languages is not None: 
                 languages = languages[sorted_idxs]
-                # convert a vector of language indices into a vector of one-hots
+                # convert a vector of language indices into a vector of one-hots (used as weight vectors for accent control)
                 one_hots = torch.zeros(languages.size(0), languages.size(1), hp.language_number).zero_()
                 languages = one_hot.scatter_(2, languages.data, 1)
         else:

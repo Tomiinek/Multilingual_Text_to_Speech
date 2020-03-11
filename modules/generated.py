@@ -5,12 +5,11 @@ from torch.nn import Linear, Sequential, ModuleList, ReLU, LSTM
 
 
 class Conv1dGenerated(torch.nn.Module):
-    """
-    One dimensional convolution with generated weights (each group has separate weights).
+    """One dimensional convolution with generated weights (each group has separate weights).
     
     Arguments:
-        embedding_dim -- size of the generator embedding (should be language embedding)
-        bottleneck_dim -- size of the layer between generated weights and generator embedding
+        embedding_dim -- size of the meta embedding (should be language embedding)
+        bottleneck_dim -- size of the generating embedding
         see torch.nn.Conv1d
     """
 
@@ -44,18 +43,16 @@ class Conv1dGenerated(torch.nn.Module):
 
 
 class BatchNorm1dGenerated(torch.nn.Module):
-
-    """
-    One dimensional batch normalization with generated weights (each group has separate parameters).
+    """One dimensional batch normalization with generated weights (each group has separate parameters).
     
     Arguments:
-        embedding_dim -- size of the generator embedding (should be language embedding)
-        bottleneck_dim -- size of the layer between generated parameters and generator embedding
-        groups -- number of groups with separate weights
+        embedding_dim -- size of the meta embedding (should be language embedding)
+        bottleneck_dim -- size of the generating embedding
         see torch.nn.BatchNorm1d
+    Keyword arguments:
+        groups -- number of groups with separate weights
     """
 
-    
     def __init__(self, embedding_dim, bottleneck_dim, num_features, groups=1, eps=1e-8, momentum=0.1):
         super(BatchNorm1dGenerated, self).__init__()
 
@@ -73,7 +70,8 @@ class BatchNorm1dGenerated(torch.nn.Module):
    
     def forward(self, generator_embedding, x):
 
-        assert generator_embedding.shape[0] == self._groups, ('Number of groups of a batchnorm layer must match the number of generators.')
+        assert generator_embedding.shape[0] == self._groups, (
+            'Number of groups of a batchnorm layer must match the number of generators.')
 
         if self._momentum is None:
             exponential_average_factor = 0.0

@@ -1,42 +1,33 @@
 import sys
 import os
-from collections import OrderedDict
 from datetime import datetime
 
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from params.params import Params as hp
 from utils import audio, text
+from utils import build_model, to_gpu
+from params.params import Params as hp
 from modules.tacotron2 import Tacotron
 from dataset.dataset import TextToSpeechDataset, TextToSpeechDatasetCollection, TextToSpeechCollate
 from utils.samplers import PerfectBatchSampler
 
+"""
 
-def to_gpu(x):
-    if x is None: return x
-    x = x.contiguous()
-    return x.cuda(non_blocking=True) if torch.cuda.is_available() else x
+*********************************************** INSTRUCTIONS ************************************************
+*                                                                                                           *
+*   The script computes and saves ground-truth aligned (GTA) spectrograms of a dataset it was trained on.   * 
+*   The GTA spectrograms are useful for training vocoders like WaveNet, WaveRNN or WaveGlow.                *
+*   This script uses the standard DataLoader as main trining loop, you can specify speakers whose will be   *
+*   utterances will be synthesized.                                                                         *
+*   Different models expect different lines, some have to specify speaker, language, etc.:                  *
+*   ID is used as name of the output file.                                                                  *
+*   Speaker and language IDs have to be the same as in parameters (see hp.languages and hp.speakers).       *
+*                                                                                                           *
+*************************************************************************************************************
 
-
-def remove_dataparallel_prefix(state_dict): 
-    new_state_dict = OrderedDict()
-    for k, v in state_dict.items():
-        name = k[7:]
-        new_state_dict[name] = v
-    return new_state_dict
-
-
-def build_model(checkpoint):   
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    state = torch.load(checkpoint, map_location=device)
-    hp.load_state_dict(state['parameters'])
-    model = Tacotron()
-    model.load_state_dict(remove_dataparallel_prefix(state['model']))   
-    model.to(device)
-    return model
-
+"""
 
 if __name__ == '__main__':
     import argparse

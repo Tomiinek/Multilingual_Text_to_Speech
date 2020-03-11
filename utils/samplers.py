@@ -4,7 +4,11 @@ from dataset.dataset import TextToSpeechDataset
 
 
 class RandomImbalancedSampler(Sampler):
-    """Samples randomly imbalanced dataset (with repetition)."""
+    """Samples randomly imbalanced dataset (with repetition).
+    
+    Argument:
+        data_source -- instance of TextToSpeechDataset
+    """
 
     def __init__(self, data_source):
 
@@ -61,7 +65,6 @@ class PerfectBatchSampler(Sampler):
                                  to ensure that B (or smaller batch if drop_last is False) is divisible by (L * this_argument) 
         shuffle -- if True, samples randomly, otherwise samples sequentially 
         drop_last -- if True, drops last imcomplete batch
-        
     """
 
     def __init__(self, data_source, languages, batch_size, data_parallel_devices=1, shuffle=True, drop_last=False):
@@ -116,4 +119,4 @@ class PerfectBatchSampler(Sampler):
         
     def __len__(self):
         language_batch_size = self._batch_size // len(self._samplers)
-        return min(((len(s) + language_batch_size - 1) // language_batch_size) for s in self._samplers) 
+        return min(((len(s) + language_batch_size - 1) // language_batch_size) for s in self._samplers)
