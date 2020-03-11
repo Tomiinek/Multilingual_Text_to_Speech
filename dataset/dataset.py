@@ -262,7 +262,11 @@ class TextToSpeechCollate():
             utterance_lengths, sorted_idxs = torch.sort(utterance_lengths, descending=True)
             spectrogram_lengths = spectrogram_lengths[sorted_idxs]
             if speakers is not None: speakers = speakers[sorted_idxs]
-            if languages is not None: languages = languages[sorted_idxs]
+            if languages is not None: 
+                languages = languages[sorted_idxs]
+                # convert a vector of language indices into a vector of one-hots
+                one_hots = torch.zeros(languages.size(0), languages.size(1), hp.language_number).zero_()
+                languages = one_hot.scatter_(2, languages.data, 1)
         else:
             sorted_idxs = range(batch_size)
         

@@ -66,6 +66,7 @@ class ConditionalEncoder(torch.nn.Module):
         self._encoder = Encoder(*encoder_args)
 
     def forward(self, x, x_lenghts, x_langs):  
+        x_langs = torch.argmax(x_langs, dim=2)
         l = self._language_embedding(x_langs)
         x = torch.cat((x, l), dim=-1) 
         x = self._encoder(x, x_lenghts)
@@ -88,13 +89,14 @@ class MultiEncoder(torch.nn.Module):
 
     def forward(self, x, x_lenghts, x_langs):
         xs = None
+        x_langs_normed = x_langs / x_langs.sum(2, keepdim=True)[0]
         for l in range(self._num_langs):
-            mask = (x_langs == l)
-            if not mask.any(): continue
+            w = x_langs_normed[:,:,l].reshape(-1,1)
+            if not w.bool().any(): continue
             ex = self._encoders[l](x, x_lenghts)
             if xs is None:
                 xs = torch.zeros_like(ex)
-            xs[mask] = ex[mask]
+            xs += w * ex
         return xs
 
 
@@ -147,9 +149,10 @@ class ConvolutionalEncoder(torch.nn.Module):
 
         if x_langs is not None and x_langs.shape[0] == 1:
             xr = torch.zeros(1, x.shape[1], x.shape[2])
+            x_langs_normed = x_langs / x_langs.sum(2, keepdim=True)[0]
             for l in range(self._groups):
-                mask = (x_langs[0] == l)
-                xr[0,mask] = x[l][mask]
+                w = x_langs_normed[0,:,l].reshape(-1,1)
+                xr[0] += w * x[l]
             x = xr
 
         return x
@@ -209,9 +212,10 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
 
         if x_langs is not None and x_langs.shape[0] == 1:
             xr = torch.zeros(1, x.shape[1], x.shape[2])
+            x_langs_normed = x_langs / x_langs.sum(2, keepdim=True)[0]
             for l in range(self._groups):
-                mask = (x_langs[0] == l)
-                xr[0,mask] = x[l][mask]
+                w = x_langs_normed[0,:,l].reshape(-1,1)
+                xr[0] += w * x[l]
             x = xr
 
         return x

@@ -13,7 +13,7 @@ import sys
 def remove_dataparallel_prefix(state_dict): 
     new_state_dict = OrderedDict()
     for k, v in state_dict.items():
-        name = k[7:]
+        name = k[7:] if k[:7] == "module." else k
         new_state_dict[name] = v
     return new_state_dict
 
@@ -23,8 +23,7 @@ def build_model(checkpoint, force_cpu=False):
     state = torch.load(checkpoint, map_location=device)
     hp.load_state_dict(state['parameters'])
     model = Tacotron()
-    # remove_dataparallel_prefix(state['model'])
-    model.load_state_dict(state['model'])   
+    model.load_state_dict(remove_dataparallel_prefix(state['model']))   
     model.to(device)
     return model
 
@@ -55,6 +54,10 @@ if __name__ == '__main__':
     # - with per-character language:            id|single input utterance|speaker|l1-(length of l1),l2-(length of l2),l1
     #                                           where the last language takes all remaining character
     #                                           exmaple: "guten tag jean-paul.|speaker|de-10,fr-9,de"
+    #                                           accent can be controlled by weighting per-language characters
+    #                                           language codes must be separated by : and weights are assigned using '*number'
+    #                                           example: "guten tag jean-paul.|speaker|de-10,fr*0.75:de*0.25-9,de"
+    #                                           the number does not have to sum up to one because they are normalized later 
     # id is used as output file name!
 
     inputs = [l.rstrip().split('|') for l in sys.stdin.readlines() if l]
@@ -81,7 +84,12 @@ if __name__ == '__main__':
             l = []
             for token in l_tokens:
                 l_d = token.split('-')
-                language = hp.languages.index(l_d[0])
+ 
+                language = [0] * hp.language_number
+                for l_cw in l_d[0].split(':'):
+                    l_cw_s = l_cw.split('*')
+                    language[hp.languages.index(l_cw_s[0])] = 1 if len(l_cw_s) == 1 else float(l_cw_s[1])
+
                 language_length = (int(l_d[1]) if len(l_d) == 2 else t_length)
                 l += [language] * language_length
                 t_length -= language_length     

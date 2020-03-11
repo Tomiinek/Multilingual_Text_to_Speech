@@ -382,7 +382,7 @@ class Tacotron(torch.nn.Module):
 
     def forward(self, text, text_length, target, target_length, speakers, languages, teacher_forcing_ratio=0.0): 
 
-        # enlarge speakers and languages if needed
+        # enlarge speakers and languages to match sentence length if needed
         if speakers is not None and speakers.dim() == 1:
             speakers = speakers.unsqueeze(1).expand((-1, text.size(1)))
         if languages is not None and languages.dim() == 1:
@@ -406,6 +406,7 @@ class Tacotron(torch.nn.Module):
             encoded = torch.cat((encoded, expanded_latent), dim=-1) 
           
         # Decode 
+        languages = torch.argmax(languages, dim=2) # convert one-hot into indices
         decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
@@ -443,6 +444,7 @@ class Tacotron(torch.nn.Module):
             encoded = torch.cat((encoded, expanded_latent), dim=-1) 
 
         # Decode with respect to speaker and language embeddings
+        language = torch.argmax(language, dim=2) # convert one-hot into indices
         prediction = self._decoder.inference(encoded, speaker, language)
 
         # Post process generated spectrogram
