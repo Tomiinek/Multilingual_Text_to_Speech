@@ -1,20 +1,20 @@
-Edsger Wybo Dijkstra sītèlā chū shēngyú lùtèdān， dàxué jìu dú yú Universiteit Leiden， yánjīu lǐlùn wùlǐ xué。|nl-20,zh-45,nl-19,zh|Edsger Wybo Dijkstra出生于鹿特丹，大學就讀於Universiteit Leiden，研究理論物理學。|艾兹赫尔·韦伯·戴克斯特拉出生于鹿特丹，大學就讀於萊頓大學，研究理論物理學。
-Vincent van Gogh de wǔwèi bóbó shūshū men， yǒu sānwèi shì xiāngdāng chénggōng de yìshùpǐn jiāoyìshāng。|nl-16,zh|Vincent van Gogh的五位伯伯叔叔們，有三位是相當成功的藝術品交易商。|梵高的五位伯伯叔叔們，有三位是相當成功的藝術品交易商。
-qióngkùn lǎodǎo de van Gogh zhǐnéngkào zhù dìdì jìlái de qián gòumǎi hùihuà yòngpǐn， měitiān gùdìng zhǐ chī miàn bāo，|zh-19,nl-8,zh|窮困潦倒的van Gogh只能靠著弟弟寄來的錢購買繪畫用品，每天固定只吃麵包、|窮困潦倒的梵高只能靠著弟弟寄來的錢購買繪畫用品，每天固定只吃麵包、
-jì shǐ dào le xiànjīn， Maastricht rén réngrán bǎolíu zháo tāmen zìjǐ de yǔyán hé wénhuà，|zh-23,nl-10,zh|既使到了现今，Maastricht人 仍然保留着他们自己的语言和文化，|既使到了现今，马斯特里赫特人 仍然保留着他们自己的语言和文化，
-zhùrù Zuiderzee de Ijssel shì Rhein de chūhǎi fēnzhī zhīyī；|zh-6,nl-9,zh-4,nl-6,zh-5,nl-5,zh|注入Zuiderzee的Ijssel是Rhein的出海分支之一；|注入須德海的艾瑟爾河是萊茵河的出海分支之一；
-Johannes Vermeer zuòpǐn dàduō shùmiáo hùiníngjìng、 héxié de jiātíng shēnghuó，|nl-16,zh|Johannes Vermeer作品大多數描繪寧靜、和諧的家庭生活，|維梅爾作品大多數描繪寧靜、和諧的家庭生活，
-chúle Friesland shěngwài， géluóníng gēnshěng dōngbù yě yǒu xiǎo bùfēn dìqū shǐyòng gāi yǔyán。|zh-6,nl-9,zh|除了Friesland外，Groningen東部也有小部分地區使用該語言。|除了弗里斯兰省外，格羅寧根省東部也有小部分地區使用該語言。
-háobùyǎnshì shíjiān yǔ sùiyuè zài mótè shēnshàng líuxià de yìnjì shì Rembrandt zuòpǐn de yīdà tèdiǎn。|zh-69,nl-9,zh|毫不掩饰时间与岁月在模特身上留下的印记是Rembrandt作品的一大特点。|毫不掩饰时间与岁月在模特身上留下的印记是林布蘭作品的一大特点。
-Rembrandt Harmenszoon van Rijn de dǐngfēng zhīzuò dāngshǔ xiàoxiànghuà bāokuò zìhuàxiàng yǐjí qǔzì shèngjīng nèiróng de hùihuà。|nl-30,zh|Rembrandt Harmenszoon van Rijn的顶峰之作当属肖像画包括自画像以及取自圣经内容的绘画。|林布蘭的顶峰之作当属肖像画包括自画像以及取自圣经内容的绘画。
-dào le wǎnnián shí， Hieronymus Bosch de fēnggé yǐ yǒusuǒ zhuǎnbiàn， gǎiyǐ miáohùi dàxíng，|zh-20,nl-16,zh|到了晚年時，Hieronymus Bosch的風格已有所轉變，改以描繪大型、|到了晚年時，博斯的風格已有所轉變，改以描繪大型、
-Pieter Bruegel zhuāncháng yú miáoxiě jūzhù xiāngjiān de xiāngmín shēnghuó， xiāngjiào yú dāngshí fēngxíng de yì dàlì huàpài，|nl-14,zh|Pieter Bruegel爾專長於描寫居住鄉間的鄉民生活，相較於當時風行的義大利畫派，|布呂赫爾專長於描寫居住鄉間的鄉民生活，相較於當時風行的義大利畫派，
-zhè duànshíjiān Jan Hendrik Oort zhǔyào cóngshì héngxīng yùndòngxué， tèbié shì gāosù xīng fāngmiàn de yánjīu。|zh-16,nl-16,zh|这段时间Jan Hendrik Oort主要从事恒星运动学，特别是高速星方面的研究。|这段时间奥尔特主要从事恒星运动学，特别是高速星方面的研究。
-Jan Oort huánshì shǎoshùjīgè lv̀xiān rènshì dào léidá hé wúxiàndiàn jìzhú zài tiānwénxué shàng de zhòngyào zuòyòng de kēxuéjiā zhīyī。|nl-8,zh|Jan Oort还是少数几个率先认识到雷达和无线电技术在天文学上的重要作用的科学家之一。|奥尔特还是少数几个率先认识到雷达和无线电技术在天文学上的重要作用的科学家之一。
-Guido van Rossum tóngshí jìnxíng zhèngzài biānjí ABC chéngxùshèjì yǔyán de kāifā。|nl-16,zh|Guido van Rossum同时进行正在编辑ABC程序设计语言的开发。|吉多·范罗苏姆同时进行正在编辑ABC程序设计语言的开发。
-píngjièzháo lādīngyǔ， Baruch de Spinoza déyǐ jiēhóng díqiǎěr děng rén de zhùzuò|zh-22,nl-17,zh|凭借着拉丁语，Baruch de Spinoza得以接触笛卡尔等人的著作。|凭借着拉丁语，斯宾诺莎得以接触笛卡尔等人的著作。
-Baruch de Spinoza rènwèi， gǎnxìng suǒ gǎnzhī de yīqiē dū jǐnjǐn qiě jǐn néng tōngguò zùigāo shítǐ de cúnzài ér cúnzài，|nl-17,zh|Baruch de Spinoza认为，感性所感知的一切都仅仅且仅能通过最高实体的存在而存在，|斯宾诺莎认为，感性所感知的一切都仅仅且仅能通过最高实体的存在而存在，
-yī lāsīmó yuánmíng Gerrit Gerritszoon|zh-19,nl|伊拉斯谟原名Gerrit Gerritszoon|
-dú bóshì shíqī Erasmus von Rotterdam xuǎnzé wàisù， bìmiǎn jiàohùi shùfú tā de sīxiǎng zìyóu jí wénxuébiǎodá。|zh-15,nl-21,zh|讀博士時期Erasmus von Rotterdam選擇外宿，避免教會束縛他的思想自由及文學表達。|讀博士時期的伊拉斯谟選擇外宿，避免教會束縛他的思想自由及文學表達。
-zài jiēxià lái de yīgè bànshì jì Paleis Huis ten Bosch de yōngyǒuzhě biàn bùduàn gènghuàn，|zh-33,nl-21,zh|在接下來的一個半世紀Paleis Huis ten Bosch的擁有者便不斷更換，|在接下來的一個半世紀豪斯登堡宮的擁有者便不斷更換，
-Willem de Kooning huà zhōng de nv̌rén xíngxiàng chángcháng zīyáliězǔi， yǔ chuántǒng gǔdiǎn měinv̌ jiǒngránbùtóng，|nl-17,zh|Willem de Kooning画中的女人形象常常龇牙咧嘴，与传统古典美女迥然不同，|德·库宁画中的女人形象常常龇牙咧嘴，与传统古典美女迥然不同，
+000361|Edsger Wybo Dijkstra sītèlā chū shēngyú lùtèdān， dàxué jìu dú yú Universiteit Leiden， yánjīu lǐlùn wùlǐ xué。|00-zh|nl-20,zh-45,nl-19,zh|Edsger Wybo Dijkstra出生于鹿特丹，大學就讀於Universiteit Leiden，研究理論物理學。|艾兹赫尔·韦伯·戴克斯特拉出生于鹿特丹，大學就讀於萊頓大學，研究理論物理學。
+000362|Vincent van Gogh de wǔwèi bóbó shūshū men， yǒu sānwèi shì xiāngdāng chénggōng de yìshùpǐn jiāoyìshāng。|00-zh|nl-16,zh|Vincent van Gogh的五位伯伯叔叔們，有三位是相當成功的藝術品交易商。|梵高的五位伯伯叔叔們，有三位是相當成功的藝術品交易商。
+000363|qióngkùn lǎodǎo de van Gogh zhǐnéngkào zhù dìdì jìlái de qián gòumǎi hùihuà yòngpǐn， měitiān gùdìng zhǐ chī miàn bāo，|00-zh|zh-19,nl-8,zh|窮困潦倒的van Gogh只能靠著弟弟寄來的錢購買繪畫用品，每天固定只吃麵包、|窮困潦倒的梵高只能靠著弟弟寄來的錢購買繪畫用品，每天固定只吃麵包、
+000364|jì shǐ dào le xiànjīn， Maastricht rén réngrán bǎolíu zháo tāmen zìjǐ de yǔyán hé wénhuà，|00-zh|zh-23,nl-10,zh|既使到了现今，Maastricht人 仍然保留着他们自己的语言和文化，|既使到了现今，马斯特里赫特人 仍然保留着他们自己的语言和文化，
+000365|zhùrù Zuiderzee de Ijssel shì Rhein de chūhǎi fēnzhī zhīyī；|00-zh|zh-6,nl-9,zh-4,nl-6,zh-5,nl-5,zh|注入Zuiderzee的Ijssel是Rhein的出海分支之一；|注入須德海的艾瑟爾河是萊茵河的出海分支之一；
+000366|Johannes Vermeer zuòpǐn dàduō shùmiáo hùiníngjìng、 héxié de jiātíng shēnghuó，|00-zh|nl-16,zh|Johannes Vermeer作品大多數描繪寧靜、和諧的家庭生活，|維梅爾作品大多數描繪寧靜、和諧的家庭生活，
+000367|chúle Friesland shěngwài， géluóníng gēnshěng dōngbù yě yǒu xiǎo bùfēn dìqū shǐyòng gāi yǔyán。|00-zh|zh-6,nl-9,zh|除了Friesland外，Groningen東部也有小部分地區使用該語言。|除了弗里斯兰省外，格羅寧根省東部也有小部分地區使用該語言。
+000368|háobùyǎnshì shíjiān yǔ sùiyuè zài mótè shēnshàng líuxià de yìnjì shì Rembrandt zuòpǐn de yīdà tèdiǎn。|00-zh|zh-69,nl-9,zh|毫不掩饰时间与岁月在模特身上留下的印记是Rembrandt作品的一大特点。|毫不掩饰时间与岁月在模特身上留下的印记是林布蘭作品的一大特点。
+000369|Rembrandt Harmenszoon van Rijn de dǐngfēng zhīzuò dāngshǔ xiàoxiànghuà bāokuò zìhuàxiàng yǐjí qǔzì shèngjīng nèiróng de hùihuà。|00-zh|nl-30,zh|Rembrandt Harmenszoon van Rijn的顶峰之作当属肖像画包括自画像以及取自圣经内容的绘画。|林布蘭的顶峰之作当属肖像画包括自画像以及取自圣经内容的绘画。
+000370|dào le wǎnnián shí， Hieronymus Bosch de fēnggé yǐ yǒusuǒ zhuǎnbiàn， gǎiyǐ miáohùi dàxíng，|00-zh|zh-20,nl-16,zh|到了晚年時，Hieronymus Bosch的風格已有所轉變，改以描繪大型、|到了晚年時，博斯的風格已有所轉變，改以描繪大型、
+000371|Pieter Bruegel zhuāncháng yú miáoxiě jūzhù xiāngjiān de xiāngmín shēnghuó， xiāngjiào yú dāngshí fēngxíng de yì dàlì huàpài，|00-zh|nl-14,zh|Pieter Bruegel爾專長於描寫居住鄉間的鄉民生活，相較於當時風行的義大利畫派，|布呂赫爾專長於描寫居住鄉間的鄉民生活，相較於當時風行的義大利畫派，
+000372|zhè duànshíjiān Jan Hendrik Oort zhǔyào cóngshì héngxīng yùndòngxué， tèbié shì gāosù xīng fāngmiàn de yánjīu。|00-zh|zh-16,nl-16,zh|这段时间Jan Hendrik Oort主要从事恒星运动学，特别是高速星方面的研究。|这段时间奥尔特主要从事恒星运动学，特别是高速星方面的研究。
+000373|Jan Oort huánshì shǎoshùjīgè lv̀xiān rènshì dào léidá hé wúxiàndiàn jìzhú zài tiānwénxué shàng de zhòngyào zuòyòng de kēxuéjiā zhīyī。|00-zh|nl-8,zh|Jan Oort还是少数几个率先认识到雷达和无线电技术在天文学上的重要作用的科学家之一。|奥尔特还是少数几个率先认识到雷达和无线电技术在天文学上的重要作用的科学家之一。
+000374|Guido van Rossum tóngshí jìnxíng zhèngzài biānjí ABC chéngxùshèjì yǔyán de kāifā。|00-zh|nl-16,zh|Guido van Rossum同时进行正在编辑ABC程序设计语言的开发。|吉多·范罗苏姆同时进行正在编辑ABC程序设计语言的开发。
+000375|píngjièzháo lādīngyǔ， Baruch de Spinoza déyǐ jiēhóng díqiǎěr děng rén de zhùzuò|00-zh|zh-22,nl-17,zh|凭借着拉丁语，Baruch de Spinoza得以接触笛卡尔等人的著作。|凭借着拉丁语，斯宾诺莎得以接触笛卡尔等人的著作。
+000376|Baruch de Spinoza rènwèi， gǎnxìng suǒ gǎnzhī de yīqiē dū jǐnjǐn qiě jǐn néng tōngguò zùigāo shítǐ de cúnzài ér cúnzài，|00-zh|nl-17,zh|Baruch de Spinoza认为，感性所感知的一切都仅仅且仅能通过最高实体的存在而存在，|斯宾诺莎认为，感性所感知的一切都仅仅且仅能通过最高实体的存在而存在，
+000377|yī lāsīmó yuánmíng Gerrit Gerritszoon|00-zh|zh-19,nl|伊拉斯谟原名Gerrit Gerritszoon|
+000378|dú bóshì shíqī Erasmus von Rotterdam xuǎnzé wàisù， bìmiǎn jiàohùi shùfú tā de sīxiǎng zìyóu jí wénxuébiǎodá。|00-zh|zh-15,nl-21,zh|讀博士時期Erasmus von Rotterdam選擇外宿，避免教會束縛他的思想自由及文學表達。|讀博士時期的伊拉斯谟選擇外宿，避免教會束縛他的思想自由及文學表達。
+000379|zài jiēxià lái de yīgè bànshì jì Paleis Huis ten Bosch de yōngyǒuzhě biàn bùduàn gènghuàn，|00-zh|zh-33,nl-21,zh|在接下來的一個半世紀Paleis Huis ten Bosch的擁有者便不斷更換，|在接下來的一個半世紀豪斯登堡宮的擁有者便不斷更換，
+000380|Willem de Kooning huà zhōng de nv̌rén xíngxiàng chángcháng zīyáliězǔi， yǔ chuántǒng gǔdiǎn měinv̌ jiǒngránbùtóng，|00-zh|nl-17,zh|Willem de Kooning画中的女人形象常常龇牙咧嘴，与传统古典美女迥然不同，|德·库宁画中的女人形象常常龇牙咧嘴，与传统古典美女迥然不同，

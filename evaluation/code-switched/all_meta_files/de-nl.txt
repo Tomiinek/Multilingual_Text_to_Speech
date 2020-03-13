@@ -1,0 +1,20 @@
+000101|Vincent Willem van Gogh war ein niederländischer Maler und Zeichner.|00-de|nl-23,de
+000102|Rembrandt Harmenszoon van Rijn gilt als einer der bedeutendsten und bekanntesten niederländischen Künstler des Barocks.|00-de|nl-30,de
+000103|Dennoch fand er probeweise eine Anstellung als Hilfsprediger im Borinage bei Mons, einem belgischen Steinkohlerevier,|00-de|de-64,nl-17,de
+000104|Ungefähr ein Fünftel der Landesfläche ist mit Wasser bedeckt, wovon das Ijsselmeer den größten Teil ausmacht,|00-de|de-72,nl-10,de
+000105|In der Folge wurden Teile der ehemaligen Zuiderzee als Polder trockengelegt,|00-de|de-41,nl-9,de
+000106|Sie liegt zwischen dem Ijsselmeer, der Ijssel und den Hügeln der Veluwe|00-de|de-23,nl-10,de-6,nl-6,de-20,nl
+000107|Edsger Wybe Dijkstra war ein niederländischer Informatiker. Er war der Wegbereiter der strukturierten Programmierung.|00-de|nl-20,de
+000108|Ijsselstein ist eine Gemeinde in der niederländischen Provinz Utrecht.|00-de|nl-11,de-51,nl-7,de
+000109|Die Koninklijke Luchtmacht der Niederlande, ist eine der vier niederländischen Teilstreitkräfte.|00-de|de-4,nl-22,de
+000110|Dennis Luyt ist ein niederländischer Generalleutnant und der Befehlshaber der niederländischen Luftstreitkräfte.|00-de|nl-11,de
+000111|Zijlstra sprach sich auch dafür aus, Langzeitstudenten mit einer Extra-Abgabe zu belegen.|00-de|nl-8,de
+000112|Boost begann als Zeichenlehrer und arbeitete anschließend für die Toonder studios des Zeichners Marten Toonder.|00-de|nl-5,de-60,nl-7,de-23,nl-14,de
+000113|Als katholisches Blatt konkurrierte De Tijd hauptsächlich mit De Maasbode und Het Spectrum,|00-de|de-17,nl-26,de-19,nl-11,de-5,nl-12,de
+000114|Die Katholieke Volkspartij war eine konfessionelle niederländische politische Partei,|00-de|de-4,nl-22,de
+000115|Den Haag wurde in dieser Epoche mehrere Male geplündert und niedergebrannt.|00-de|nl-8,de
+000116|Die Volkspartij voor Vrijheid en Democratie ist eine konservativ liberale Partei in den Niederlanden.|00-de|de-4,nl-39,de
+000117|Nach dem Zweiten Weltkrieg hatte es kurzzeitig eine Partij van de Vrijheid gegeben.|00-de|de-52,nl-22,de
+000118|Die Situation wurde noch schlimmer, weil die Republik aus der Provinz Noord-Brabant hohe Steuern herauspresste.|00-de|de-70,nl-26,de
+000119|Feld geräumt hatte, sah man schließlich für De Tijd als Tageszeitung kein Land mehr,|00-de|de-44,nl-7,de
+000120|Bijleveld hat Verwaltungswissenschaft an der Universität Twente studiert.|00-de|nl-9,de-48,nl-6,de

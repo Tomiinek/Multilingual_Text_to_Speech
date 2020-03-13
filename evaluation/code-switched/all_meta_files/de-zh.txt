@@ -1,0 +1,20 @@
+000141|Die heutigen Provinzen húběishěng und húnánshěng, nördlich und südlich des Dongting-Sees,|00-de|de-23,zh-10,de-5,zh-10,de|Die heutigen Provinzen 湖北省 und 湖南省, nördlich und südlich des Dongting-Sees,
+000142|Als Generalsekretär stand zhào zǐyáng für eine offene Außenpolitik und für die Durchführung von wirtschaftlichen Reformen.|00-de|de-26,zh-11,de|Als Generalsekretär stand 趙紫陽 für eine offene Außenpolitik und für die Durchführung von wirtschaftlichen Reformen.
+000143|Die Frühere Song-Dynastie, auch líusòng genannt, war eine Epoche des chinesischen Kaiserreichs,|00-de|de-32,zh-7,de|Die Frühere Song-Dynastie, auch 劉宋 genannt, war eine Epoche des chinesischen Kaiserreichs,
+000144|táohóngjǐng war ein chinesischer Gelehrter und Alchemist aus der Zeit der lìuzhāo.|00-de|zh-11,de-63,zh-7,de|陶弘景 war ein chinesischer Gelehrter und Alchemist aus der Zeit der 六朝.
+000145|Geboren in der Provinz sìchuān, war dèngxiǎopíng unter den ersten chinesischen Arbeiter-Studenten,|00-de|de-23,zh-7,de-6,zh-12,de|Geboren in der Provinz 四川, war 鄧小平 unter den ersten chinesischen Arbeiter-Studenten,
+000146|wángxiǎoshuài wurde in shànghǎi geboren, verbrachte aber seine Kindheit und Jugend,|00-de|zh-13,de-10,zh-8,de|王小帥 wurde in 上海 geboren, verbrachte aber seine Kindheit und Jugend,
+000147|Damit ist wǔhànshì im Sommer eine der heißesten und feuchtesten Städte Chinas.|00-de|de-10,zh-8,de|Damit ist 武漢市 im Sommer eine der heißesten und feuchtesten Städte Chinas.
+000148|zhèng zhōushì ist eine bedeutende Industriestadt, sie ist ein überregionaler Verkehrsknotenpunkt,|00-de|zh-13,de|鄭州市 ist eine bedeutende Industriestadt, sie ist ein überregionaler Verkehrsknotenpunkt,
+000149|Auf Kreisebene setzt sich gànzhōushì aus drei Stadtbezirken,|00-de|de-26,zh-10,de|Auf Kreisebene setzt sich 赣州市 aus drei Stadtbezirken,
+000150|Wenn ausschließlich die administrativen Stadtgrenzen herangezogen werden, ist zhòngqìngshì die einwohnermäßig größte Stadt der Welt.|00-de|de-78,zh-12,de|Wenn ausschließlich die administrativen Stadtgrenzen herangezogen werden, ist 重庆市 die einwohnermäßig größte Stadt der Welt.
+000151|Die Unterprovinzstadt chéngdū hat durch das mehrfache Zusammenlegen kleinerer Verwaltungseinheiten ihre heutige Größe erreicht.|00-de|de-22,zh-7,de|Die Unterprovinzstadt 成都 hat durch das mehrfache Zusammenlegen kleinerer Verwaltungseinheiten ihre heutige Größe erreicht.
+000152|nánhùiqū war ein Stadtbezirk in der chinesischen regierungsunmittelbaren Stadt shànghǎi.|00-de|zh-8,de-71,zh-8,de|南汇区 war ein Stadtbezirk in der chinesischen regierungsunmittelbaren Stadt 上海. 
+000153|Die Deltabildung rückte die Hafenstadt shànghǎi, ursprünglich am Meer gegründet,|00-de|de-39,zh-8,de|Die Deltabildung rückte die Hafenstadt 上海, ursprünglich am Meer gegründet,
+000154|Von ihm leitet sich auch die traditionelle deutsche Benennung cháng jiāng ab.|00-de|de-62,zh-11,de|Von ihm leitet sich auch die traditionelle deutsche Benennung 長江 ab.
+000155|Eine der vielen alten Bezeichnungen nánjīng lautet beispielsweise jīnlíng oder shíchéng.|00-de|de-36,zh-7,de-23,zh-7,de-6,zh-8,de|Eine der vielen alten Bezeichnungen 南京 lautet beispielsweise 金陵 oder 石城.
+000156|Der tiānān ménguǎngcháng ist ein Platz im Zentrum von Peking, der Hauptstadt der Volksrepublik China.|00-de|de-4,zh-20,de|Der 天安門廣場 ist ein Platz im Zentrum von Peking, der Hauptstadt der Volksrepublik China.
+000157|Die Metropolregion běijīng, einschließlich des die eigentliche Stadt umgebenden Vorortgürtels|00-de|de-19,zh-7,de|Die Metropolregion 北京, einschließlich des die eigentliche Stadt umgebenden Vorortgürtels
+000158|Sie war sehr religiös und ihr Volksbuddhismus beeinflusste máozédōng für sein ganzes Leben.|00-de|de-59,zh-9,de|Sie war sehr religiös und ihr Volksbuddhismus beeinflusste 毛澤東 für sein ganzes Leben.
+000159|Unter anderem hat sich in shānxī im Neolithikum die frühe xiàzhāo herausgebildet.|00-de|de-26,zh-6,de-26,zh-7,de|Unter anderem hat sich in 山西 im Neolithikum die frühe 夏朝 herausgebildet.
+000160|Von dort aus fließt huáng hé durchwegs in Richtung Osten über die sānménxiá shǔilìshūnǐu,|00-de|de-20,zh-8,de-38,zh-22,de|Von dort aus fließt 黃河 durchwegs in Richtung Osten über die 三门峡水利枢纽,

@@ -1,0 +1,20 @@
+000001|Düsseldorf est une ville de l'ouest de l'Allemagne.|00-fr|de-10,fr
+000002|Düsseldorf se situe au milieu de la plaine de Rhénanie au confluent de la Düssel et du Rhein.|00-fr|de-10,fr-64,de-6,fr-7,de-5,fr
+000003|Aujourd'hui, la ville entière est souvent appelée à tort Garmisch, à la grande consternation des habitants de Partenkirchen.|00-fr|fr-57,de-8,fr-45,de-13,fr
+000004|Garmisch et Partenkirchen sont séparés pendant de nombreux siècles en conservant des identités très distinctes.|00-fr|de-8,fr-4,de-13,fr
+000005|Erwin Schrödinger est un physicien, philosophe et théoricien scientifique autrichien.|00-fr|de-17,fr
+000006|Cette requête s'explique par les relations peu conventionnelles que Schrödinger entretient avec les femmes:|00-fr|fr-68,de-11,fr
+000007|Le fait que Schrödinger ait ouvertement eu deux femmes, même si l'une d'elles était mariée à un autre,|00-fr|fr-12,de-11,fr
+000008|Lorsque l'entreprise devient la Bayerische Motoren Werke, ses dirigeants décident d'utiliser les couleurs de la Bavière.|00-fr|fr-32,de-24,fr
+000009|La vente a été signée à München par Joachim Milberg, président du groupe et Jacques Nasser, président du constructeur américain.|00-fr|fr-24,de-7,fr-5,de-15,fr
+000010|Son père avait étudié la théologie à Heidelberg et à Hamburg.|00-fr|fr-37,de-10,fr-6,de-7,fr
+000011|Horst Kasner part pour Templin dans le Brandeburg pour se consacrer à la fondation d'un centre pastoral de formation continue.|00-fr|de-12,fr-27,de-10,fr
+000012|Klaus Töpfer devient ensuite Secrétaire général adjoint des Nations unies,|00-fr|de-12,fr
+000013|Située à la frontière allemande, la ville est célèbre pour avoir vu naître Mozart.|00-fr|fr-75,de-6,fr
+000014|Le festival de musique classique de Salzburg est l'un des plus prestigieux au monde.|00-fr|fr-36,de-8,fr
+000015|Au siècle, la ville se baroquise, notamment sous les princes-archevêques Wolf Dietrich von Raitenau et Markus Sittikus von Hohenems.|00-fr|fr-73,de-26,fr-4,de-28,fr
+000016|Salzburg est parfois surnommée la ville aux cent églises.|00-fr|de-8,fr
+000017|Il est délimité au nord par la route Olmütz-Brünn et à l'ouest par la route Vienne-Brünn.|00-fr|fr-37,de-12,fr-27,de-12,fr
+000018|Le champ de bataille d'Austerlitz de nos jours avec en arrière-plan le village de Pratzen.|00-fr|fr-23,de-10,fr-49,de-7,fr
+000019|Les studios de Bavaria Film se trouvent à proximité dans le hameau de Geiselgasteig, c'est pourquoi Grünwald fut un lieu d'élection de nombreux acteurs allemands,|00-fr|fr-15,de-12,fr-43,de-13,fr-17,de-8,fr
+000020|Otto von Bismarck, le ministre de la Guerre Albrecht von Roon et le général Helmuth von Moltke.|00-fr|de-17,fr-27,de-17,fr-15,de-18,fr

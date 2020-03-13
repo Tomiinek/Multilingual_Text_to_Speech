@@ -1,0 +1,20 @@
+000081|Charles André Joseph Marie de Gaulle war ein französischer General und Staatsmann.|00-de|fr-36,de
+000082|Unter anderem förderte er dank Pierre Brossolette und besonders Jean Moulin die Résistance.|00-de|de-31,fr-18,de-15,fr-11,de-5,fr-10,de
+000083|Im April ersetzte de Gaulle den Premierminister Michel Debré durch Georges Pompidou.|00-de|de-18,fr-9,de-21,fr-12,de-7,fr-16,de
+000084|Jean Marie Bastien-Thiry war mit dessen Algerien-Politik nicht länger einverstanden.|00-de|fr-24,de
+000085|Sein Name wurde auch dem gegenwärtig letzten französischen Flugzeugträger, der Charles de Gaulle gegeben.|00-de|de-79,fr-17,de
+000086|Die römisch-katholische Kirche Notre-Dame de Paris ist die Kathedrale des Erzbistums Paris.|00-de|de-31,fr-19,de
+000087|Neben Molière oder Balzac gilt er vielen Franzosen als ihr größter Autor überhaupt.|00-de|de-6,fr-7,de-6,fr-6,de
+000088|Auf der Geburtsanzeige seines dritten Kindes nennt Hugo sich stolz Baron.|00-de|de-51,fr-4,de
+000089|Bei der Abfassung hatte Chateaubriand aber sicher auch opportunistische Motive:|00-de|de-24,fr-13,de
+000090|Er musste die Briefe, die er täglich an Juliette Récamier schrieb, diktieren und unterschrieb sie mit zitternder Hand.|00-de|de-40,fr-17,de
+000091|Die noch bewohnte Cité de Carcassonne wird von einem doppelten Mauerring umschlossen.|00-de|de-18,fr-19,de
+000092|Flussaufwärts sind die nächsten Brücken der Pont de Tancarville und der Pont de Brotonne.|00-de|de-44,fr-19,de-9,fr-16,de
+000093|Die Bevölkerung von Marseille war seit jeher stolz und unabhängig und im ganzen Land dafür bekannt,|00-de|de-20,fr-9,de
+000094|François Hollande ist ein französischer Politiker der Sozialistischen Partei und war Staatspräsident der Französischen Republik.|00-de|fr-17,de
+000095|Sein Amtssitz ist der Élysée-Palast in Paris.|00-de|de-22,fr-13,de
+000096|Versailles ist eine französische Stadt in der Region Île-de-France.|00-de|fr-10,de-43,fr-13,de
+000097|Die waldreichen Talhänge bilden mit dem Bois des Fonds des Maréchaux.|00-de|de-40,fr-28,de
+000098|Zu Beginn seiner Herrschaft hielt sich der Monarch allerdings jeweils nur für kurze Zeit in Versailles auf.|00-de|de-92,fr-10,de
+000099|In Versailles benötigten sie häufig nur angemietete Unterkünfte, wovon insbesondere die Gastwirtschaft profitierte.|00-de|de-3,fr-10,de
+000100|Nachdem der König der Nationalversammlung jedoch den Zutritt in das Hôtel des Menus Plaisirs verweigert hatte,|00-de|de-68,fr-24,de
