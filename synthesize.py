@@ -103,7 +103,7 @@ if __name__ == '__main__':
         s = audio.denormalize_spectrogram(s, not hp.predict_linear)
 
         if not os.path.exists(args.output):
-            os.mkdir(args.output) 
+            os.makedirs(args.output)
 
         if args.save_spec:
             np.save(os.path.join(args.output, f'{item[0]}.npy'), s)

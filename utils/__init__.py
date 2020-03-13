@@ -1,5 +1,7 @@
 import torch
 from collections import OrderedDict
+from params.params import Params as hp
+from modules.tacotron2 import Tacotron
 
 
 def lengths_to_mask(lengths, max_length=None):

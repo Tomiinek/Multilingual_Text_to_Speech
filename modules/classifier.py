@@ -1,7 +1,6 @@
 import torch
 from torch.nn import functional as F
 from torch.nn import Dropout, Sequential, Linear, Softmax
-from utils import lengths_to_mask
 
 
 class GradientReversalFunction(torch.autograd.Function):

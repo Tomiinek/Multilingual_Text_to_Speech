@@ -3,7 +3,7 @@ import torch
 from torch.nn import functional as F
 from torch.nn import Sequential, ModuleList, Linear, ReLU, Dropout, LSTM, Embedding
 
-from utils import lengths_to_mask
+import utils
 from modules.layers import ZoneoutLSTMCell, DropoutLSTMCell, ConvBlock
 from modules.attention import LocationSensitiveAttention, ForwardAttention, ForwardAttentionWithTransition
 from modules.encoder import Encoder, MultiEncoder, ConditionalEncoder, ConvolutionalEncoder, GeneratedConvolutionalEncoder
@@ -210,11 +210,11 @@ class Decoder(torch.nn.Module):
 
     def forward(self, encoded_input, encoded_lenghts, target, teacher_forcing_ratio, speaker, language):
         ml = encoded_input.size(1)
-        mask = lengths_to_mask(encoded_lenghts, max_length=ml)
+        mask = utils.lengths_to_mask(encoded_lenghts, max_length=ml)
         return self._decode(encoded_input, mask, target, teacher_forcing_ratio, speaker, language)
 
     def inference(self, encoded_input, speaker, language):
-        mask = lengths_to_mask(torch.LongTensor([encoded_input.size(1)]))
+        mask = utils.lengths_to_mask(torch.LongTensor([encoded_input.size(1)]))
         spectrogram, _, _ = self._decode(encoded_input, mask, None, 0.0, speaker, language)
         return spectrogram
      
