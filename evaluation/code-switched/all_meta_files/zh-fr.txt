@@ -15,6 +15,6 @@
 000335|yīngwáng zhānmǔsī èrshì bèi zhúhòu lùyìshísì jiāng Saint-Germain-en-Laye de gōngdiàn rànggěi zhānmǔsī èrshì zuò tā de bìnánsuǒ。|00-zh|zh-51,fr-21,zh|英王詹姆斯二世被逐后路易十四将Saint-Germain-en-Laye的宫殿让给詹姆斯二世做他的避难所。|英王詹姆斯二世被逐后路易十四将圣日耳曼昂莱的宫殿让给詹姆斯二世做他的避难所。
 000336|bùguò， sūirán yǒu zhèyàng deguān xì， kànbùchū Claude Debussy shòu guòshíme cháikěfūsījī de yǐngxiǎng。|00-zh|zh-46,fr-14,zh|不過，雖然有這樣的關係，看不出Claude Debussy受過什麼柴可夫斯基的影響。|不過，雖然有這樣的關係，看不出德布西受過什麼柴可夫斯基的影響。
 000337|wǔyuè líuxiě zhōu fāshēng hòu， bālígōngshè zāo zhènyā， Paul Verlaine yě duǒ le qǐlái。|00-zh|zh-55,fr-13,zh|五月流血周发生后，巴黎公社遭镇压，Paul Verlaine也躲了起来。|五月流血周发生后，巴黎公社遭镇压，魏尔伦也躲了起来。
-000338|Verlaine rùyù hòu， Arthur Rimbaud zhǐshēnyīrén húidào gùxiāng xiàlèwéiyà，|00-zh|fr-8,zh-11,fr-14,fr|Verlaine伦入狱后，Arthur Rimbaud只身一人回到故乡夏勒维亞，|魏尔伦入狱后，兰波只身一人回到故乡夏勒维亞，
+000338|Verlaine rùyù hòu， Arthur Rimbaud zhǐshēnyīrén húidào gùxiāng xiàlèwéiyà，|00-zh|fr-8,zh-11,fr-14,zh|Verlaine伦入狱后，Arthur Rimbaud只身一人回到故乡夏勒维亞，|魏尔伦入狱后，兰波只身一人回到故乡夏勒维亞，
 000339|Rimbaud de chuàngzuò shì fǎyǔ shīgē lìshǐ shàng de zhòngdà biàngé。|00-zh|fr-7,zh|Rimbaud的创作是法语诗歌历史上的重大变革。|兰波的创作是法语诗歌历史上的重大变革。
 000340|Jean Bernard Léon Foucault shēngyú fǎguóbālí， qí fùqīn shì bālí de yīmíng chūbǎnshāng。|00-zh|fr-26,zh|Jean Bernard Léon Foucault出生于法国巴黎，其父亲是巴黎的一名出版商。|傅科出生于法国巴黎，其父亲是巴黎的一名出版商。

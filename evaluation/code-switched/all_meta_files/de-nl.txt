@@ -9,7 +9,7 @@
 000109|Die Koninklijke Luchtmacht der Niederlande, ist eine der vier niederländischen Teilstreitkräfte.|00-de|de-4,nl-22,de
 000110|Dennis Luyt ist ein niederländischer Generalleutnant und der Befehlshaber der niederländischen Luftstreitkräfte.|00-de|nl-11,de
 000111|Zijlstra sprach sich auch dafür aus, Langzeitstudenten mit einer Extra-Abgabe zu belegen.|00-de|nl-8,de
-000112|Boost begann als Zeichenlehrer und arbeitete anschließend für die Toonder studios des Zeichners Marten Toonder.|00-de|nl-5,de-60,nl-7,de-23,nl-14,de
+000112|Boost begann als Zeichenlehrer und arbeitete anschließend für die Toonder studios des Zeichners Marten Toonder.|00-de|nl-5,de-61,nl-7,de-23,nl-14,de
 000113|Als katholisches Blatt konkurrierte De Tijd hauptsächlich mit De Maasbode und Het Spectrum,|00-de|de-17,nl-26,de-19,nl-11,de-5,nl-12,de
 000114|Die Katholieke Volkspartij war eine konfessionelle niederländische politische Partei,|00-de|de-4,nl-22,de
 000115|Den Haag wurde in dieser Epoche mehrere Male geplündert und niedergebrannt.|00-de|nl-8,de
