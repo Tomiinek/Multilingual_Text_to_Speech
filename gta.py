@@ -77,8 +77,8 @@ if __name__ == '__main__':
             src, src_len, trg_mel, _, trg_len, _, spkrs, langs = batch
 
             # Run the model with enbaled teacher forcing (1.0)
-            prediction, _, _, _, _, _, _ = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
-            prediction = prediction.data.cpu().numpy()
+            predictions = model(src, src_len, trg_mel, trg_len, spkrs, langs, 1.0)
+            prediction = predictions[0].data.cpu().numpy()
         
             for idx in range(len(prediction)):
                 speaker = spkrs[idx] if spkrs is not None else 0

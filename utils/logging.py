@@ -149,7 +149,7 @@ class Logger:
     def _plot_alignment(alignment):
         fig = plt.figure(figsize=(6, 4))
         ax = fig.add_subplot(111)
-        cax = ax.imshow(alignment, origin='lower', aspect='auto', interpolation='none')
+        cax = ax.imshow(alignment, origin='lower', aspect='auto', interpolation='nearest')
         fig.colorbar(cax, ax=ax)
         plt.ylabel('Input index')
         plt.xlabel('Decoder step')
