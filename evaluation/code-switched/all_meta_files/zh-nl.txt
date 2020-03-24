@@ -4,7 +4,7 @@
 000364|jì shǐ dào le xiànjīn， Maastricht rén réngrán bǎolíu zháo tāmen zìjǐ de yǔyán hé wénhuà，|00-zh|zh-23,nl-10,zh|既使到了现今，Maastricht人 仍然保留着他们自己的语言和文化，|既使到了现今，马斯特里赫特人 仍然保留着他们自己的语言和文化，
 000365|zhùrù Zuiderzee de Ijssel shì Rhein de chūhǎi fēnzhī zhīyī；|00-zh|zh-6,nl-9,zh-4,nl-6,zh-5,nl-5,zh|注入Zuiderzee的Ijssel是Rhein的出海分支之一；|注入須德海的艾瑟爾河是萊茵河的出海分支之一；
 000366|Johannes Vermeer zuòpǐn dàduō shùmiáo hùiníngjìng、 héxié de jiātíng shēnghuó，|00-zh|nl-16,zh|Johannes Vermeer作品大多數描繪寧靜、和諧的家庭生活，|維梅爾作品大多數描繪寧靜、和諧的家庭生活，
-000367|chúle Friesland shěngwài， géluóníng gēnshěng dōngbù yě yǒu xiǎo bùfēn dìqū shǐyòng gāi yǔyán。|00-zh|zh-6,nl-9,zh|除了Friesland外，Groningen東部也有小部分地區使用該語言。|除了弗里斯兰省外，格羅寧根省東部也有小部分地區使用該語言。
+000367|chúle Friesland shěngwài， Groningen dōngbù yě yǒu xiǎo bùfēn dìqū shǐyòng gāi yǔyán。|00-zh|zh-6,nl-9,zh-11,nl-9,zh|除了Friesland外，Groningen東部也有小部分地區使用該語言。|除了弗里斯兰省外，格羅寧根省東部也有小部分地區使用該語言。
 000368|háobùyǎnshì shíjiān yǔ sùiyuè zài mótè shēnshàng líuxià de yìnjì shì Rembrandt zuòpǐn de yīdà tèdiǎn。|00-zh|zh-69,nl-9,zh|毫不掩饰时间与岁月在模特身上留下的印记是Rembrandt作品的一大特点。|毫不掩饰时间与岁月在模特身上留下的印记是林布蘭作品的一大特点。
 000369|Rembrandt Harmenszoon van Rijn de dǐngfēng zhīzuò dāngshǔ xiàoxiànghuà bāokuò zìhuàxiàng yǐjí qǔzì shèngjīng nèiróng de hùihuà。|00-zh|nl-30,zh|Rembrandt Harmenszoon van Rijn的顶峰之作当属肖像画包括自画像以及取自圣经内容的绘画。|林布蘭的顶峰之作当属肖像画包括自画像以及取自圣经内容的绘画。
 000370|dào le wǎnnián shí， Hieronymus Bosch de fēnggé yǐ yǒusuǒ zhuǎnbiàn， gǎiyǐ miáohùi dàxíng，|00-zh|zh-20,nl-16,zh|到了晚年時，Hieronymus Bosch的風格已有所轉變，改以描繪大型、|到了晚年時，博斯的風格已有所轉變，改以描繪大型、
