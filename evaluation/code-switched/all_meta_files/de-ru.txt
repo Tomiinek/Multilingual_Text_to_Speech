@@ -1,20 +1,20 @@
-000121|Александр Сергеевич Пушкин gilt als russischer Nationaldichter und Begründer der modernen russischen Literatur.|00-de|ru-26,de
-000122|Александр Иванович Пушкин war verheiratet mit der baltischen Tänzerin Xenia Jurgenson.|00-de|ru-25,de
-000123|Пушкин wollte es nur kurz besuchen, doch verhinderte eine Choleraepidemie die Rückkehr nach Москва.|00-de|ru-6,de-86,ru-6,de
-000124|Der кремль ist das wichtigste Bauwerk in der Нижний Новгород Altstadt.|00-de|de-4,ru-6,de-35,ru-15,de
-000125|Siedlungskern von Екатеринбург bildeten eine Eisenhütte und im Quadrat angeordnete Wohngebäude.|00-de|de-18,ru-12,de
-000126|Auf ihrem Territorium verfügte die Советский Союз über Kohle und Eisenerz als mineralische Rohstoffe,|00-de|de-35,ru-14,de
-000127|Die von Горбачёв initiierten Reformen brachten keine Wachstumssteigerung.|00-de|de-8,ru-8,de
-000128|Фёдор Михайлович Достоевский schrieb neun Romane, zahlreiche Novellen und Erzählungen und ein umfangreiches Korpus an nichtfiktionalen Texten.|00-de|ru-28,de
-000129|Nach seiner offenen Agitation gegen die Anleihe war für Максим Горький eine Rückkehr nach Russland nicht möglich.|00-de|de-56,ru-14,de
-000130|Schon damals war Санкт-Петербург die zweitgrößte Stadt des Landes;|00-de|de-17,ru-15,de
-000131|Die wichtigste Stadt Камчаткаs, liegt an der Авачинская губа, die zu den größten Naturhäfen der Welt zählt.|00-de|de-21,ru-9,de-15,ru-15,de
-000132|Ключевская сопка erreicht ihre außerordentliche Höhe,|00-de|ru-16,de
-000133|Die Anfänge des russischen Волгоградs sind nicht näher beleuchtet.|00-de|de-27,ru-10,de
-000134|Im vorherigen Jahr war Александр Исаевич Солженицын an Krebs erkrankt.|00-de|de-23,ru-28,de
-000135|Mit Ernest Ansermet verband Игорь Стравинский eine intensive Arbeit an seinem Werk:|00-de|de-28,ru-17,de
-000136|Римский-Корсаков stammte aus der angesehenen Familie Римский-Корсаков,|00-de|ru-16,de-37,ru-16,de
-000137|Der лишний человек ist ein wiederkehrender Topos und Archetyp der russischen Literatur.|00-de|de-4,ru-14,de
-000138|In der Studie entwickelte Михаил Бахтин das kulturhistorische Konzept der Karnevalisierung:|00-de|de-26,ru-13,de
-000139|Schon früh wandte sich Бердяев gegen die Werte der Adelsgesellschaft und wurde Marxist.|00-de|de-23,ru-7,de
-000140|Der Roman Братья Карамазовы machte auf mich immer den Eindruck eines ausufendern Stückes,|00-de|de-10,ru-17,de
+000121|Александр Сергеевич Пушкин gilt als russischer Nationaldichter und Begründer der modernen russischen Literatur.|00-de|ru-26,de|Aleksandr Sergeevich Pushkin gilt als russischer Nationaldichter und Begründer der modernen russischen Literatur.
+000122|Александр Иванович Пушкин war verheiratet mit der baltischen Tänzerin Xenia Jurgenson.|00-de|ru-25,de|Aleksandr Ivanovich Pushkin war verheiratet mit der baltischen Tänzerin Xenia Jurgenson.
+000123|Пушкин wollte es nur kurz besuchen, doch verhinderte eine Choleraepidemie die Rückkehr nach Москва.|00-de|ru-6,de-86,ru-6,de|Pushkin wollte es nur kurz besuchen, doch verhinderte eine Choleraepidemie die Rückkehr nach Moskva.
+000124|Der кремль ist das wichtigste Bauwerk in der Нижний Новгород Altstadt.|00-de|de-4,ru-6,de-35,ru-15,de|Der Kremlʹ ist das wichtigste Bauwerk in der Nizhniĭ Novgorod Altstadt.
+000125|Siedlungskern von Екатеринбург bildeten eine Eisenhütte und im Quadrat angeordnete Wohngebäude.|00-de|de-18,ru-12,de|Siedlungskern von Ekaterinburg bildeten eine Eisenhütte und im Quadrat angeordnete Wohngebäude.
+000126|Auf ihrem Territorium verfügte die Советский Союз über Kohle und Eisenerz als mineralische Rohstoffe,|00-de|de-35,ru-14,de|Auf ihrem Territorium verfügte die Sovetskiĭ Soiuz über Kohle und Eisenerz als mineralische Rohstoffe,
+000127|Die von Горбачёв initiierten Reformen brachten keine Wachstumssteigerung.|00-de|de-8,ru-8,de|Die von Gorbachëv initiierten Reformen brachten keine Wachstumssteigerung.
+000128|Фёдор Михайлович Достоевский schrieb neun Romane, zahlreiche Novellen und Erzählungen und ein umfangreiches Korpus an nichtfiktionalen Texten.|00-de|ru-28,de|Fëdor Mikhaĭlovich Dostoevskiĭ schrieb neun Romane, zahlreiche Novellen und Erzählungen und ein umfangreiches Korpus an nichtfiktionalen Texten.
+000129|Nach seiner offenen Agitation gegen die Anleihe war für Максим Горький eine Rückkehr nach Russland nicht möglich.|00-de|de-56,ru-14,de|Nach seiner offenen Agitation gegen die Anleihe war für Maksim Gorkiĭ eine Rückkehr nach Russland nicht möglich.
+000130|Schon damals war Санкт-Петербург die zweitgrößte Stadt des Landes;|00-de|de-17,ru-15,de|Schon damals war Sankt-Peterburg die zweitgrößte Stadt des Landes;
+000131|Die wichtigste Stadt Камчаткаs, liegt an der Авачинская губа, die zu den größten Naturhäfen der Welt zählt.|00-de|de-21,ru-9,de-15,ru-15,de|Die wichtigste Stadt Kamchatkas, liegt an der Avachinskaia guba, die zu den größten Naturhäfen der Welt zählt.
+000132|Ключевская сопка erreicht ihre außerordentliche Höhe,|00-de|ru-16,de|Kliuchevskaia sopka erreicht ihre außerordentliche Höhe,
+000133|Die Anfänge des russischen Волгоградs sind nicht näher beleuchtet.|00-de|de-27,ru-10,de|Die Anfänge des russischen Volgograds sind nicht näher beleuchtet.
+000134|Im vorherigen Jahr war Александр Исаевич Солженицын an Krebs erkrankt.|00-de|de-23,ru-28,de|Im vorherigen Jahr war Aleksandr Isaevich Solzhenitsyn an Krebs erkrankt.
+000135|Mit Ernest Ansermet verband Игорь Стравинский eine intensive Arbeit an seinem Werk:|00-de|de-28,ru-17,de|Mit Ernest Ansermet verband Igorʹ Stravinskiĭ eine intensive Arbeit an seinem Werk:
+000136|Римский-Корсаков stammte aus der angesehenen Familie Римский-Корсаков,|00-de|ru-16,de-37,ru-16,de|Rimskiĭ-Korsakov stammte aus der angesehenen Familie Rimskiĭ-Korsakov,
+000137|Der лишний человек ist ein wiederkehrender Topos und Archetyp der russischen Literatur.|00-de|de-4,ru-14,de|Der lishniĭ chelovek ist ein wiederkehrender Topos und Archetyp der russischen Literatur.
+000138|In der Studie entwickelte Михаил Бахтин das kulturhistorische Konzept der Karnevalisierung:|00-de|de-26,ru-13,de|In der Studie entwickelte Mikhail Bakhtin das kulturhistorische Konzept der Karnevalisierung:
+000139|Schon früh wandte sich Бердяев gegen die Werte der Adelsgesellschaft und wurde Marxist.|00-de|de-23,ru-7,de|Schon früh wandte sich Berdiaev gegen die Werte der Adelsgesellschaft und wurde Marxist.
+000140|Der Roman Братья Карамазовы machte auf mich immer den Eindruck eines ausufendern Stückes,|00-de|de-10,ru-17,de|Der Roman Bratʹia Karamazovy machte auf mich immer den Eindruck eines ausufendern Stückes,

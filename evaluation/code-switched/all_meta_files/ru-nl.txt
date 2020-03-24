@@ -1,20 +1,20 @@
-000281|Помимо обсуждения специальных вопросов, в своих статьях и книгах Edsger Dijkstra последовательно отстаивал необходимость математического подхода к программированию,|09-ru|ru-65,nl-15,ru
-000282|Dijkstra отмечал, что принятие в Германии на правительственном уровне языка|09-ru|nl-8,ru
-000283|Пройдя полугодичный стаж, Vincent van Gogh намеревался поступить в Евангельскую школу для продолжения образования,|09-ru|ru-26,nl-16,ru
-000284|По своей тематике ранние работы van Goghа могут быть отнесены к реализму,|09-ru|ru-32,nl-8,ru
-000285|В силу стратегического местоположения Maastricht становился первым городом республики,|09-ru|ru-38,nl-10,ru
-000286|Поскольку к тому времени дворец в Haarlem графам был уже не нужен,|09-ru|ru-34,nl-7,ru
-000287|В этих выборах в списках кандидатов от Partij voor de Dieren числилось большое число так называемых|09-ru|ru-39,nl-21,ru
-000288|Johannes Vermeer van Delft был известным экспертом по вопросам искусства.|09-ru|nl-26,ru
-000289|Большинство работ Vermeerа представляют собой композиции в тщательно прописанном интерьере,|09-ru|ru-18,nl-8,ru
-000290|Amsterdam расположен на северо-западе Нидерландов в провинции Noord-Holland в устье реки Amstel на берегу залива Ijsselmeer.|09-ru|nl-9,ru-53,nl-13,ru-14,nl-6,ru-18,nl-10,ru
-000291|На протяжении практически всей своей истории сегодняшняя провинция Noord-Holland была неотъемлемой частью Голландии.|09-ru|ru-67,nl-13,ru
-000292|Деревня, выросшая в небольшой город Amsterdam, имела важное значение ввиду своего расположения в заливе Zuiderzee.|09-ru|ru-36,nl-9,ru-59,nl-9,ru
-000293|Планы относительно закрытия Zuiderzee разрабатывались более тридцати лет.|09-ru|ru-28,nl-9,ru
-000294|В том числе на месте Markermeerа планировалось создать польдер Markerwaard.|09-ru|ru-21,nl-10,ru-32,nl-11,ru
-000295|По обоим краям Houtribdijk расположены шлюзы.|09-ru|ru-15,nl-11,ru
-000296|Город Frjentsjer расположен на севере Нидерландов, в провинции Friesland.|09-ru|ru-6,nl-10,ru-47,nl-9,ru
-000297|Jean Henri van Swinden был одним из ведущих европейских учёных своего времени.|09-ru|nl-22,ru
-000298|Профессиональный футбольный клуб города Heerenveen, выступающий в голландской премьер-лиге.|09-ru|ru-40,nl-10,ru
-000299|В Лейдене Rembrandt Harmenszoon van Rijn посещал латинскую школу при университете, но наибольший интерес проявлял к живописи.|09-ru|ru-10,nl-30,ru
-000300|Rembrandt не женился на Hendrickje Stoffels, вероятнее всего потому,|09-ru|nl-9,ru-15,nl-19,ru
+000281|Помимо обсуждения специальных вопросов, в своих статьях и книгах Edsger Dijkstra последовательно отстаивал необходимость математического подхода к программированию,|09-ru|ru-65,nl-15,ru|Pomimo obsuzhdeniia spetsialʹnykh voprosov, v svoikh statʹiakh i knigakh Edsger Dijkstra posledovatelʹno otstaival neobkhodimostʹ matematicheskogo podkhoda k programmirovaniiu,
+000282|Dijkstra отмечал, что принятие в Германии на правительственном уровне языка|09-ru|nl-8,ru|Dijkstra otmechal, chto priniatie v Germanii na pravitelʹstvennom urovne iazyka
+000283|Пройдя полугодичный стаж, Vincent van Gogh намеревался поступить в Евангельскую школу для продолжения образования,|09-ru|ru-26,nl-16,ru|Proĭdia polugodichnyĭ stazh, Vincent van Gogh namerevalsia postupitʹ v Evangelʹskuiu shkolu dlia prodolzheniia obrazovaniia,
+000284|По своей тематике ранние работы van Goghа могут быть отнесены к реализму,|09-ru|ru-32,nl-8,ru|Po svoeĭ tematike rannie raboty van Gogha mogut bytʹ otneseny k realizmu,
+000285|В силу стратегического местоположения Maastricht становился первым городом республики,|09-ru|ru-38,nl-10,ru|V silu strategicheskogo mestopolozheniia Maastricht stanovilsia pervym gorodom respubliki,
+000286|Поскольку к тому времени дворец в Haarlem графам был уже не нужен,|09-ru|ru-34,nl-7,ru|Poskolʹku k tomu vremeni dvorets v Haarlem grafam byl uzhe ne nuzhen,
+000287|В этих выборах в списках кандидатов от Partij voor de Dieren числилось большое число так называемых|09-ru|ru-39,nl-21,ru|V ėtikh vyborakh v spiskakh kandidatov ot Partij voor de Dieren chislilosʹ bolʹshoe chislo tak nazyvaemykh
+000288|Johannes Vermeer van Delft был известным экспертом по вопросам искусства.|09-ru|nl-26,ru|Johannes Vermeer van Delft byl izvestnym ėkspertom po voprosam iskusstva.
+000289|Большинство работ Vermeerа представляют собой композиции в тщательно прописанном интерьере,|09-ru|ru-18,nl-8,ru|Bolʹshinstvo rabot Vermeera predstavliaiut soboĭ kompozitsii v tshchatelʹno propisannom interʹere,
+000290|Amsterdam расположен на северо-западе Нидерландов в провинции Noord-Holland в устье реки Amstel на берегу залива Ijsselmeer.|09-ru|nl-9,ru-53,nl-13,ru-14,nl-6,ru-18,nl-10,ru|Amsterdam raspolozhen na severo-zapade Niderlandov v provintsii Noord-Holland v ustʹe reki Amstel na beregu zaliva Ijsselmeer.
+000291|На протяжении практически всей своей истории сегодняшняя провинция Noord-Holland была неотъемлемой частью Голландии.|09-ru|ru-67,nl-13,ru|Na protiazhenii prakticheski vseĭ svoeĭ istorii segodniashniaia provintsiia Noord-Holland byla neot”emlemoĭ chastʹiu Gollandii.
+000292|Деревня, выросшая в небольшой город Amsterdam, имела важное значение ввиду своего расположения в заливе Zuiderzee.|09-ru|ru-36,nl-9,ru-59,nl-9,ru|Derevnia, vyrosshaia v nebolʹshoĭ gorod Amsterdam, imela vazhnoe znachenie vvidu svoego raspolozheniia v zalive Zuiderzee.
+000293|Планы относительно закрытия Zuiderzee разрабатывались более тридцати лет.|09-ru|ru-28,nl-9,ru|Plany otnositelʹno zakrytiia Zuiderzee razrabatyvalisʹ bolee tridtsati let.
+000294|В том числе на месте Markermeerа планировалось создать польдер Markerwaard.|09-ru|ru-21,nl-10,ru-32,nl-11,ru|V tom chisle na meste Markermeera planirovalosʹ sozdatʹ polʹder Markerwaard.
+000295|По обоим краям Houtribdijk расположены шлюзы.|09-ru|ru-15,nl-11,ru|Po oboim kraiam Houtribdijk raspolozheny shliuzy.
+000296|Город Frjentsjer расположен на севере Нидерландов, в провинции Friesland.|09-ru|ru-6,nl-10,ru-47,nl-9,ru|Gorod Frjentsjer raspolozhen na severe Niderlandov, v provintsii Friesland.
+000297|Jean Henri van Swinden был одним из ведущих европейских учёных своего времени.|09-ru|nl-22,ru|Jean Henri van Swinden byl odnim iz vedushchikh evropeĭskikh uchënykh svoego vremeni.
+000298|Профессиональный футбольный клуб города Heerenveen, выступающий в голландской премьер-лиге.|09-ru|ru-40,nl-10,ru|Professionalʹnyĭ futbolʹnyĭ klub goroda Heerenveen, vystupaiushchiĭ v gollandskoĭ premʹer-lige.
+000299|В Лейдене Rembrandt Harmenszoon van Rijn посещал латинскую школу при университете, но наибольший интерес проявлял к живописи.|09-ru|ru-10,nl-30,ru|V Leĭdene Rembrandt Harmenszoon van Rijn poseshchal latinskuiu shkolu pri universitete, no naibolʹshiĭ interes proiavlial k zhivopisi.
+000300|Rembrandt не женился на Hendrickje Stoffels, вероятнее всего потому,|09-ru|nl-9,ru-15,nl-19,ru|Rembrandt ne zhenilsia na Hendrickje Stoffels, veroiatnee vsego potomu,

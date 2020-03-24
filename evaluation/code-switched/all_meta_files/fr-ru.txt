@@ -1,20 +1,20 @@
-000041|Александр Сергеевич Пушкин est né à Москва dans une famille de la noblesse russe relativement aisée, férue d'art et de littérature,|00-fr|ru-26,fr-10,ru-6,fr
-000042|Bien qu'incontestablement libéral, Пушкин n'est pas révolutionnaire,|00-fr|fr-35,ru-6,fr
-000043|Depuis cette époque, Санкт-Петербург a régulièrement perdu de l'influence par rapport à Москва,|00-fr|fr-21,ru-15,fr-52,ru-6,fr
-000044|Les romans de Фёдор Михайлович Достоевский sont parfois qualifiés de métaphysiques,|00-fr|fr-14,ru-28,fr
-000045|Достоевский a composé une grande partie du roman à Старая Русса, qui est aussi le cadre principal du roman.|00-fr|ru-11,fr-40,ru-12,fr
-000046|Екатеринбург se trouve au pied du versant oriental du massif de l'Oural.|00-fr|ru-12,fr
-000047|La première oeuvre composée par Стравинский lors de son apprentissage avec Римский-Корсаков est la Symphonie en mi bémol,|00-fr|fr-32,ru-11,fr-32,ru-16,fr
-000048|Дягилев ne perd cependant pas Прокофьев de vue; un peu plus tard, il monte un nouveau ballet,|00-fr|ru-7,fr-23,ru-9,fr
-000049|Son nom provient de son principal cours d'eau, le fleuve Камчатка.|00-fr|fr-57,ru-8,fr
-000050|Après la guerre, Нижний Новгород devient une ville fermée à cause de ses usines d'armement.|00-fr|fr-17,ru-15,fr
-000051|Le drapeau de la ville de Волгоград est un rectangle rouge, avec au centre les armoiries de la ville.|00-fr|fr-26,ru-9,fr
-000052|Les Itelmènes sont persuadés qu'il y a des monceaux d'os de baleine au sommet du Ключевскoй Вулкан,|00-fr|fr-81,ru-17,fr
-000053|Михаил Горбачёв met alors en place une politique de glasnost pour supprimer les reliquats de stalinisme,|00-fr|ru-15,fr
-000054|Première rencontre entre Михаил Горбачёв, artisan de la perestroïka et le président américain.|00-fr|fr-25,ru-15,fr
-000055|Durant les dix-sept années qui suivent, Потёмкин est le personnage le plus influent de Russie.|00-fr|fr-40,ru-8,fr
-000056|Бородинское сражение est une bataille opposant la Grande Armée commandée par Napoléon à l’armée impériale russe menée par le feld-maréchal Михаил Кутузов.|00-fr|ru-20,fr-119,ru-14,fr
-000057|Ainsi, Кутузов, de manière controversée, affirme qu'il a triomphé de l'ennemi à Бородино, le nom russe de la bataille.|00-fr|fr-7,ru-7,fr-66,ru-8,fr
-000058|Alors que les ordres sont de marcher à l’ouest, il se rend au sud à Смоленск.|00-fr|fr-68,ru-8,fr
-000059|Le Днепр est un fleuve de l'Europe de l'Est se jetant dans la mer Noire.|00-fr|fr-3,ru-5,fr
-000060|Installé dans le vieux manoir de son oncle, un fieffé ivrogne, Евгений Онегин démontre quelques velléités réformatrices,|00-fr|fr-63,ru-14,fr
+000041|Александр Сергеевич Пушкин est né à Москва dans une famille de la noblesse russe relativement aisée, férue d'art et de littérature,|00-fr|ru-26,fr-10,ru-6,fr|Aleksandr Sergeevich Pushkin est né à Moskva dans une famille de la noblesse russe relativement aisée, férue d'art et de littérature,
+000042|Bien qu'incontestablement libéral, Пушкин n'est pas révolutionnaire,|00-fr|fr-35,ru-6,fr|Bien qu'incontestablement libéral, Pushkin n'est pas révolutionnaire,
+000043|Depuis cette époque, Санкт-Петербург a régulièrement perdu de l'influence par rapport à Москва,|00-fr|fr-21,ru-15,fr-52,ru-6,fr|Depuis cette époque, Sankt-Peterburg a régulièrement perdu de l'influence par rapport à Moskva,
+000044|Les romans de Фёдор Михайлович Достоевский sont parfois qualifiés de métaphysiques,|00-fr|fr-14,ru-28,fr|Les romans de Fëdor Mikhaĭlovich Dostoevskiĭ sont parfois qualifiés de métaphysiques,
+000045|Достоевский a composé une grande partie du roman à Старая Русса, qui est aussi le cadre principal du roman.|00-fr|ru-11,fr-40,ru-12,fr|Dostoevskiĭ a composé une grande partie du roman à Staraia Russa, qui est aussi le cadre principal du roman.
+000046|Екатеринбург se trouve au pied du versant oriental du massif de l'Oural.|00-fr|ru-12,fr|Ekaterinburg se trouve au pied du versant oriental du massif de l'Oural.
+000047|La première oeuvre composée par Стравинский lors de son apprentissage avec Римский-Корсаков est la Symphonie en mi bémol,|00-fr|fr-32,ru-11,fr-32,ru-16,fr|La première oeuvre composée par Stravinskiĭ lors de son apprentissage avec Rimskiĭ-Korsakov est la Symphonie en mi bémol,
+000048|Дягилев ne perd cependant pas Прокофьев de vue; un peu plus tard, il monte un nouveau ballet,|00-fr|ru-7,fr-23,ru-9,fr|Diagilev ne perd cependant pas Prokofʹev de vue; un peu plus tard, il monte un nouveau ballet,
+000049|Son nom provient de son principal cours d'eau, le fleuve Камчатка.|00-fr|fr-57,ru-8,fr|Son nom provient de son principal cours d'eau, le fleuve Kamchatka.
+000050|Après la guerre, Нижний Новгород devient une ville fermée à cause de ses usines d'armement.|00-fr|fr-17,ru-15,fr|Après la guerre, Nizhniĭ Novgorod devient une ville fermée à cause de ses usines d'armement.
+000051|Le drapeau de la ville de Волгоград est un rectangle rouge, avec au centre les armoiries de la ville.|00-fr|fr-26,ru-9,fr|Le drapeau de la ville de Volgograd est un rectangle rouge, avec au centre les armoiries de la ville.
+000052|Les Itelmènes sont persuadés qu'il y a des monceaux d'os de baleine au sommet du Ключевскoй Вулкан,|00-fr|fr-81,ru-17,fr|Les Itelmènes sont persuadés qu'il y a des monceaux d'os de baleine au sommet du Kliuchevskoĭ Vulkan,
+000053|Михаил Горбачёв met alors en place une politique de glasnost pour supprimer les reliquats de stalinisme,|00-fr|ru-15,fr|Mikhail Gorbachëv met alors en place une politique de glasnost pour supprimer les reliquats de stalinisme,
+000054|Première rencontre entre Михаил Горбачёв, artisan de la perestroïka et le président américain.|00-fr|fr-25,ru-15,fr|Première rencontre entre Mikhail Gorbachëv, artisan de la perestroïka et le président américain.
+000055|Durant les dix-sept années qui suivent, Потёмкин est le personnage le plus influent de Russie.|00-fr|fr-40,ru-8,fr|Durant les dix-sept années qui suivent, Potëmkin est le personnage le plus influent de Russie.
+000056|Бородинское сражение est une bataille opposant la Grande Armée commandée par Napoléon à l’armée impériale russe menée par le feld-maréchal Михаил Кутузов.|00-fr|ru-20,fr-119,ru-14,fr|Borodinskoe srazhenie est une bataille opposant la Grande Armée commandée par Napoléon à l’armée impériale russe menée par le feld-maréchal Mikhail Kutuzov.
+000057|Ainsi, Кутузов, de manière controversée, affirme qu'il a triomphé de l'ennemi à Бородино, le nom russe de la bataille.|00-fr|fr-7,ru-7,fr-66,ru-8,fr|Ainsi, Kutuzov, de manière controversée, affirme qu'il a triomphé de l'ennemi à Borodino, le nom russe de la bataille.
+000058|Alors que les ordres sont de marcher à l’ouest, il se rend au sud à Смоленск.|00-fr|fr-68,ru-8,fr|Alors que les ordres sont de marcher à l’ouest, il se rend au sud à Smolensk.
+000059|Le Днепр est un fleuve de l'Europe de l'Est se jetant dans la mer Noire.|00-fr|fr-3,ru-5,fr|Le Dnepr est un fleuve de l'Europe de l'Est se jetant dans la mer Noire.
+000060|Installé dans le vieux manoir de son oncle, un fieffé ivrogne, Евгений Онегин démontre quelques velléités réformatrices,|00-fr|fr-63,ru-14,fr|Installé dans le vieux manoir de son oncle, un fieffé ivrogne, Evgeniĭ Onegin démontre quelques velléités réformatrices,

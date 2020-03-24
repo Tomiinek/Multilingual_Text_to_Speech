@@ -1,20 +1,20 @@
-000201|In eerste instantie reisden de Nederlanders heen en weer, later vonden zij permanente huisvesting in Санкт-Петербург aan de Невский проспект,|00-nl|nl-101,ru-15,nl-8,ru-16,nl
-000202|Zijn Siberische jaren gebruikte Достоевский om vanuit een atheïstische stellingname het christendom te onderzoeken.|00-nl|nl-32,ru-11,nl
-000203|Om deze redenen wordt hij een Идиот genoemd.|00-nl|nl-30,ru-5,nl
-000204|In het tsaristische Rusland was de censuur echter streng en de pen van Александр Пушкин vlijmscherp.|00-nl|nl-71,ru-16,nl
-000205|Nog steeds wordt Александр Сергеевич Пушкин in de Russische wereld en daarbuiten vereerd en gelezen.|00-nl|nl-17,ru-26,nl
-000206|Михаил Афанасьевич Булгаков was een van de meest populaire toneelauteurs van zijn tijd, maar zijn stukken werden slecht ontvangen in de Sovjetpers.|00-nl|ru-27,nl
-000207|De gebeurtenissen rond de productie van dit stuk vormden de basis voor Булгаков onvoltooid gebleven theaterroman Zwarte Sneeuw.|00-nl|nl-71,ru-8,nl
-000208|Tijdens de перестройка verwierf Ерофеев internationale bekendheid met zijn roman Een schoonheid uit Moskou,|00-nl|nl-11,ru-11,nl-10,ru-7,nl
-000209|Aan de vooravond van de slag bij Austerlitz probeerde Кутузов de geallieerde generaals ertoe te bewegen zich terug te trekken.|00-nl|nl-54,ru-7,nl
-000210|Van toeristisch belang is vooral het kremlin van Нижний Новгород,|00-nl|nl-49,ru-15,nl
-000211|In het zuiden en midden van Камчатка bevinden zich twee zapovedniks:|00-nl|nl-28,ru-8,nl
-000212|Er is een zeer rijke plantengroei en dierenwereld, met veel soorten die alleen op Камчатка voorkomen.|00-nl|nl-82,ru-8,nl
-000213|Hoewel andere vulkanen in de buurt ook als heilig worden gezien, wordt de Ключевская сопка daardoor als meest heilig beschouwd.|00-nl|nl-74,ru-16,nl
-000214|Het aantal slachtoffers van de Бородинское сражение, zelfs bij de laagste schattingen rond de|00-nl|nl-31,ru-21,nl
-000215|Naast zijn werk als vliegtuigbouwer was Андрей Туполев ook zeer actief binnen het Centrale Aero en Hydrodynamisch Instituut van Moskou,|00-nl|nl-40,ru-14,nl
-000216|Hij gaf de opdracht dat het Московский Кремль moest worden opgeblazen.|00-nl|nl-28,ru-17,nl
-000217|De wedstrijden worden gespeeld in de Волгоград Arena.|00-nl|nl-37,ru-9,nl
-000218|De situatie in de Sovjet-Unie verbeterde ook onder Черненко nauwelijks.|00-nl|nl-51,ru-8,nl
-000219|Москва ligt binnen de Московская Область, maar maakt hier geen deel van uit.|00-nl|ru-6,nl-16,ru-18,nl
-000220|Dat de naam Москва hier van afgeleid is, is zeer onwaarschijnlijk.|00-nl|nl-12,ru-6,nl
+000201|In eerste instantie reisden de Nederlanders heen en weer, later vonden zij permanente huisvesting in Санкт-Петербург aan de Невский проспект,|00-nl|nl-101,ru-15,nl-8,ru-16,nl|In eerste instantie reisden de Nederlanders heen en weer, later vonden zij permanente huisvesting in Sankt-Peterburg aan de Nevskiĭ prospekt,
+000202|Zijn Siberische jaren gebruikte Достоевский om vanuit een atheïstische stellingname het christendom te onderzoeken.|00-nl|nl-32,ru-11,nl|Zijn Siberische jaren gebruikte Dostoevskiĭ om vanuit een atheïstische stellingname het christendom te onderzoeken.
+000203|Om deze redenen wordt hij een Идиот genoemd.|00-nl|nl-30,ru-5,nl|Om deze redenen wordt hij een Idiot genoemd.
+000204|In het tsaristische Rusland was de censuur echter streng en de pen van Александр Пушкин vlijmscherp.|00-nl|nl-71,ru-16,nl|In het tsaristische Rusland was de censuur echter streng en de pen van Aleksandr Pushkin vlijmscherp.
+000205|Nog steeds wordt Александр Сергеевич Пушкин in de Russische wereld en daarbuiten vereerd en gelezen.|00-nl|nl-17,ru-26,nl|Nog steeds wordt Aleksandr Sergeevich Pushkin in de Russische wereld en daarbuiten vereerd en gelezen.
+000206|Михаил Афанасьевич Булгаков was een van de meest populaire toneelauteurs van zijn tijd, maar zijn stukken werden slecht ontvangen in de Sovjetpers.|00-nl|ru-27,nl|Mikhail Afanasʹevich Bulgakov was een van de meest populaire toneelauteurs van zijn tijd, maar zijn stukken werden slecht ontvangen in de Sovjetpers.
+000207|De gebeurtenissen rond de productie van dit stuk vormden de basis voor Булгаков onvoltooid gebleven theaterroman Zwarte Sneeuw.|00-nl|nl-71,ru-8,nl|De gebeurtenissen rond de productie van dit stuk vormden de basis voor Bulgakov onvoltooid gebleven theaterroman Zwarte Sneeuw.
+000208|Tijdens de перестройка verwierf Ерофеев internationale bekendheid met zijn roman Een schoonheid uit Moskou,|00-nl|nl-11,ru-11,nl-10,ru-7,nl|Tijdens de perestroĭka verwierf Erofeev internationale bekendheid met zijn roman Een schoonheid uit Moskou,
+000209|Aan de vooravond van de slag bij Austerlitz probeerde Кутузов de geallieerde generaals ertoe te bewegen zich terug te trekken.|00-nl|nl-54,ru-7,nl|Aan de vooravond van de slag bij Austerlitz probeerde Kutuzov de geallieerde generaals ertoe te bewegen zich terug te trekken.
+000210|Van toeristisch belang is vooral het kremlin van Нижний Новгород,|00-nl|nl-49,ru-15,nl|Van toeristisch belang is vooral het kremlin van Nizhniĭ Novgorod,
+000211|In het zuiden en midden van Камчатка bevinden zich twee zapovedniks:|00-nl|nl-28,ru-8,nl|In het zuiden en midden van Kamchatka bevinden zich twee zapovedniks:
+000212|Er is een zeer rijke plantengroei en dierenwereld, met veel soorten die alleen op Камчатка voorkomen.|00-nl|nl-82,ru-8,nl|Er is een zeer rijke plantengroei en dierenwereld, met veel soorten die alleen op Kamchatka voorkomen.
+000213|Hoewel andere vulkanen in de buurt ook als heilig worden gezien, wordt de Ключевская сопка daardoor als meest heilig beschouwd.|00-nl|nl-74,ru-16,nl|Hoewel andere vulkanen in de buurt ook als heilig worden gezien, wordt de Kliuchevskaia sopka daardoor als meest heilig beschouwd.
+000214|Het aantal slachtoffers van de Бородинское сражение, zelfs bij de laagste schattingen rond de|00-nl|nl-31,ru-21,nl|Het aantal slachtoffers van de Borodinskoe srazhenie, zelfs bij de laagste schattingen rond de
+000215|Naast zijn werk als vliegtuigbouwer was Андрей Туполев ook zeer actief binnen het Centrale Aero en Hydrodynamisch Instituut van Moskou,|00-nl|nl-40,ru-14,nl|Naast zijn werk als vliegtuigbouwer was Andreĭ Tupolev ook zeer actief binnen het Centrale Aero en Hydrodynamisch Instituut van Moskou,
+000216|Hij gaf de opdracht dat het Московский Кремль moest worden opgeblazen.|00-nl|nl-28,ru-17,nl|Hij gaf de opdracht dat het Moskovskiĭ Kremlʹ moest worden opgeblazen.
+000217|De wedstrijden worden gespeeld in de Волгоград Arena.|00-nl|nl-37,ru-9,nl|De wedstrijden worden gespeeld in de Volgograd Arena.
+000218|De situatie in de Sovjet-Unie verbeterde ook onder Черненко nauwelijks.|00-nl|nl-51,ru-8,nl|De situatie in de Sovjet-Unie verbeterde ook onder Chernenko nauwelijks.
+000219|Москва ligt binnen de Московская Область, maar maakt hier geen deel van uit.|00-nl|ru-6,nl-16,ru-18,nl|Moskva ligt binnen de Moskovskaia Oblastʹ, maar maakt hier geen deel van uit.
+000220|Dat de naam Москва hier van afgeleid is, is zeer onwaarschijnlijk.|00-nl|nl-12,ru-6,nl|Dat de naam Moskva hier van afgeleid is, is zeer onwaarschijnlijk.

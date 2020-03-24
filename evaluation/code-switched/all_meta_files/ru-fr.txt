@@ -1,20 +1,20 @@
-000241|Victor Marie Hugo выступил решительным противником смертной казни.|09-ru|fr-17,ru
-000242|В отличие от других городов со средиземноморским климатом, осень в Marseille очень дождливая и относительно ранняя,|09-ru|ru-67,fr-9,ru
-000243|Поначалу Rhône течёт главным образом на юго-запад, протекая в верховье через Lac de Genève,|09-ru|ru-9,fr-5,ru-63,fr-13,ru
-000244|а также пергамент с протоколом церемонии основания базилики Sacré-Coeur.|09-ru|ru-60,fr-11,ru
-000245|На одном из ресторанов Montmartre висит мемориальная табличка, которая гласит:|09-ru|ru-23,fr-10,ru
-000246|К началу Второй мировой Charles Joseph Marie de Gaulle имел звание полковника.|09-ru|ru-24,fr-30,ru
-000247|Попутно Albert Camus был вынужден работать и сменил несколько профессий: частный учитель, продавец запасных частей,|09-ru|ru-8,fr-12,ru
-000248|Успех этих произведений доставил François Prévost много врагов на родине.|09-ru|ru-33,fr-16,ru
-000249|Saint-Germain-des-Prés был в средние века одним из богатейших монастырей Франции.|09-ru|fr-22,ru
-000250|Вскоре Cannes открыли для себя состоятельные подданные Российской Империи.|09-ru|ru-7,fr-6,ru
-000251|Jean-Paul Sartre родился в Parisе и был единственным ребёнком в семье.|09-ru|fr-16,ru
-000252|Главной своей задачей Jacques Derrida видит преодоление всей европейской философии. |09-ru|ru-22,fr-15,ru
-000253|Jacques Derrida настаивал, что оно не является ни словом, ни концептом и не может быть понято в рамках системы знаков.|09-ru|fr-15,ru
-000254|Предвыборная программа Macronа содержала элементы левого и правого толка.|09-ru|ru-23,fr-6,ru
-000255|С целью усиления безопасности Франции от возможных терактов Emmanuel Macron начал проводить перестановки в руководстве спецслужб.|09-ru|ru-60,fr-15,ru
-000256|В нижней палате François Hollande был секретарём комитета по вопросам финансов и планирования и докладчиком по оборонному бюджету.|09-ru|ru-16,fr-17,ru
-000257|Через несколько дней Gérard Depardieu послал премьер-министру открытое письмо,|09-ru|ru-21,fr-16,ru
-000258|Как считают современные археологи, на месте Notre-Dame de Paris находились четыре различных храма:|09-ru|ru-44,fr-19,ru
-000259|Notre-Dame de Paris служит кафедральным собором архиепархии Парижа,|09-ru|fr-19,ru
-000260|Guy de Maupassant с детства отличался прекрасным здоровьем, хотя его мать всю жизнь мучилась неврозами,|09-ru|fr-17,ru
+000241|Victor Marie Hugo выступил решительным противником смертной казни.|09-ru|fr-17,ru|Victor Marie Hugo vystupil reshitelʹnym protivnikom smertnoĭ kazni.
+000242|В отличие от других городов со средиземноморским климатом, осень в Marseille очень дождливая и относительно ранняя,|09-ru|ru-67,fr-9,ru|V otlichie ot drugikh gorodov so sredizemnomorskim klimatom, osenʹ v Marseille ochenʹ dozhdlivaia i otnositelʹno ranniaia,
+000243|Поначалу Rhône течёт главным образом на юго-запад, протекая в верховье через Lac de Genève,|09-ru|ru-9,fr-5,ru-63,fr-13,ru|Ponachalu Rhône techët glavnym obrazom na iugo-zapad, protekaia v verkhovʹe cherez Lac de Genève,
+000244|а также пергамент с протоколом церемонии основания базилики Sacré-Coeur.|09-ru|ru-60,fr-11,ru|a takzhe pergament s protokolom tseremonii osnovaniia baziliki Sacré-Coeur.
+000245|На одном из ресторанов Montmartre висит мемориальная табличка, которая гласит:|09-ru|ru-23,fr-10,ru|Na odnom iz restoranov Montmartre visit memorialʹnaia tablichka, kotoraia glasit:
+000246|К началу Второй мировой Charles Joseph Marie de Gaulle имел звание полковника.|09-ru|ru-24,fr-30,ru|K nachalu Vtoroĭ mirovoĭ Charles Joseph Marie de Gaulle imel zvanie polkovnika.
+000247|Попутно Albert Camus был вынужден работать и сменил несколько профессий: частный учитель, продавец запасных частей,|09-ru|ru-8,fr-12,ru|Poputno Albert Camus byl vynuzhden rabotatʹ i smenil neskolʹko professiĭ: chastnyĭ uchitelʹ, prodavets zapasnykh chasteĭ,
+000248|Успех этих произведений доставил François Prévost много врагов на родине.|09-ru|ru-33,fr-16,ru|Uspekh ėtikh proizvedeniĭ dostavil François Prévost mnogo vragov na rodine.
+000249|Saint-Germain-des-Prés был в средние века одним из богатейших монастырей Франции.|09-ru|fr-22,ru|Saint-Germain-des-Prés byl v srednie veka odnim iz bogateĭshikh monastyreĭ Frantsii.
+000250|Вскоре Cannes открыли для себя состоятельные подданные Российской Империи.|09-ru|ru-7,fr-6,ru|Vskore Cannes otkryli dlia sebia sostoiatelʹnye poddannye Rossiĭskoĭ Imperii.
+000251|Jean-Paul Sartre родился в Parisе и был единственным ребёнком в семье.|09-ru|fr-16,ru|Jean-Paul Sartre rodilsia v Parise i byl edinstvennym rebënkom v semʹe.
+000252|Главной своей задачей Jacques Derrida видит преодоление всей европейской философии.|09-ru|ru-22,fr-15,ru|Glavnoĭ svoeĭ zadacheĭ Jacques Derrida vidit preodolenie vseĭ evropeĭskoĭ filosofii.
+000253|Jacques Derrida настаивал, что оно не является ни словом, ни концептом и не может быть понято в рамках системы знаков.|09-ru|fr-15,ru|Jacques Derrida nastaival, chto ono ne iavliaetsia ni slovom, ni kontseptom i ne mozhet bytʹ poniato v ramkakh sistemy znakov.
+000254|Предвыборная программа Macronа содержала элементы левого и правого толка.|09-ru|ru-23,fr-6,ru|Predvybornaia programma Macrona soderzhala ėlementy levogo i pravogo tolka.
+000255|С целью усиления безопасности Франции от возможных терактов Emmanuel Macron начал проводить перестановки в руководстве спецслужб.|09-ru|ru-60,fr-15,ru|S tselʹiu usileniia bezopasnosti Frantsii ot vozmozhnykh teraktov Emmanuel Macron nachal provoditʹ perestanovki v rukovodstve spetssluzhb.
+000256|В нижней палате François Hollande был секретарём комитета по вопросам финансов и планирования и докладчиком по оборонному бюджету.|09-ru|ru-16,fr-17,ru|V nizhneĭ palate François Hollande byl sekretarëm komiteta po voprosam finansov i planirovaniia i dokladchikom po oboronnomu biudzhetu.
+000257|Через несколько дней Gérard Depardieu послал премьер-министру открытое письмо,|09-ru|ru-21,fr-16,ru|Cherez neskolʹko dneĭ Gérard Depardieu poslal premʹer-ministru otkrytoe pisʹmo,
+000258|Как считают современные археологи, на месте Notre-Dame de Paris находились четыре различных храма:|09-ru|ru-44,fr-19,ru|Kak schitaiut sovremennye arkheologi, na meste Notre-Dame de Paris nakhodilisʹ chetyre razlichnykh khrama:
+000259|Notre-Dame de Paris служит кафедральным собором архиепархии Парижа,|09-ru|fr-19,ru|Notre-Dame de Paris sluzhit kafedralʹnym soborom arkhieparkhii Parizha,
+000260|Guy de Maupassant с детства отличался прекрасным здоровьем, хотя его мать всю жизнь мучилась неврозами,|09-ru|fr-17,ru|Guy de Maupassant s detstva otlichalsia prekrasnym zdorovʹem, khotia ego matʹ vsiu zhiznʹ muchilasʹ nevrozami,

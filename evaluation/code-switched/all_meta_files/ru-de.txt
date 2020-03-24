@@ -1,20 +1,20 @@
-000261|Наполеон планировал создание отдельного Düsseldorfского епископства,|09-ru|ru-40,de-10,ru
-000262|С момента основания Düsseldorf входил в Kurfürstentum Köln.|09-ru|ru-20,de-10,ru-10,de-18,ru
-000263|В годы холодной войны в Garmisch-Partenkirchenе действовал Русский институт фактически разведшкола.|09-ru|ru-24,de-22,ru
-000264|В последующие годы Otto von Bismarck-Schönhausen играл заметную политическую роль, критикуя своих преемников.|09-ru|ru-19,de-29,ru
-000265|Это выступление не было заявлено заранее и произвело ошеломляющий эффект, Kurt Friedrich Gödel сразу стал всемирной знаменитостью,|09-ru|ru-74,de-20,ru
-000266|В Австрию Gödel не вернулся даже после войны,|09-ru|ru-10,de-5,ru
-000267|Werner Heisenberg сыграл большую роль в организации научных исследований в послевоенной Германии.|09-ru|de-17,ru
-000268|Straßburg является одним из ключевых центров экономики северо-востока Франции,|09-ru|de-9,ru
-000269|В собственность Bayerische Motoren Werke перешли также заводы и фабрики,|09-ru|ru-16,de-24,ru
-000270|Поселение на месте современного Salzburgа существовало, как показывают археологические раскопки,|09-ru|ru-32,de-8,ru
-000271|Rhein является одной из самых длинных рек в Европе.|09-ru|de-5,ru
-000272|Существует несколько версий того, как возникло название Nürnberg.|09-ru|ru-56,de-8,ru
-000273|Nürnberg был не только международным торговым центром, но и центром немецкого Возрождения,|09-ru|de-8,ru
-000274|Когда Maria Theresia вступила на престол, Franz Stephan стал мужем государыни, но не государем;|09-ru|ru-6,de-14,ru-22,de-13,ru
-000275|Проекты von Zeppelinа поначалу подвергались острой критике и насмешкам,|09-ru|ru-8,de-12,ru
-000276|Федеральная земля Hamburg расположена между землями Schleswig-Holstein на севере и Niedersachsen на юге.|09-ru|ru-18,de-7,ru-27,de-18,ru
-000277|Angela Dorothea Merkel работала в отделе теоретической химии.|09-ru|de-22,ru
-000278|При нём трудами Pöppelmanna и других придворных мастеров центр Dresdenа приобрёл знакомый облик в стиле барокко.|09-ru|ru-16,de-10,ru-37,de-7,ru
-000279|Биография Mozartа, в особенности его образ жизни и обстоятельства его ранней смерти,|09-ru|ru-10,de-6,ru
-000280|München имеет умеренный климат, с переходным от морского к континентальному.|09-ru|de-7,ru
+000261|Наполеон планировал создание отдельного Düsseldorfского епископства,|09-ru|ru-40,de-10,ru|Napoleon planiroval sozdanie otdelʹnogo Düsseldorfskogo episkopstva,
+000262|С момента основания Düsseldorf входил в Kurfürstentum Köln.|09-ru|ru-20,de-10,ru-10,de-18,ru|S momenta osnovaniia Düsseldorf vkhodil v Kurfürstentum Köln.
+000263|В годы холодной войны в Garmisch-Partenkirchenе действовал Русский институт фактически разведшкола.|09-ru|ru-24,de-22,ru|V gody kholodnoĭ voĭny v Garmisch-Partenkirchene deĭstvoval Russkiĭ institut fakticheski razvedshkola.
+000264|В последующие годы Otto von Bismarck-Schönhausen играл заметную политическую роль, критикуя своих преемников.|09-ru|ru-19,de-29,ru|V posleduiushchie gody Otto von Bismarck-Schönhausen igral zametnuiu politicheskuiu rolʹ, kritikuia svoikh preemnikov.
+000265|Это выступление не было заявлено заранее и произвело ошеломляющий эффект, Kurt Friedrich Gödel сразу стал всемирной знаменитостью,|09-ru|ru-74,de-20,ru|Ėto vystuplenie ne bylo zaiavleno zaranee i proizvelo oshelomliaiushchiĭ ėffekt, Kurt Friedrich Gödel srazu stal vsemirnoĭ znamenitostʹiu,
+000266|В Австрию Gödel не вернулся даже после войны,|09-ru|ru-10,de-5,ru|V Avstriiu Gödel ne vernulsia dazhe posle voĭny,
+000267|Werner Heisenberg сыграл большую роль в организации научных исследований в послевоенной Германии.|09-ru|de-17,ru|Werner Heisenberg sygral bolʹshuiu rolʹ v organizatsii nauchnykh issledovaniĭ v poslevoennoĭ Germanii.
+000268|Straßburg является одним из ключевых центров экономики северо-востока Франции,|09-ru|de-9,ru|Straßburg iavliaetsia odnim iz kliuchevykh tsentrov ėkonomiki severo-vostoka Frantsii,
+000269|В собственность Bayerische Motoren Werke перешли также заводы и фабрики,|09-ru|ru-16,de-24,ru|V sobstvennostʹ Bayerische Motoren Werke pereshli takzhe zavody i fabriki,
+000270|Поселение на месте современного Salzburgа существовало, как показывают археологические раскопки,|09-ru|ru-32,de-8,ru|Poselenie na meste sovremennogo Salzburga sushchestvovalo, kak pokazyvaiut arkheologicheskie raskopki,
+000271|Rhein является одной из самых длинных рек в Европе.|09-ru|de-5,ru|Rhein iavliaetsia odnoĭ iz samykh dlinnykh rek v Evrope.
+000272|Существует несколько версий того, как возникло название Nürnberg.|09-ru|ru-56,de-8,ru|Sushchestvuet neskolʹko versiĭ togo, kak vozniklo nazvanie Nürnberg.
+000273|Nürnberg был не только международным торговым центром, но и центром немецкого Возрождения,|09-ru|de-8,ru|Nürnberg byl ne tolʹko mezhdunarodnym torgovym tsentrom, no i tsentrom nemetskogo Vozrozhdeniia,
+000274|Когда Maria Theresia вступила на престол, Franz Stephan стал мужем государыни, но не государем;|09-ru|ru-6,de-14,ru-22,de-13,ru|Kogda Maria Theresia vstupila na prestol, Franz Stephan stal muzhem gosudaryni, no ne gosudarem;
+000275|Проекты von Zeppelinа поначалу подвергались острой критике и насмешкам,|09-ru|ru-8,de-12,ru|Proekty von Zeppelina ponachalu podvergalisʹ ostroĭ kritike i nasmeshkam,
+000276|Федеральная земля Hamburg расположена между землями Schleswig-Holstein на севере и Niedersachsen на юге.|09-ru|ru-18,de-7,ru-27,de-18,ru|Federalʹnaia zemlia Hamburg raspolozhena mezhdu zemliami Schleswig-Holstein na severe i Niedersachsen na iuge.
+000277|Angela Dorothea Merkel работала в отделе теоретической химии.|09-ru|de-22,ru|Angela Dorothea Merkel rabotala v otdele teoreticheskoĭ khimii.
+000278|При нём трудами Pöppelmanna и других придворных мастеров центр Dresdenа приобрёл знакомый облик в стиле барокко.|09-ru|ru-16,de-10,ru-37,de-7,ru|Pri nëm trudami Pöppelmanna i drugikh pridvornykh masterov tsentr Dresdena priobrël znakomyĭ oblik v stile barokko.
+000279|Биография Mozartа, в особенности его образ жизни и обстоятельства его ранней смерти,|09-ru|ru-10,de-6,ru|Biografiia Mozarta, v osobennosti ego obraz zhizni i obstoiatelʹstva ego ranneĭ smerti,
+000280|München имеет умеренный климат, с переходным от морского к континентальному.|09-ru|de-7,ru|München imeet umerennyĭ klimat, s perekhodnym ot morskogo k kontinentalʹnomu.
