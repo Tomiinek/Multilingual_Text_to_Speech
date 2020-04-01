@@ -1,5 +1,5 @@
 000181|Voor goederenvervoer is Düsseldorf inmiddels geen knooppunt meer, nadat het spoorweg rangeerterrein Düsseldorf-Derendorf gesloten en afgebroken is.|00-nl|nl-24,de-10,nl-66,de-20,nl
-000182|Lübke had een oprechte interesse voor ontwikkelingshulp en bezocht ook veel landen van de derde wereld.|00-nl|nl-5,de
+000182|Lübke had een oprechte interesse voor ontwikkelingshulp en bezocht ook veel landen van de derde wereld.|00-nl|de-5,nl
 000183|Zoals toen gebruikelijk liet Von Weizsäcker zijn partijlidmaatschap tijdens zijn presidentschap rusten,|00-nl|nl-29,de-14,nl
 000184|Het omstreden interview was al bijna vergeten, en Köhler was in principe een populaire president.|00-nl|nl-50,de-6,nl
 000185|Als men langs deze laan loopt van de Brandenburger Tor tot aan de Alexanderplatz over de Schloßbrücke vanaf welke|00-nl|nl-37,de-17,nl-12,de-14,nl-9,de-12,nl

@@ -1,5 +1,5 @@
 000021|Titus reprend, avec la concubine de son père Hendrickje Stoffels,|00-fr|nl-5,fr-40,nl-19,fr
-000022|Moerdijk est une commune et un village des Pays-Bas de la province du Brabant-Septentrional,|00-fr|nl-8,fr-35,nl-8,fr-19,nl-21,fr
+000022|Moerdijk est une commune et un village des Pays-Bas de la province du Brabant-Septentrional,|00-fr|nl-8,fr-62,nl-21,fr
 000023|Standdaarbuiten est un village situé dans la commune néerlandaise de Moerdijk,|00-fr|nl-15,fr-54,nl-8,fr
 000024|Il est également à l'origine de l'algorithme éponyme, l'algorithme de Dijkstra, permettant de calculer des plus courts chemins dans un graphe orienté.|00-fr|fr-70,nl-8,fr
 000025|La religion occupe une place centrale dans l'oeuvre de Rembrandt et la période de tension religieuse dans laquelle il a vécu donne à sa foi une certaine importance.|00-fr|fr-55,nl-9,fr

@@ -15,6 +15,6 @@
 000115|Den Haag wurde in dieser Epoche mehrere Male geplündert und niedergebrannt.|00-de|nl-8,de
 000116|Die Volkspartij voor Vrijheid en Democratie ist eine konservativ liberale Partei in den Niederlanden.|00-de|de-4,nl-39,de
 000117|Nach dem Zweiten Weltkrieg hatte es kurzzeitig eine Partij van de Vrijheid gegeben.|00-de|de-52,nl-22,de
-000118|Die Situation wurde noch schlimmer, weil die Republik aus der Provinz Noord-Brabant hohe Steuern herauspresste.|00-de|de-70,nl-26,de
+000118|Die Situation wurde noch schlimmer, weil die Republik aus der Provinz Noord-Brabant hohe Steuern herauspresste.|00-de|de-70,nl-13,de
 000119|Feld geräumt hatte, sah man schließlich für De Tijd als Tageszeitung kein Land mehr,|00-de|de-44,nl-7,de
 000120|Bijleveld hat Verwaltungswissenschaft an der Universität Twente studiert.|00-de|nl-9,de-48,nl-6,de
