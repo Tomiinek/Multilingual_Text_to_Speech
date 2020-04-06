@@ -1,0 +1,23 @@
+{
+	"balanced_sampling": true,
+	"batch_size": 50,
+	"case_sensitive": false,
+	"characters": " abcdefghijklmnopqrstuvwxyzçèéßäöōǎǐíǒàáǔüèéìūòóùúāēěīâêôûñőűабвгдежзийклмнопрстуфхцчшщъыьэюяё",	
+	"checkpoint_each_epochs": 5,
+	"dataset": "css_comvoi",
+	"encoder_dimension": 256,
+	"encoder_type": "convolutional",
+	"epochs": 300,
+	"languages": ["de", "fr", "zh", "ru", "nl"],
+	"language_embedding_dimension": 0,
+	"learning_rate": 0.0001,
+	"learning_rate_decay_each": 15000,
+	"learning_rate_decay_start": 15000,
+	"multi_language": true,
+	"multi_speaker": true,
+	"perfect_sampling": true,
+	"predict_linear": false,
+	"reversal_classifier": false,
+	"speaker_embedding_dimension": 32,
+	"version": "SEPARATE-SWITCHING"
+}

@@ -1,0 +1,18 @@
+{
+	"balanced_sampling": true,
+	"batch_size": 60,
+	"case_sensitive": false,
+	"characters": " abcdefghijklmnopqrstuvwxyzçèéßäöōǎǐíǒàáǔüèéìūòóùúāēěīâêôûñőűабвгдежзийклмнопрстуфхцчшщъыьэюяёάέήίαβγδεζηθικλμνξοπρςíστυφχψωόύώ",
+	"checkpoint_each_epochs": 5,
+	"dataset": "css10",
+	"encoder_type": "simple",
+	"epochs": 300,
+	"languages": ["german", "french", "hungarian", "chinese", "spanish", "dutch", "finnish", "russian", "japanese", "greek"],
+	"language_embedding_dimension": 32,
+	"learning_rate": 0.001,
+	"learning_rate_decay_each": 10000,
+	"learning_rate_decay_start": 10000,
+	"multi_language": true,
+	"predict_linear": false,
+	"version": "SHARED-TRAINING"
+}

@@ -1,0 +1,15 @@
+{
+	"batch_size": 32,
+	"case_sensitive": false,
+	"characters": " άέήίαβγδεζηθικλμνξοπρςíστυφχψωόύώ",
+	"dataset": "css10",
+	"encoder_dimension": 256,
+	"encoder_type": "simple",
+	"epochs": 300,
+	"languages": ["greek"],
+	"learning_rate_decay_start": 2500,
+    "learning_rate_decay_each": 2500,
+	"multi_language": false,
+	"predict_linear": false,
+	"version": "EL"
+}

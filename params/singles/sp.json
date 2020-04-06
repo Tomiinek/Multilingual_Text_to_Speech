@@ -1,0 +1,15 @@
+{
+	"batch_size": 60,
+	"case_sensitive": false,
+	"characters": " abcdefghijklmnopqrstuvwxyzáèéóúüöñí",
+	"dataset": "css10",
+	"encoder_dimension": 256,
+	"encoder_type": "simple",
+	"epochs": 300,
+	"languages": ["spanish"],
+	"learning_rate_decay_start": 5000,
+    "learning_rate_decay_each": 5000,
+	"multi_language": false,
+	"predict_linear": false,
+	"version": "SP"
+}

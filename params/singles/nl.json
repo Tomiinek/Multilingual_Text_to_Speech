@@ -1,0 +1,15 @@
+{
+	"batch_size": 60,
+	"case_sensitive": false,
+	"characters": " abcdefghijklmnopqrstuvwxyzàâçèéêíôùûßäéöü",
+	"dataset": "css10",
+	"encoder_dimension": 256,
+	"encoder_type": "simple",
+	"epochs": 300,
+	"languages": ["dutch"],
+	"learning_rate_decay_start": 3500,
+    "learning_rate_decay_each": 3500,
+	"multi_language": false,
+	"predict_linear": false,
+	"version": "NL"
+}

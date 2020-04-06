@@ -1,0 +1,15 @@
+{
+	"batch_size": 60,
+	"case_sensitive": false,
+	"characters": " abcdefghijklmnopqrstuvwxyzäöü",
+	"dataset": "css10",
+	"encoder_dimension": 256,
+	"encoder_type": "simple",
+	"epochs": 300,
+	"languages": ["finnish"],
+	"learning_rate_decay_start": 3000,
+    "learning_rate_decay_each": 3000,
+	"multi_language": false,
+	"predict_linear": false,
+	"version": "FI"
+}

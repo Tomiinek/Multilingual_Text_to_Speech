@@ -1,0 +1,22 @@
+{
+	"balanced_sampling": true,
+	"batch_size": 60,
+	"case_sensitive": false,
+	"characters": " abcdefghijklmnopqrstuvwxyzçèéßäöōǎǐíǒàáǔüèéìūòóùúāēěīâêôûñőűабвгдежзийклмнопрстуфхцчшщъыьэюяёάέήίαβγδεζηθικλμνξοπρςíστυφχψωόύώ",	
+	"checkpoint_each_epochs": 5,
+	"dataset": "css10",
+	"encoder_dimension": 256,
+	"encoder_type": "generated",
+	"epochs": 300,
+	"generator_bottleneck_dim": 8,
+	"generator_dim": 20,	
+	"languages": ["german", "french", "hungarian", "chinese", "spanish", "dutch", "finnish", "russian", "japanese", "greek"],
+	"language_embedding_dimension": 32,
+	"learning_rate": 0.001,
+	"learning_rate_decay_each": 10000,
+	"learning_rate_decay_start": 10000,
+	"multi_language": true,
+	"perfect_sampling": true,
+	"predict_linear": false,
+	"version": "GENERATED-TRAINING"
+}
