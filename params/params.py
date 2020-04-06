@@ -16,7 +16,9 @@ class Params:
     learning_rate_decay = 0.5            # decay multiplier used by step learning rate scheduler (use 0.5 for halving)
     learning_rate_decay_start = 15000    # number of training steps until the first lr decay, expected to be greater than learning_rate_decay_each
     learning_rate_decay_each = 15000     # size of the learning rate scheduler step in training steps, it decays lr every this number steps
+    learning_rate_encoder = 1e-3         # initial learning rate of the encoder, just used if encoder_optimizer is set to True
     weight_decay = 1e-6                  # L2 regularization
+    encoder_optimizer = False            # if True, different learning rates are used for the encoder and decoder, the ecoder uses learning_rate_encoder at start
     max_output_length = 5000             # maximal number of frames produced by decoder, the number of frames is usualy much lower during synthesis
     gradient_clipping = 0.25             # gradient norm clipping
     reversal_gradient_clipping = 0.25    # used if reversal_classifier is True, clips gradients flowing from adversarial classifier to encoder

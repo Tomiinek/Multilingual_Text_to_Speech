@@ -228,6 +228,16 @@ if __name__ == '__main__':
 
     # instantiate optimizer and scheduler
     optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    if hp.encoder_optimizer:
+        encoder_params = list(model._encoder.parameters())
+        other_params = list(model._decoder.parameters()) + list(model._postnet.parameters()) + list(model._prenet.parameters()) + \
+                       list(model._embedding.parameters()) + list(model._attention.parameters())
+        if hp.reversal_classifier:
+            other_params += list(model._reversal_classifier.parameters())   
+        optimizer = torch.optim.Adam([
+            {'params': other_params},
+            {'params': encoder_params, 'lr': hp.learning_rate_encoder}
+        ], lr=hp.learning_rate, weight_decay=hp.weight_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each // len(train_data), gamma=hp.learning_rate_decay)
     criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain, hp.language_number)
 
