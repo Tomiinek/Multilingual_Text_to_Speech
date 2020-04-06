@@ -73,8 +73,8 @@ def synthesize(model, input_data, force_cpu=False):
 
     if torch.cuda.is_available() and not force_cpu: 
         t = t.cuda(non_blocking=True)
-        if l: l = l.cuda(non_blocking=True)
-        if s: s = s.cuda(non_blocking=True)
+        if l is not None: l = l.cuda(non_blocking=True)
+        if s is not None: s = s.cuda(non_blocking=True)
 
     s = model.inference(t, speaker=s, language=l).cpu().detach().numpy()
     s = audio.denormalize_spectrogram(s, not hp.predict_linear)
