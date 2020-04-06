@@ -146,7 +146,7 @@ class ConvolutionalEncoder(torch.nn.Module):
         x = x.transpose(1, 2)
 
         if x_langs is not None and x_langs.shape[0] == 1:
-            xr = torch.zeros(1, x.shape[1], x.shape[2])
+            xr = torch.zeros(1, x.shape[1], x.shape[2], device=x.device)
             x_langs_normed = x_langs / x_langs.sum(2, keepdim=True)[0]
             for l in range(self._groups):
                 w = x_langs_normed[0,:,l].reshape(-1,1)
@@ -211,7 +211,7 @@ class GeneratedConvolutionalEncoder(torch.nn.Module):
         x = x.transpose(1, 2)
 
         if x_langs is not None and x_langs.shape[0] == 1:
-            xr = torch.zeros(1, x.shape[1], x.shape[2])
+            xr = torch.zeros(1, x.shape[1], x.shape[2], device=x.device)
             x_langs_normed = x_langs / x_langs.sum(2, keepdim=True)[0]
             for l in range(self._groups):
                 w = x_langs_normed[0,:,l].reshape(-1,1)
