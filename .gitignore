@@ -1,8 +1,14 @@
 # ignore datasets
-data/
+data/ljspeech
+data/my_blizzard
+data/comvoi
 logs/
 checkpoints/
 *.wav
+*.tsv
+*.tsvm
+*.csv
+*.tar.xz
 *metadata.csv
 .vscode
 
