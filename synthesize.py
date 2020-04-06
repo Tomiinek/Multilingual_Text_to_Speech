@@ -36,7 +36,7 @@ from modules.tacotron2 import Tacotron
 """
 
 
-def synthesize(model, input_data):
+def synthesize(model, input_data, force_cpu=False):
 
     item = input_data.split('|')
     clean_text = item[1]
@@ -71,7 +71,7 @@ def synthesize(model, input_data):
 
     s = torch.LongTensor([hp.unique_speakers.index(item[2])]) if hp.multi_speaker else None
 
-    if torch.cuda.is_available() and not args.cpu: 
+    if torch.cuda.is_available() and not force_cpu: 
         t = t.cuda(non_blocking=True)
         if l: l = l.cuda(non_blocking=True)
         if s: s = s.cuda(non_blocking=True)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
         print(f'Synthesizing({i+1}/{len(inputs)}): "{item[1]}"')
 
-        s = synthesize(model, item[1])
+        s = synthesize(model, item[1], args.cpu)
 
         if not os.path.exists(args.output):
             os.makedirs(args.output)
