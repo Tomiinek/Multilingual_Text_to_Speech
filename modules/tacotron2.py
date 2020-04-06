@@ -368,7 +368,8 @@ class Tacotron(torch.nn.Module):
         speaker_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         
         # decode 
-        languages = torch.argmax(languages, dim=2) # convert one-hot into indices
+        if languages is not None:
+            languages = torch.argmax(languages, dim=2) # convert one-hot into indices
         decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
         pre_prediction = prediction.transpose(1,2)
@@ -397,7 +398,8 @@ class Tacotron(torch.nn.Module):
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
         
         # decode with respect to speaker and language embeddings
-        language = torch.argmax(language, dim=2) # convert one-hot into indices
+        if language is not None:
+            language = torch.argmax(language, dim=2) # convert one-hot into indices
         prediction = self._decoder.inference(encoded, speaker, language)
 
         # post process generated spectrogram
