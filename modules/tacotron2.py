@@ -368,7 +368,7 @@ class Tacotron(torch.nn.Module):
         speaker_prediction = self._reversal_classifier(encoded) if hp.reversal_classifier else None
         
         # decode 
-        if languages is not None:
+        if languages is not None and languages.dim() == 3:
             languages = torch.argmax(languages, dim=2) # convert one-hot into indices
         decoded = self._decoder(encoded, text_length, target, teacher_forcing_ratio, speakers, languages)
         prediction, stop_token, alignment = decoded
@@ -376,7 +376,7 @@ class Tacotron(torch.nn.Module):
         post_prediction = self._postnet(pre_prediction, target_length)
 
         # mask output paddings
-        target_mask = lengths_to_mask(target_length, target.size(2))
+        target_mask = utils.lengths_to_mask(target_length, target.size(2))
         stop_token.masked_fill_(~target_mask, 1000)
         target_mask = target_mask.unsqueeze(1).float()
         pre_prediction = pre_prediction * target_mask
@@ -398,7 +398,7 @@ class Tacotron(torch.nn.Module):
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
         
         # decode with respect to speaker and language embeddings
-        if language is not None:
+        if language is not None and language.dim() == 3:
             language = torch.argmax(language, dim=2) # convert one-hot into indices
         prediction = self._decoder.inference(encoded, speaker, language)
 

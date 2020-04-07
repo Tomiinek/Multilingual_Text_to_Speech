@@ -211,6 +211,9 @@ if __name__ == '__main__':
     # find out number of unique speakers and languages
     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
+    # save all found speakers to hyper parameters
+    if hp.multi_speaker and not args.checkpoint:
+        hp.unique_speakers = dataset.train.unique_speakers
 
     # acquire dataset-dependent constants, these should probably be the same while going from checkpoint
     if not args.checkpoint:
@@ -239,7 +242,7 @@ if __name__ == '__main__':
             {'params': encoder_params, 'lr': hp.learning_rate_encoder}
         ], lr=hp.learning_rate, weight_decay=hp.weight_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each // len(train_data), gamma=hp.learning_rate_decay)
-    criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain, hp.language_number)
+    criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
 
     # load model weights and optimizer, scheduler states from checkpoint state dictionary
     initial_epoch = 0
