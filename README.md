@@ -1,4 +1,4 @@
-<h1 align="center">:loudspeaker: Multi-lingual Speech Synthesis</h1>
+<h1 align="center">Multi-lingual Speech Synthesis</h1>
 
 <p align="center">
 <a href="https://colab.research.google.com/github/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/code_switching_demo.ipynb"><b>Interactive synthesis demo</b></a><br>
