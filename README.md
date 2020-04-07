@@ -1,9 +1,13 @@
-<h1 align="center">Multi-lingual Speech Synthesis</h1>
+<h1 align="center">:loudspeaker: Multi-lingual Speech Synthesis</h1>
 
 <p align="center">
-<a href="https://colab.research.google.com/github/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/code_switching_demo.ipynb"><b>Interactive synthesis demo</b></a> | 
+<a href="https://colab.research.google.com/github/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/code_switching_demo.ipynb"><b>Interactive synthesis demo</b></a><br>
 <a href="http://tts.neqindi.cz/index.php?page=gallery"><b>Website with samples</b></a>
 </p>
+
+<p>&nbsp;</p>
+
+_______
 
 This repository contains an implementation of **Tacotron 2** that supports **multi-lingual experiments** and that implements different approaches to **encoder parameter sharing**. It combines ideas from [Learning to speak fluently in a foreign language: Multilingual speech synthesis and cross-language voice cloning](https://google.github.io/tacotron/publications/multilingual/index.html) and [End-to-End Code-Switched TTS with Mix of Monolingual Recordings](https://csttsdemo.github.io/).
 
@@ -14,6 +18,10 @@ In our work, we compared the abilities of the **three models**. The first **shar
 Many **samples synthesized by the three models** that we compared are on [this website](http://tts.neqindi.cz/index.php?page=gallery).
 
 Our best model supporting code-switching or voice-cloning can be downloaded [here](https://www.dropbox.com/s/hjrlg5d11er0u0c/generated_switching.pyt) and the best model trained on the whole CSS10 dataset without the ambition to do voice-cloning is available [here](https://www.dropbox.com/s/0vlz1fu2c6k1zfy/generated_training.pyt).
+
+_______
+
+<p>&nbsp;</p>
 
 ## Running
 
@@ -103,6 +111,8 @@ Checkpoints are saved into the `checkpoints` directory by default. They contain 
 ```
 PYTHONIOENCODING=utf-8 python3 train.py --checkpoint CHECKPOINT-1
 ```
+<p>&nbsp;</p>
+
 
 ## Inference
 
@@ -112,6 +122,8 @@ and that saves both the synthesized spectrogram and also the corresponding wavef
 ```
 echo "01|Dies ist ein Beispieltext.|00-fr|de" | python3 synthesize.py --checkpoint checkpoints/CHECKPOINT-1 --save_spec
 ```
+
+<p>&nbsp;</p>
 
 ## Vocoding
 
