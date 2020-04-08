@@ -65,7 +65,7 @@ def synthesize(model, input_data, force_cpu=False):
             language_length = (int(l_d[1]) if len(l_d) == 2 else t_length)
             l += [language] * language_length
             t_length -= language_length     
-        l = torch.LongTensor([l])
+        l = torch.FloatTensor([l])
     else:
         l = None
 
