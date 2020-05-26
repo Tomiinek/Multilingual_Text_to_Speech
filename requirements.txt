@@ -9,7 +9,7 @@ matplotlib
 numpy
 pandas
 phonemizer==2.1
-Pillow==6.1.0
+Pillow==6.2.2
 pinyin==0.4.0
 scikit-learn
 scipy
