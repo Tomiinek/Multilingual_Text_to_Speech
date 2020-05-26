@@ -2,7 +2,7 @@
 
 <p align="center">
 <a href="https://colab.research.google.com/github/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/code_switching_demo.ipynb"><b>Interactive synthesis demo</b></a><br>
-<a href="http://tts.neqindi.cz"><b>Website with samples</b></a>
+<a href="https://tomiinek.github.io/multilingual_speech_samples/"><b>Website with samples</b></a>
 </p>
 
 <p>&nbsp;</p>
@@ -27,9 +27,9 @@ We provide synthesized samples, training and evaluation data, source code, and p
 
 **Interactive demos** introducing code-switching abilities and joint multilingual training of the generated model (trained on an enhanced CSS10 dataset) are available [here](https://colab.research.google.com/github/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/code_switching_demo.ipynb) and [here](https://github.com/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/multi_training_demo.ipynb), respectively.
 
-Many **samples synthesized using the three compared models** are at [this website](http://tts.neqindi.cz). It contains also a few samples synthesized by a monolingual vanilla Tacotron trained on LJ Speech with the Griffin-Lim vocoder (a sanity check of our implementation).
+Many **samples synthesized using the three compared models** are at [this website](https://tomiinek.github.io/multilingual_speech_samples/). It contains also a few samples synthesized by a monolingual vanilla Tacotron trained on LJ Speech with the Griffin-Lim vocoder (a sanity check of our implementation).
 
-Our best model supporting code-switching or voice-cloning can be downloaded [here](https://www.dropbox.com/s/hjrlg5d11er0u0c/generated_switching.pyt) and the best model trained on the whole CSS10 dataset without the ambition to do voice-cloning is available [here](https://www.dropbox.com/s/0vlz1fu2c6k1zfy/generated_training.pyt).
+Our best model supporting code-switching or voice-cloning can be downloaded [here](https://github.com/Tomiinek/Multilingual_Text_to_Speech/releases/download/v1.0/generated_switching.pyt) and the best model trained on the whole CSS10 dataset without the ambition to do voice-cloning is available [here](https://github.com/Tomiinek/Multilingual_Text_to_Speech/releases/download/v1.0/generated_training.pyt).
 
 <p>&nbsp;</p>
 
@@ -142,5 +142,10 @@ echo "01|Dies ist ein Beispieltext.|00-fr|de" | python3 synthesize.py --checkpoi
 
 ## Vocoding
 
-We used the WaveRNN model for vocoding. You can download [WaveRNN weights](https://www.dropbox.com/s/ydep8fdzbplaamu/wavernn_weight.pyt) pre-trained on the whole CSS10 dataset.
+We used the WaveRNN model for vocoding. You can download [WaveRNN weights](https://github.com/Tomiinek/Multilingual_Text_to_Speech/releases/download/v1.0/wavernn_weight.pyt) pre-trained on the whole CSS10 dataset.
 For examples of usage, visit our interactive demos ([here](https://colab.research.google.com/github/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/code_switching_demo.ipynb) and [here](https://github.com/Tomiinek/Multilingual_Text_to_Speech/blob/master/notebooks/multi_training_demo.ipynb)) or [this repository](https://github.com/Tomiinek/WaveRNN).
+
+
+## Code Structure
+
+Please, see [this file](https://github.com/Tomiinek/Multilingual_Text_to_Speech/blob/master/CODE.md) for more details about the contained source-code and its structure.

@@ -16,11 +16,28 @@ from utils import lengths_to_mask, to_gpu
 
 
 def cos_decay(global_step, decay_steps):
+    """Cosine decay function
+    
+    Arguments:
+        global_step -- current training step
+        decay_steps -- number of decay steps 
+    """
     global_step = min(global_step, decay_steps)
     return 0.5 * (1 + math.cos(math.pi * global_step / decay_steps))
 
 
 def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
+    """Main training procedure.
+    
+    Arguments:
+        logging_start_epoch -- number of the first epoch to be logged
+        epoch -- current epoch 
+        data -- DataLoader which can provide batches for an epoch
+        model -- model to be trained
+        criterion -- instance of loss function to be optimized
+        optimizer -- instance of optimizer which will be used for parameter updates
+    """
+
     model.train() 
 
     # initialize counters, etc.
@@ -78,7 +95,16 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         done += 1 
     
 
-def evaluate(epoch, data, model, criterion):     
+def evaluate(epoch, data, model, criterion):  
+    """Main evaluation procedure.
+    
+    Arguments:
+        epoch -- current epoch 
+        data -- DataLoader which can provide validation batches
+        model -- model to be evaluated
+        criterion -- instance of loss function to measure performance
+    """
+
     model.eval()
 
     # initialize counters, etc.
@@ -145,6 +171,7 @@ def evaluate(epoch, data, model, criterion):
 
 
 class DataParallelPassthrough(torch.nn.DataParallel):
+    """Simple wrapper around DataParallel."""   
     def __getattr__(self, name):
         try:
             return super().__getattr__(name)
