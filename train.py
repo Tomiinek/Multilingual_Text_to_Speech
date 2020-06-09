@@ -223,7 +223,7 @@ if __name__ == '__main__':
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
 
     if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling:
-        dp_devices = args.max_gpus if hp.parallelization == "data" else 1 
+        dp_devices = args.max_gpus if hp.parallelization and torch.cuda.device_count() > 1 else 1 
         train_sampler = PerfectBatchSampler(dataset.train, hp.languages, hp.batch_size, data_parallel_devices=dp_devices, shuffle=True, drop_last=True)
         train_data = DataLoader(dataset.train, batch_sampler=train_sampler, collate_fn=TextToSpeechCollate(False), num_workers=args.loader_workers)
         eval_sampler = PerfectBatchSampler(dataset.dev, hp.languages, hp.batch_size, data_parallel_devices=dp_devices, shuffle=False)
