@@ -10,7 +10,7 @@
 
 _______
 
-This repository provides [synthesized samples](https://tomiinek.github.io/multilingual_speech_samples/), [training](https://github.com/Tomiinek/Multilingual_Text_to_Speech/tree/master/data) and [evaluation](https://github.com/Tomiinek/Multilingual_Text_to_Speech/tree/master/evaluation) data, source code, and [parameters](https://github.com/Tomiinek/Multilingual_Text_to_Speech/tree/master/params) for the paper <br> [**One Model, Many Languages: Meta-learning for Multilingual Text-to-Speech**](https://arxiv.org/abs/2008.00768).
+This repository provides [synthesized samples](https://tomiinek.github.io/multilingual_speech_samples/), [training](https://github.com/Tomiinek/Multilingual_Text_to_Speech/tree/master/data) and [evaluation](https://github.com/Tomiinek/Multilingual_Text_to_Speech/tree/master/evaluation) data, source code, and [parameters](https://github.com/Tomiinek/Multilingual_Text_to_Speech/tree/master/params) for the paper [**One Model, Many Languages: Meta-learning for Multilingual Text-to-Speech**](https://arxiv.org/abs/2008.00768).
 
 It contains an implementation of **Tacotron 2** that supports **multilingual experiments** and that implements different approaches to **encoder parameter sharing**. It presents a model combining ideas from [Learning to speak fluently in a foreign language: Multilingual speech synthesis and cross-language voice cloning](https://google.github.io/tacotron/publications/multilingual/index.html), [End-to-End Code-Switched TTS with Mix of Monolingual Recordings](https://csttsdemo.github.io/), and [Contextual Parameter Generation for Universal Neural Machine Translation](https://arxiv.org/abs/1808.08493).
 
