@@ -79,9 +79,9 @@ Next, download our cleaned Common Voice dataset:
 cd /project_root/data/comvoi_clean
 ```
 ```
-wget https://www.dropbox.com/s/axoic9eoeii1zyd/clean_comvoi.tar.gz
-tar -zxvf clean_comvoi.tar.gz
-rm clean_comvoi.tar.gz
+wget https://github.com/Tomiinek/Multilingual_Text_to_Speech/releases/download/v1.0/comvoi.zip
+unzip -q comvoi.zip -d clean_comvoi
+rm comvoi.zip
 ```
 
 ### :scroll: Prepare spectrograms
