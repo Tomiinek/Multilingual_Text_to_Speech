@@ -153,6 +153,12 @@ For examples of usage, visit our interactive demos ([here](https://colab.researc
 
 Please, see [this file](https://github.com/Tomiinek/Multilingual_Text_to_Speech/blob/master/CODE.md) for more details about the contained source-code and its structure.
 
+<p>&nbsp;</p>
+
+
+_______
+
+<p>&nbsp;</p>
 
 ## :mortar_board: Citation
 ```
