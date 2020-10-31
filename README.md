@@ -51,7 +51,7 @@ git clone https://github.com/Tomiinek/Multilingual_Text_to_Speech.git
 cd Multilingual_Text_to_Speech
 ```
 
-### :mortar_board: Install python requirements 
+### :eyes: Install python requirements 
 ```
 pip3 install -r requirements.txt 
 ```
@@ -152,3 +152,17 @@ For examples of usage, visit our interactive demos ([here](https://colab.researc
 ## Code Structure
 
 Please, see [this file](https://github.com/Tomiinek/Multilingual_Text_to_Speech/blob/master/CODE.md) for more details about the contained source-code and its structure.
+
+
+## :mortar_board: Citation
+```
+@inproceedings{Nekvinda2020,
+  author={Tomáš Nekvinda and Ondřej Dušek},
+  title={{One Model, Many Languages: Meta-Learning for Multilingual Text-to-Speech}},
+  year=2020,
+  booktitle={Proc. Interspeech 2020},
+  pages={2972--2976},
+  doi={10.21437/Interspeech.2020-2679},
+  url={http://dx.doi.org/10.21437/Interspeech.2020-2679}
+}
+```
