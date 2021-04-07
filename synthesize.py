@@ -10,6 +10,11 @@ from utils import build_model
 from params.params import Params as hp
 from modules.tacotron2 import Tacotron
 
+torch.manual_seed(42)
+torch.backends.cudnn.enabled = True
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 """
 
 ******************************************************** INSTRUCTIONS ********************************************************
@@ -39,6 +44,7 @@ from modules.tacotron2 import Tacotron
 def synthesize(model, input_data, force_cpu=False):
 
     item = input_data.split('|')
+    print(item)
     clean_text = item[1]
 
     if not hp.use_punctuation: 
@@ -106,17 +112,18 @@ if __name__ == '__main__':
 
     spectrograms = []
     for i, item in enumerate(inputs):
+        print(f'Synthesizing({i+1}/{len(inputs)}): "{item}"')
+        
+        id = item.split("|")[0]
 
-        print(f'Synthesizing({i+1}/{len(inputs)}): "{item[1]}"')
-
-        s = synthesize(model, item[1], args.cpu)
+        s = synthesize(model, item, args.cpu)
 
         if not os.path.exists(args.output):
             os.makedirs(args.output)
 
         if args.save_spec:
-            np.save(os.path.join(args.output, f'{item[0]}.npy'), s)
+            np.save(os.path.join(args.output, f'{id}.npy'), s)
 
         if not args.ignore_wav:
             w = audio.inverse_spectrogram(s, not hp.predict_linear)
-            audio.save(w, os.path.join(args.output, f'{item[0]}.wav'))
+            audio.save(w, os.path.join(args.output, f'{id}.wav'))
