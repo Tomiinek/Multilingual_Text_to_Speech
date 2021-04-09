@@ -1,6 +1,7 @@
 import sys
 import os
 from datetime import datetime
+from tqdm import tqdm
 
 import numpy as np
 import torch
@@ -10,10 +11,6 @@ from utils import build_model
 from params.params import Params as hp
 from modules.tacotron2 import Tacotron
 
-torch.manual_seed(42)
-torch.backends.cudnn.enabled = True
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
 
 """
 
@@ -44,7 +41,6 @@ torch.backends.cudnn.benchmark = False
 def synthesize(model, input_data, force_cpu=False):
 
     item = input_data.split('|')
-    print(item)
     clean_text = item[1]
 
     if not hp.use_punctuation: 
@@ -95,10 +91,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", type=str, required=True, help="Model checkpoint.")
     parser.add_argument("--output", type=str, default=".", help="Path to output directory.")
+    parser.add_argument("--seed", type=int, default=None, help="Torch random seed.")
     parser.add_argument("--cpu", action='store_true', help="Force to run on CPU.")
     parser.add_argument("--save_spec", action='store_true', help="Saves also spectrograms if set.")
     parser.add_argument("--ignore_wav", action='store_true', help="Does not save waveforms if set.")
     args = parser.parse_args()
+
+    if args.seed is not None:
+        print(f"Random seed set to {args.seed}")
+        torch.manual_seed(args.seed)
 
     print("Building model ...")
 
@@ -109,12 +110,15 @@ if __name__ == '__main__':
     #print(f"Builded model with {total_params} parameters")
 
     inputs = [l.rstrip() for l in sys.stdin.readlines() if l]
+    progress = tqdm(enumerate(inputs), total=len(inputs), desc='Synthesizing')
 
     spectrograms = []
-    for i, item in enumerate(inputs):
-        print(f'Synthesizing({i+1}/{len(inputs)}): "{item}"')
-        
-        id = item.split("|")[0]
+    for i, item in progress:
+        progress.set_postfix_str(item)
+
+        item_id = item.split("|")[0]
+        if item_id == "":
+            item_id = i
 
         s = synthesize(model, item, args.cpu)
 
@@ -122,8 +126,8 @@ if __name__ == '__main__':
             os.makedirs(args.output)
 
         if args.save_spec:
-            np.save(os.path.join(args.output, f'{id}.npy'), s)
+            np.save(os.path.join(args.output, f'{item_id}.npy'), s)
 
         if not args.ignore_wav:
             w = audio.inverse_spectrogram(s, not hp.predict_linear)
-            audio.save(w, os.path.join(args.output, f'{id}.wav'))
+            audio.save(w, os.path.join(args.output, f'{item_id}.wav'))
