@@ -16,5 +16,5 @@ scipy
 seaborn
 SoundFile==0.10.2
 tensorboard==2.0.2
-torch==1.3.0
+torch==1.13.1
 numba==0.48
